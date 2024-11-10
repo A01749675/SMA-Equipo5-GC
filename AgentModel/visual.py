@@ -1,11 +1,7 @@
-
-
 import signal
 import sys
 
-
-from mesa.visualization.modules import ChartModule,BarChartModule
-
+from mesa.visualization.modules import ChartModule, BarChartModule
 import mesa
 import random
 
@@ -26,10 +22,10 @@ def agentPortrayal(agent):
         dict: diccionario con las propiedades del agente.
     """
     portrayal = {"Shape": "",
-                    "Filled": "true",
-                    "Layer": 0,
-                    "w": 1.0,
-                    "h": 1.0}
+                 "Filled": "true",
+                 "Layer": 0,
+                 "w": 1.0,
+                 "h": 1.0}
     
     if isinstance(agent, Building):
         portrayal["Shape"] = "rect"
@@ -40,23 +36,24 @@ def agentPortrayal(agent):
         portrayal["text"] = str(agent.parkingId)
         portrayal["text_color"] = "black"
     if isinstance(agent, Stoplight):
+        portrayal["Shape"] = "rect"
         if agent.state == "Red":
-            portrayal["Shape"] = "rect"
             portrayal["Color"] = "red"
             portrayal["text"] = str(agent.stoplightId)
             portrayal["text_color"] = "black"
         else:
-            portrayal["Shape"] = "rect"
             portrayal["Color"] = "green"
             portrayal["text"] = str(agent.stoplightId)
             portrayal["text_color"] = "black"
     if isinstance(agent, Street):
         portrayal["Shape"] = "arrowHead"
         portrayal["Color"] = "black"
+        portrayal["scale"] = 0.5  # Adjust the scale as needed
         agentDirection = ""
-        for dir,value in agent.availableDirections.items():
-            if value == True:
+        for dir, value in agent.availableDirections.items():
+            if value:
                 agentDirection = dir
+                break
             
         if agentDirection == "N":
             portrayal["heading_x"] = 0
@@ -93,11 +90,7 @@ def generateRandomAgents():
 
 width , height = generateRandomGridSize()
 
-
 grid = mesa.visualization.CanvasGrid(agentPortrayal, 24, 24, 500, 500)
-
-
-
 
 server = mesa.visualization.ModularServer(
     CityModel,
@@ -106,15 +99,12 @@ server = mesa.visualization.ModularServer(
     {"numAgents": random.randint(1, 20)}
 )
 
-
 server.port = 3001
-
 
 def signal_handler(sig, frame):
     print('Exiting gracefully...')
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
-
 
 server.launch()

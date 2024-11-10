@@ -70,7 +70,8 @@ class CityModel(mesa.Model):
             7:((9,1),(9,2)),
             8:((9,6),(9,7)),
             9:((18,15),(18,16)),
-            10:((19,17),(20,17)),
+            10:((19,17),(20,17))
+            
             
         }
         self.stoplightState = {
@@ -88,17 +89,30 @@ class CityModel(mesa.Model):
         }
         
         self.streets = {
-            1: ((1,1),(2,23)),
+            1: ((1,1),(2,22)),
             2: ((1,23),(22,24)),
             3: ((23,1),(24,24)),
             4: ((3,1),(22,2)),
             5: ((15,17),(16,22)),
             6: ((13,17),(14,22)),
+            7: ((7,3),(8,12)),
+            8: ((7,17),(8,22)),
+            9: ((4,19),(6,20)),
+            10: ((9,19),(12,20)),
+            11 : ((19,17),(20,22)),
+            12 : ((13,3),(14,12)),
+            13 : ((15,3),(16,12)),
+            14 :((3,13),(12,14)),
+            15 : ((3,15),(12,16)),
+            16 : ((17,15),(22,16)),
+            17: ((17,13),(22,14)),
+            18: ((17,7),(22,8)),
+            19 : ((9,6),(12,7))
         }
         self.streetDirections = {
             1: {
-                "N":True,
-                "S":False,
+                "N":False,
+                "S":True,
                 "E":False,
                 "W":False
                 },
@@ -131,6 +145,84 @@ class CityModel(mesa.Model):
                 "S":True,
                 "E":False,
                 "W":False
+            },
+            7: {
+                "N":True,
+                "S":False,
+                "E":False,
+                "W":False
+            },
+            8: {
+                "N":False,
+                "S":True,
+                "E":False,
+                "W":False   
+            },
+            9: {
+                "N":False,
+                "S":False,
+                "E":False,
+                "W":True
+            },
+            10: {
+                "N":False,
+                "S":False,
+                "E":True,
+                "W":False
+            },
+            11: {
+                "N":True,
+                "S":False,
+                "E":False,
+                "W":False
+            },
+            12: {
+                "N":False,
+                "S":True,
+                "E":False,
+                "W":False
+            },
+            13 :{
+                "N":True,
+                "S":False,
+                "E":False,
+                "W":False
+            },
+            14 :{
+                "N":False,
+                "S":False,
+                "E":False,
+                "W":True
+            },
+            15 :{
+                "N":False,
+                "S":False,
+                "E":True,
+                "W":False
+            },
+            16: {
+                "N":False,
+                "S":False,
+                "E":True,
+                "W":False
+            },
+            17:{
+                "N":False,
+                "S":False,
+                "E":False,
+                "W":True
+            },
+            18:{
+                "N":False,
+                "S":False,
+                "E":False,
+                "W":True
+            },
+            19: {
+                "N":False,
+                "S":False,
+                "E":False,
+                "W":True
             }
         }
         self.addBuilding()
