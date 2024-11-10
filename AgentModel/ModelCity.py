@@ -22,6 +22,7 @@ class CityModel(mesa.Model):
         self.grid = mesa.space.MultiGrid(self.WIDTH, self.HEIGHT, True)
         self.schedule = mesa.time.RandomActivation(self)
         
+        
         self.buildingRanges = {
             "BuildingOne": ((3,3), (6,12)),
             "BuildingTwo": ((9,3), (12,5)),

@@ -21,6 +21,7 @@ class Car(mesa.Agent):
                 "E":(1,0),
                 "W":(-1,0)
             }
+        self.target = (0, 0)
     
     def getCurrentDirection(self):
         cell = self.model.grid.get_cell_list_contents([self.pos])
@@ -74,7 +75,7 @@ class Car(mesa.Agent):
         ]
         possibleSteps = []
         for step in steps:
-            if step[0] < 0 or step[0] >= self.model.grid.width or step[1] < 0 or step[1] >= self.model.grid.height:
+            if step[0] < 0 or step[0] >= self.model.grid.width-1 or step[1] < 0 or step[1] >= self.model.grid.height-1:
                 continue
             if self.pos == self.movementEquivalence[forbiddenDirection]:
                 continue
@@ -98,7 +99,7 @@ class Car(mesa.Agent):
         
         possibleSteps = [predefinedMovement]
         for neighbor in neighbors:
-            if neighbor[0] < 0 or neighbor[0] >= self.model.grid.width or neighbor[1] < 0 or neighbor[1] >= self.model.grid.height:
+            if neighbor[0] < 0 or neighbor[0] >= self.model.grid.width-1 or neighbor[1] < 0 or neighbor[1] >= self.model.grid.height-1:
                 continue
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
