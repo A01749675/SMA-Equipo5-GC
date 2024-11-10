@@ -11,7 +11,7 @@ from AgentParking import Parking
 from AgentBuilding import Building
 
 class Car(mesa.Agent):
-    def __init__(self, uniqueId, model, car):
+    def __init__(self, uniqueId, model, car,targetDestination):
         super().__init__(uniqueId, model)
         self.carId = car
         self.currentDir = ""
@@ -21,7 +21,14 @@ class Car(mesa.Agent):
                 "E":(1,0),
                 "W":(-1,0)
             }
-        self.target = (0, 0)
+        self.target = targetDestination
+        self.inDestination = False
+        self.oppositeDir = {
+            "N":"S",
+            "S":"N",
+            "E":"W",
+            "W":"E"
+        }
     
     def getCurrentDirection(self):
         cell = self.model.grid.get_cell_list_contents([self.pos])
@@ -84,11 +91,58 @@ class Car(mesa.Agent):
                 if isinstance(c, Street):
                     possibleSteps.append(step)
             
+        nextPos = self.random.choice(possibleSteps)
+        if nextPos == self.target:
+            self.inDestination = True
+        self.model.grid.move_agent(self, nextPos)
+        
+    def checkStoplight(self):
+        if self.currentDir == "N":
+            positions = [(self.pos[0],self.pos[1]+i) for i in range(5) if self.pos[1]+i < self.model.grid.height-1]
+        elif self.currentDir == "S":
+            positions = [(self.pos[0],self.pos[1]-i) for i in range(5) if self.pos[1]-i > 0]
+        elif self.currentDir == "E":
+            positions = [(self.pos[0]+i,self.pos[1]) for i in range(5) if self.pos[0]+i < self.model.grid.width-1]
+        else:
+            positions = [(self.pos[0]-i,self.pos[1]) for i in range(5) if self.pos[0]+i < self.model.grid.width-1]
+        
+        spotlightFound = False
+        spotLightPos = None
+        if not positions:
+            spotlightFound = True
+            
+        for position in positions:
+            cell = self.model.grid.get_cell_list_contents([position])
 
-        self.model.grid.move_agent(self, self.random.choice(possibleSteps))
+            for agent in cell:
+                if isinstance(agent, Stoplight):
+
+                    spotLightPos = position
+                    print(self.currentDir)
+                    if agent.state == "Green":
+                        spotlightFound = True
+                        print("Green at", position)
+                    else:
+                        
+                        print("Red at", position)
+                        spotlightFound = False
+                    break
+                else:
+                    spotlightFound = True
+        if spotlightFound:
+            self.basicMovementChecker()
+        else:
+            print(positions)
+            print(spotLightPos)
+            print("Stop")
+        
+                    
+                    
         
         
     def basicMovementChecker(self):
+        if self.inDestination:
+            return
         self.getCurrentDirection()
         currentDir = self.movementEquivalence[self.currentDir]
         predefinedMovement = (self.pos[0] + currentDir[0], self.pos[1] + currentDir[1])
@@ -105,12 +159,24 @@ class Car(mesa.Agent):
             for c in cell:
                 if isinstance(c, Street):
                     cellDirection = c.currentDirection()
+                    cellEquivalence = self.movementEquivalence[cellDirection]
+                    possibleNextPos = (neighbor[0] + cellEquivalence[0],neighbor[1] + cellEquivalence[1])
                     if cellDirection == self.currentDir:
                         continue
-                    else:
-                        possibleSteps.append(neighbor)
-        self.model.grid.move_agent(self, self.random.choice(possibleSteps))
+                    if cellDirection == self.oppositeDir[self.currentDir]:
+                        continue
+                    if possibleNextPos == self.pos:
+                        continue
+                    possibleSteps.append(neighbor)
+        nextPos = self.random.choice(possibleSteps)
+        if nextPos == self.target:
+            self.inDestination = True
+            print("arrived")
+        else:
+            print(f"Current: {self.pos} Next: {nextPos}")
+            print(f"Distance to target {abs(nextPos[0]-self.target[0]) + abs(nextPos[1]-self.target[1])}: target {self.target}")
+        self.model.grid.move_agent(self, nextPos)
         
     def step(self):
-        self.basicMovementChecker()
+        self.checkStoplight()
         print("Move")

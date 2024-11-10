@@ -163,7 +163,7 @@ class CityModel(mesa.Model):
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
     
     def addCar(self):
-        car = Car(self.next_id(), self, 1)
+        car = Car(self.next_id(), self, 1,(13,0))
         self.grid.place_agent(car, (1, 23))
         self.schedule.add(car)  # Add the car to the scheduler
     
