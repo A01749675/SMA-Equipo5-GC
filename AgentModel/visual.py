@@ -10,6 +10,7 @@ from AgentBuilding import Building
 from AgentParking import Parking
 from AgentStoplights import Stoplight
 from AgentStreet import Street
+from AgentCar import Car
 
 def agentPortrayal(agent):
     """
@@ -67,6 +68,11 @@ def agentPortrayal(agent):
         elif agentDirection == "W":
             portrayal["heading_x"] = -1
             portrayal["heading_y"] = 0
+    if isinstance(agent, Car):
+        
+        portrayal["Shape"] = "car.jpeg"
+        portrayal["Color"] = "red"
+        portrayal["text_color"] = "black"
     return portrayal
 
 def generateRandomGridSize():
@@ -99,7 +105,7 @@ server = mesa.visualization.ModularServer(
     {"numAgents": random.randint(1, 20)}
 )
 
-server.port = 3001
+server.port = 3002
 
 def signal_handler(sig, frame):
     print('Exiting gracefully...')

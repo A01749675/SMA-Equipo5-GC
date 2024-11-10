@@ -17,13 +17,17 @@ class Street(mesa.Agent):
             "E":directions["E"],
             "W":directions["W"]
             }
+        self.direction = self.currentDirection()
         self.movementEquivalence = {
                 "N":(0,1),
                 "S":(0,-1),
                 "E":(1,0),
                 "W":(-1,0)
             }
-
+    def currentDirection(self):
+        for dir, value in self.availableDirections.items():
+            if value:
+                return dir
     def step(self):
         """
         Método que ejecuta las acciones de un agente Street.
