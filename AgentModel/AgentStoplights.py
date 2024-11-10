@@ -8,9 +8,10 @@ import matplotlib.colors as mcolors
 
 class Stoplight(mesa.Agent):
     
-    def __init__(self,uniqueId,model, stoplight):
+    def __init__(self,uniqueId,model, stoplight,state):
         super().__init__(uniqueId,model)
-        self.stoplight = stoplight
+        self.stoplightId = stoplight
+        self.state = state
 
     def step(self):
         """

@@ -10,6 +10,7 @@ import matplotlib.colors as mcolors
 from AgentBuilding import Building
 from AgentParking import Parking
 from AgentStoplights import Stoplight
+from AgentStreet import Street
 
 class CityModel(mesa.Model):
     
@@ -28,15 +29,15 @@ class CityModel(mesa.Model):
             
             "BuildingOne":((3,3),(6,12)),
             "BuildingTwo":((9,3),(12,5)),
-            "BuildingThree2":((9,8),(12,12)),
-            "BuildingThree":((3,17),(6,18)),
-            "BuildingFour":((9,17),(12,18)),
-            "BuildingFive":((3,21),(6,22)),
-            "BuildingSix":((9,21),(12,22)),
-            "BuildingSeven":((17,3),(22,6)),
-            "BuildingEight":((17,9),(22,12)),
-            "BuildingNine":((17,17),(18,22)),
-            "BuildingTen":((21,17),(22,22))
+            "BuildingThree":((9,8),(12,12)),
+            "BuildingFour":((3,17),(6,18)),
+            "BuildingFive":((9,17),(12,18)),
+            "BuildingSix":((3,21),(6,22)),
+            "BuildingSeven":((9,21),(12,22)),
+            "BuildingEight":((17,3),(22,6)),
+            "BuildingNine":((17,9),(22,12)),
+            "BuildingTen":((17,17),(18,22)),
+            "BuildingEleven":((21,17),(22,22))
             }
         
         self.parkings = {
@@ -60,27 +61,88 @@ class CityModel(mesa.Model):
                 
         }
         self.stoplights = {
-            "1":((1,18),(2,18)),
-            "2":((3,19),(3,20)),
-            "3":((6,23),(6,24)),
-            "4":((7,22),(8,22)),
-            "5":((7,8),(8,8)),
-            "6":((7,3),(8,3)),
-            "7":((9,1),(9,2)),
-            "8":((9,6),(9,7)),
-            "9":((18,15),(18,16)),
-            "10":((19,17),(20,17)),
+            1:((1,18),(2,18)),
+            2:((3,19),(3,20)),
+            3:((6,23),(6,24)),
+            4:((7,22),(8,22)),
+            5:((7,8),(8,8)),
+            6:((7,3),(8,3)),
+            7:((9,1),(9,2)),
+            8:((9,6),(9,7)),
+            9:((18,15),(18,16)),
+            10:((19,17),(20,17)),
             
         }
+        self.stoplightState = {
+            1:"Green",
+            2:"Red",
+            3:"Red",
+            4:"Green",
+            5:"Green",
+            6:"Green",
+            7:"Red",
+            8:"Red",
+            9:"Red",
+            10:"Green",
+            
+        }
+        
+        self.streets = {
+            1: ((1,1),(2,23)),
+            2: ((1,23),(22,24)),
+            3: ((23,1),(24,24)),
+            4: ((3,1),(22,2)),
+            5: ((15,17),(16,22)),
+            6: ((13,17),(14,22)),
+        }
+        self.streetDirections = {
+            1: {
+                "N":True,
+                "S":False,
+                "E":False,
+                "W":False
+                },
+            2: {
+                "N":False,
+                "S":False,
+                "E":True,
+                "W":False
+                },
+            3: {
+                "N":True,
+                "S":False,
+                "E":True,
+                "W":False
+                },
+            4: {
+                "N":False,
+                "S":False,
+                "E":True,
+                "W":True
+                },
+            5: {
+                "N":True,
+                "S":False,
+                "E":False,
+                "W":False
+            },
+            6: {
+                "N":False,
+                "S":True,
+                "E":False,
+                "W":False
+            }
+        }
         self.addBuilding()
+        self.addStreet()
         self.addParking()
         self.addStoplights()
+        
         
         
     def addBuilding(self):
         for building, coords in self.buildingRanges.items():
             (xmin, ymin), (xmax, ymax) = coords
-            print(xmin, xmax, ymin, ymax)
             for x in range(xmin, xmax+1):
                 for y in range(ymin, ymax+1):
                     agent = Building(self.next_id(), self, building)
@@ -96,8 +158,15 @@ class CityModel(mesa.Model):
             (xmin, ymin), (xmax, ymax) = coords
             for x in range(xmin, xmax+1):
                 for y in range(ymin, ymax+1):
-                    agent = Stoplight(self.next_id(), self, stoplight)
+                    agent = Stoplight(self.next_id(), self, stoplight,self.stoplightState[stoplight])
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
             
+    def addStreet(self):
+        for street, coords in self.streets.items():
+            (xmin, ymin), (xmax, ymax) = coords
+            for x in range(xmin, xmax+1):
+                for y in range(ymin, ymax+1):
+                    agent = Street(self.next_id(), self, street, self.streetDirections[street])
+                    self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
     def step(self):
         self.schedule.step()

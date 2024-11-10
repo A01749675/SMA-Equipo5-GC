@@ -1,13 +1,7 @@
-# Roomba Cleaning Simulation. 
 
-#Este código es la representacón gráfica del modelo simulado en la lase Rooomba.py
-#Despliega la simulación en una interfaz gráfica para una mejor visualización de la simulación, ésta corre en un servidor local,
-#muestra un grid con celdas sucias y limpias, y agentes Roomba que se mueven y limpian las celdas sucias.
-#Además, muestra gráficas en tiempo real de los datos importantes como el porcentaje de celdas limpias, el tiempo de ejecución,
-# y los pasos requeridos para completar la simulación
 
-# Autor: Carlos Iker Fuentes Reyes A01749675 && Santiago Chevez Trejo A01749887
-# Fecha de creación: 7/11/2024
+import signal
+import sys
 
 
 from mesa.visualization.modules import ChartModule,BarChartModule
@@ -19,6 +13,7 @@ from ModelCity import CityModel
 from AgentBuilding import Building
 from AgentParking import Parking
 from AgentStoplights import Stoplight
+from AgentStreet import Street
 
 def agentPortrayal(agent):
     """
@@ -37,16 +32,44 @@ def agentPortrayal(agent):
                     "h": 1.0}
     
     if isinstance(agent, Building):
-        print("Building")
         portrayal["Shape"] = "rect"
         portrayal["Color"] = "blue"
     if isinstance(agent, Parking):
         portrayal["Shape"] = "rect"
         portrayal["Color"] = "yellow"
+        portrayal["text"] = str(agent.parkingId)
+        portrayal["text_color"] = "black"
     if isinstance(agent, Stoplight):
-        portrayal["Shape"] = "rect"
-        portrayal["Color"] = "red"
-        
+        if agent.state == "Red":
+            portrayal["Shape"] = "rect"
+            portrayal["Color"] = "red"
+            portrayal["text"] = str(agent.stoplightId)
+            portrayal["text_color"] = "black"
+        else:
+            portrayal["Shape"] = "rect"
+            portrayal["Color"] = "green"
+            portrayal["text"] = str(agent.stoplightId)
+            portrayal["text_color"] = "black"
+    if isinstance(agent, Street):
+        portrayal["Shape"] = "arrowHead"
+        portrayal["Color"] = "black"
+        agentDirection = ""
+        for dir,value in agent.availableDirections.items():
+            if value == True:
+                agentDirection = dir
+            
+        if agentDirection == "N":
+            portrayal["heading_x"] = 0
+            portrayal["heading_y"] = 1
+        elif agentDirection == "S":
+            portrayal["heading_x"] = 0
+            portrayal["heading_y"] = -1
+        elif agentDirection == "E":
+            portrayal["heading_x"] = 1
+            portrayal["heading_y"] = 0
+        elif agentDirection == "W":
+            portrayal["heading_x"] = -1
+            portrayal["heading_y"] = 0
     return portrayal
 
 def generateRandomGridSize():
@@ -83,5 +106,15 @@ server = mesa.visualization.ModularServer(
     {"numAgents": random.randint(1, 20)}
 )
 
-server.port = 3145
+
+server.port = 3001
+
+
+def signal_handler(sig, frame):
+    print('Exiting gracefully...')
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+
 server.launch()
