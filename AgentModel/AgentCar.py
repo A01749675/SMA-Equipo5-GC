@@ -23,12 +23,16 @@ class Car(mesa.Agent):
             }
         self.target = targetDestination
         self.inDestination = False
+        self.justStarted = True
         self.oppositeDir = {
             "N":"S",
             "S":"N",
             "E":"W",
             "W":"E"
         }
+
+
+
     
     def getCurrentDirection(self):
         cell = self.model.grid.get_cell_list_contents([self.pos])
@@ -39,30 +43,23 @@ class Car(mesa.Agent):
                         self.currentDir = dir
         return (0, 0)  # Default to no movement if no direction is found
 
-    def checkNeighbors(self):
-        positions = [(self.pos[0] + 1, self.pos[1]),  # Right
-                     (self.pos[0] - 1, self.pos[1]),  # Left
-                     (self.pos[0], self.pos[1] + 1),  # Up
-                     (self.pos[0], self.pos[1] - 1)]  # Down
-        possibleSteps = []
-        for position in positions:
-            if 0 <= position[0] < self.model.grid.width and 0 <= position[1] < self.model.grid.height:
-                cell = self.model.grid.get_cell_list_contents([position])
-                for c in cell:
-                    if isinstance(c, Street):
-                        for dir, value in c.availableDirections.items():
-                            if value:
-                                possibleSteps.append(position)
-        if possibleSteps:
-            self.model.grid.move_agent(self, self.random.choice(possibleSteps))
-            
-    def basicMovement(self):
-        currentDirectionMovement = self.getCurrentDirection()
-        new_pos = (self.pos[0] + currentDirectionMovement[0], self.pos[1] + currentDirectionMovement[1])
-        if 0 <= new_pos[0] < self.model.grid.width and 0 <= new_pos[1] < self.model.grid.height:
-            self.model.grid.move_agent(self, new_pos)
+
+    def exitParkingLot(self):
+        neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+        
+        for neighbor in neighbors:
+            cell = self.model.grid.get_cell_list_contents([neighbor])
+            for c in cell:
+                if isinstance(c, Street):
+                    self.model.grid.move_agent(self, neighbor)
+                    self.justStarted = False
+                    return
+        
     
+
     def randomBasicMovement(self):
+        
+        
         self.getCurrentDirection()
         forbiddenDirection = ""
         if self.currentDir == "N":
@@ -97,6 +94,9 @@ class Car(mesa.Agent):
         self.model.grid.move_agent(self, nextPos)
         
     def checkStoplight(self):
+        if self.justStarted:
+            print("Exiting")
+            self.exitParkingLot()
         #Range of positions where there could be a stoplight
         if self.currentDir == "N":
             positions = [(self.pos[0],self.pos[1]+i) for i in range(5) if self.pos[1]+i < self.model.grid.height-1]

@@ -38,23 +38,23 @@ class CityModel(mesa.Model):
         }
         
         self.parkings = {
-            "1": (3,10),
-            "2": (4,3),
-            "3": (4,18),
-            "4": (5,12),
-            "5": (5,21),
-            "6": (6,7),
-            "7": (9,9),
-            "8": (10,22),
-            "9": (11,5),
-            "10": (11,12),
-            "11": (11,17),
-            "12": (18,3),
-            "13": (18,18),
-            "14": (18,20),
-            "15": (21,6),
-            "16": (21,9),
-            "17": (21,20)
+            1: (3,10),
+            2: (4,3),
+            3: (4,18),
+            4: (5,12),
+            5: (5,21),
+            6: (6,7),
+            7: (9,9),
+            8: (10,22),
+            9: (11,5),
+            10: (11,12),
+            11: (11,17),
+            12: (18,3),
+            13: (18,18),
+            14: (18,20),
+            15: (21,6),
+            16: (21,9),
+            17: (21,20)
         }
         
         self.stoplights = {
@@ -165,8 +165,9 @@ class CityModel(mesa.Model):
     
     def addCar(self):
         for i in range(self.numAgents):
+            parkingLot = self.parkings[self.random.choice(list(self.parkings.keys()))]
             car = Car(self.next_id(), self, i+1,(13,0))
-            self.grid.place_agent(car, (1, 23))
+            self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
 
     
