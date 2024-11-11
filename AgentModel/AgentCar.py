@@ -97,6 +97,7 @@ class Car(mesa.Agent):
         self.model.grid.move_agent(self, nextPos)
         
     def checkStoplight(self):
+        #Range of positions where there could be a stoplight
         if self.currentDir == "N":
             positions = [(self.pos[0],self.pos[1]+i) for i in range(5) if self.pos[1]+i < self.model.grid.height-1]
         elif self.currentDir == "S":
@@ -108,12 +109,13 @@ class Car(mesa.Agent):
         
         spotlightFound = False
         spotLightPos = None
+        #Check if there is a stoplight in the range of positions
         if not positions:
             spotlightFound = True
-            
+        
         for position in positions:
             cell = self.model.grid.get_cell_list_contents([position])
-
+            #Check if there is a stoplight in the cell
             for agent in cell:
                 if isinstance(agent, Stoplight):
 
@@ -144,6 +146,7 @@ class Car(mesa.Agent):
         if self.inDestination:
             return
         self.getCurrentDirection()
+        print(f"I am {self.carId} and I am at {self.pos} and I am going {self.currentDir}")
         currentDir = self.movementEquivalence[self.currentDir]
         predefinedMovement = (self.pos[0] + currentDir[0], self.pos[1] + currentDir[1])
         neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
@@ -151,7 +154,12 @@ class Car(mesa.Agent):
                      (self.pos[0], self.pos[1] + 1),  # Up
                      (self.pos[0], self.pos[1] - 1)]
         
-        possibleSteps = [predefinedMovement]
+        if (predefinedMovement[0] >= 0 or predefinedMovement[0] <= self.model.grid.width-1
+                and predefinedMovement[1] >= 0 or predefinedMovement[1] <= self.model.grid.height-1):
+            possibleSteps = [predefinedMovement]
+        else:
+            possibleSteps = []
+            
         for neighbor in neighbors:
             if neighbor[0] < 0 or neighbor[0] >= self.model.grid.width-1 or neighbor[1] < 0 or neighbor[1] >= self.model.grid.height-1:
                 continue
@@ -169,6 +177,8 @@ class Car(mesa.Agent):
                         continue
                     possibleSteps.append(neighbor)
         nextPos = self.random.choice(possibleSteps)
+        
+        print(f"These are the possible steps {possibleSteps}, for the current position of {self.pos}")
         if nextPos == self.target:
             self.inDestination = True
             print("arrived")
@@ -176,6 +186,7 @@ class Car(mesa.Agent):
             print(f"Current: {self.pos} Next: {nextPos}")
             print(f"Distance to target {abs(nextPos[0]-self.target[0]) + abs(nextPos[1]-self.target[1])}: target {self.target}")
         self.model.grid.move_agent(self, nextPos)
+        self.getCurrentDirection()
         
     def step(self):
         self.checkStoplight()

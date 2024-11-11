@@ -108,7 +108,7 @@ class CityModel(mesa.Model):
         self.streetDirections = {
             1: {"N": False, "S": True, "E": False, "W": False},
             2: {"N": False, "S": False, "E": True, "W": False},
-            3: {"N": True, "S": False, "E": True, "W": False},
+            3: {"N": True, "S": False, "E": False, "W": False},
             4: {"N": False, "S": False, "E": False, "W": True},
             5: {"N": True, "S": False, "E": False, "W": False},
             6: {"N": False, "S": True, "E": False, "W": False},
@@ -153,6 +153,7 @@ class CityModel(mesa.Model):
                 for y in range(ymin, ymax+1):
                     agent = Stoplight(self.next_id(), self, stoplight, self.stoplightState[stoplight])
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
+                    self.schedule.add(agent)  # Add the stoplight to the scheduler
             
     def addStreet(self):
         for street, coords in self.streets.items():
@@ -163,9 +164,11 @@ class CityModel(mesa.Model):
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
     
     def addCar(self):
-        car = Car(self.next_id(), self, 1,(13,0))
-        self.grid.place_agent(car, (1, 23))
-        self.schedule.add(car)  # Add the car to the scheduler
+        for i in range(self.numAgents):
+            car = Car(self.next_id(), self, i+1,(13,0))
+            self.grid.place_agent(car, (1, 23))
+            self.schedule.add(car)
+
     
     def step(self):
         self.schedule.step()
