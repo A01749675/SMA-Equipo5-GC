@@ -105,7 +105,7 @@ server = mesa.visualization.ModularServer(
     {"numAgents": 3}
 )
 
-server.port = 3004
+server.port = 3017
 
 def signal_handler(sig, frame):
     print('Exiting gracefully...')

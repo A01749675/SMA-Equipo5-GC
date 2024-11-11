@@ -34,7 +34,8 @@ class CityModel(mesa.Model):
             "BuildingEight": ((17,3), (22,6)),
             "BuildingNine": ((17,9), (22,12)),
             "BuildingTen": ((17,17), (18,22)),
-            "BuildingEleven": ((21,17), (22,22))
+            "BuildingEleven": ((21,17), (22,22)),
+            "Glorieta": ((14,14), (15,15))
         }
         
         self.parkings = {
@@ -102,7 +103,11 @@ class CityModel(mesa.Model):
             16: ((17,15), (22,16)),
             17: ((17,13), (22,14)),
             18: ((17,7), (22,8)),
-            19: ((9,6), (12,7))
+            19: ((9,6), (12,7)),
+            20: ((13,13), (16,13)),
+            21 : ((13,14), (13,16)),
+            22: ((14,16), (16,16)),
+            23: ((16,14), (16,15)),
         }
         
         self.streetDirections = {
@@ -124,7 +129,11 @@ class CityModel(mesa.Model):
             16: {"N": False, "S": False, "E": True, "W": False},
             17: {"N": False, "S": False, "E": False, "W": True},
             18: {"N": False, "S": False, "E": False, "W": True},
-            19: {"N": False, "S": False, "E": False, "W": True}
+            19: {"N": False, "S": False, "E": False, "W": True},
+            20: {"N": False, "S": False, "E": False, "W": True},
+            21: {"N": False, "S": True, "E": False, "W": False},
+            22: {"N": False, "S": False, "E": True, "W": False},
+            23: {"N": True, "S": False, "E": False, "W": False},
         }
         
         self.addBuilding()
@@ -165,8 +174,13 @@ class CityModel(mesa.Model):
     
     def addCar(self):
         for i in range(self.numAgents):
-            parkingLot = self.parkings[self.random.choice(list(self.parkings.keys()))]
-            car = Car(self.next_id(), self, i+1,(13,0))
+            startingParking = self.random.choice(list(self.parkings.keys()))
+            targetParking = self.random.choice(list(self.parkings.keys()))
+            
+            parkingLot = self.parkings[startingParking]
+            destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)- self.parkings[targetParking][1])
+            
+            car = Car(self.next_id(), self, i+1,destination,targetParking)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
 

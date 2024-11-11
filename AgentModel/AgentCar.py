@@ -11,8 +11,9 @@ from AgentParking import Parking
 from AgentBuilding import Building
 
 class Car(mesa.Agent):
-    def __init__(self, uniqueId, model, car,targetDestination):
+    def __init__(self, uniqueId, model, car,targetDestination,targetParking):
         super().__init__(uniqueId, model)
+        
         self.carId = car
         self.currentDir = ""
         self.movementEquivalence = {
@@ -21,17 +22,18 @@ class Car(mesa.Agent):
                 "E":(1,0),
                 "W":(-1,0)
             }
+        
         self.target = targetDestination
         self.inDestination = False
         self.justStarted = True
+        self.targetParking = targetParking
+        
         self.oppositeDir = {
             "N":"S",
             "S":"N",
             "E":"W",
             "W":"E"
         }
-
-
 
     
     def getCurrentDirection(self):
@@ -54,49 +56,15 @@ class Car(mesa.Agent):
                     self.model.grid.move_agent(self, neighbor)
                     self.justStarted = False
                     return
-        
-    
 
-    def randomBasicMovement(self):
-        
-        
-        self.getCurrentDirection()
-        forbiddenDirection = ""
-        if self.currentDir == "N":
-            forbiddenDirection = "S"
-        elif self.currentDir == "S":
-            forbiddenDirection = "N"
-        elif self.currentDir == "E":
-            forbiddenDirection = "W"
-        elif self.currentDir == "W":
-            forbiddenDirection = "E"
-        
-        steps = [
-            (self.pos[0] + 1, self.pos[1]),  # Right
-            (self.pos[0] - 1, self.pos[1]),  # Left
-            (self.pos[0], self.pos[1] + 1),  # Up
-            (self.pos[0], self.pos[1] - 1)  # Down
-        ]
-        possibleSteps = []
-        for step in steps:
-            if step[0] < 0 or step[0] >= self.model.grid.width-1 or step[1] < 0 or step[1] >= self.model.grid.height-1:
-                continue
-            if self.pos == self.movementEquivalence[forbiddenDirection]:
-                continue
-            cell = self.model.grid.get_cell_list_contents([step])
-            for c in cell: 
-                if isinstance(c, Street):
-                    possibleSteps.append(step)
-            
-        nextPos = self.random.choice(possibleSteps)
-        if nextPos == self.target:
-            self.inDestination = True
-        self.model.grid.move_agent(self, nextPos)
+
         
     def checkStoplight(self):
+        
         if self.justStarted:
             print("Exiting")
             self.exitParkingLot()
+            
         #Range of positions where there could be a stoplight
         if self.currentDir == "N":
             positions = [(self.pos[0],self.pos[1]+i) for i in range(5) if self.pos[1]+i < self.model.grid.height-1]
@@ -109,6 +77,7 @@ class Car(mesa.Agent):
         
         spotlightFound = False
         spotLightPos = None
+        
         #Check if there is a stoplight in the range of positions
         if not positions:
             spotlightFound = True
@@ -140,12 +109,21 @@ class Car(mesa.Agent):
         
                     
                     
-        
+    def bestPosition(self,positions):
+        bestPos = None
+        bestDistance = 1000
+        for position in positions:
+            distance = abs(position[0]-self.target[0]) + abs(position[1]-self.target[1])
+            print(f"Distance to target {distance}: target {self.target} if moving to {position}")
+            if distance < bestDistance:
+                bestDistance = distance
+                bestPos = position
+        return bestPos
         
     def basicMovementChecker(self):
-        if self.inDestination:
-            return
+
         self.getCurrentDirection()
+        
         print(f"I am {self.carId} and I am at {self.pos} and I am going {self.currentDir}")
         currentDir = self.movementEquivalence[self.currentDir]
         predefinedMovement = (self.pos[0] + currentDir[0], self.pos[1] + currentDir[1])
@@ -161,22 +139,41 @@ class Car(mesa.Agent):
             possibleSteps = []
             
         for neighbor in neighbors:
-            if neighbor[0] < 0 or neighbor[0] >= self.model.grid.width-1 or neighbor[1] < 0 or neighbor[1] >= self.model.grid.height-1:
+            if neighbor[0] < 0 or neighbor[0] > self.model.grid.width-1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height-1:
+                print(f"Neighbor {neighbor} is out of bounds")
                 continue
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
+                
+                if isinstance(c, Parking):
+                    print(f"Neighbor {neighbor} is a parking lot")
+                    if c.parkingId == self.targetParking:
+                        self.inDestination = True
+                        self.model.grid.move_agent(self, neighbor)
+                        print("arrived")
+                        return
+                
+                if isinstance(c,Car):
+                    print(f"Neighbor {neighbor} is a car")
+                    continue
+                
                 if isinstance(c, Street):
+                    print(f"Neighbor {neighbor} is a street")
                     cellDirection = c.currentDirection()
                     cellEquivalence = self.movementEquivalence[cellDirection]
                     possibleNextPos = (neighbor[0] + cellEquivalence[0],neighbor[1] + cellEquivalence[1])
-                    if cellDirection == self.currentDir:
-                        continue
+                    # if cellDirection == self.currentDir:
+                    #     print(f"Neighbor {neighbor} is in the same direction")
+                    #     continue
                     if cellDirection == self.oppositeDir[self.currentDir]:
+                        print(f"Neighbor {neighbor} is in the opposite direction")
                         continue
                     if possibleNextPos == self.pos:
+                        print(f"Neighbor {neighbor} is the current position")
                         continue
                     possibleSteps.append(neighbor)
-        nextPos = self.random.choice(possibleSteps)
+                    
+        nextPos = self.bestPosition(possibleSteps)
         
         print(f"These are the possible steps {possibleSteps}, for the current position of {self.pos}")
         if nextPos == self.target:
@@ -184,10 +181,13 @@ class Car(mesa.Agent):
             print("arrived")
         else:
             print(f"Current: {self.pos} Next: {nextPos}")
-            print(f"Distance to target {abs(nextPos[0]-self.target[0]) + abs(nextPos[1]-self.target[1])}: target {self.target}")
+            print(f"Distance to target {np.sqrt(np.power(self.pos[0]-self.target[0],2) + np.power(self.pos[1]-self.target[1],2))}: target {self.target}")
+            print(f"Target parking {self.targetParking}")
         self.model.grid.move_agent(self, nextPos)
         self.getCurrentDirection()
         
     def step(self):
-        self.checkStoplight()
-        print("Move")
+        if not self.inDestination:
+            self.checkStoplight()
+        else:
+            print("I am in destination")
