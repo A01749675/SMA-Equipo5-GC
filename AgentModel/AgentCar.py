@@ -183,7 +183,7 @@ class Car(mesa.Agent):
                             continue
                         possibleSteps.append(neighbor)
 
-        if len(set(self.positionHistory)) < 3:  # Detect a small repeated loop
+        if len(set(self.positionHistory)) < 8:  # Detect a small repeated loop
             if random.random() < 0.5:  # 50% chance to pick a random next step
                 nextPos = random.choice(possibleSteps)
             else:
@@ -212,12 +212,13 @@ class Car(mesa.Agent):
             self.inDestination = True
         self.prevPos = self.pos        
         self.model.grid.move_agent(self, nextPos)
+        self.visits[nextPos] = self.visits.get(nextPos, 0) + 1
         self.getCurrentDirection()
 
     def step(self):
         if not self.inDestination:
             self.positionHistory.append(self.pos)
-            if len(self.positionHistory) > 5:  # Keep only recent history
+            if len(self.positionHistory) > 10:  # Keep only recent history
                 self.positionHistory.pop(0)
             self.checkStoplight()
         else:
