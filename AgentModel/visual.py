@@ -74,8 +74,8 @@ def agentPortrayal(agent):
             portrayal["heading_x"] = -1
             portrayal["heading_y"] = 0
     if isinstance(agent, Car):
-        
-        portrayal["Shape"] = "car.jpeg"
+        possible = ["car.jpeg"]
+        portrayal["Shape"] = random.choice(possible)
         portrayal["Color"] = "red"
         portrayal["text_color"] = "black"
     return portrayal
@@ -107,7 +107,7 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 12}
+    {"numAgents": 25}
 )
 
 server.port = 3017
