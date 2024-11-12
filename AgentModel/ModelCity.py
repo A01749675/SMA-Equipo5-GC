@@ -10,6 +10,7 @@ from AgentParking import Parking
 from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentCar import Car
+from AgentStreetDir import AgentStreetDir
 
 class CityModel(mesa.Model):
     def __init__(self, numAgents):
@@ -104,9 +105,9 @@ class CityModel(mesa.Model):
             17: ((17,13), (22,14)),
             18: ((17,7), (22,8)),
             19: ((9,6), (12,7)),
-            20: ((13,13), (16,13)),
-            21 : ((13,14), (13,16)),
-            22: ((14,16), (16,16)),
+            20: ((14,13), (15,13)),
+            21 : ((13,14), (13,15)),
+            22: ((14,16), (15,16)),
             23: ((16,14), (16,15)),
         }
         
@@ -135,12 +136,26 @@ class CityModel(mesa.Model):
             22: {"N": False, "S": False, "E": True, "W": False},
             23: {"N": True, "S": False, "E": False, "W": False},
         }
+        self.twoDirSteets = {
+            1 : (13,13),
+            2: (13,16),
+            3: (16,16),
+            4:(16,13)
+        }
+        
+        self.twoDirSteetsDirections = {
+            1 : {"N":False, "S":True,"E":False,"W":True},
+            2: {"N":False, "S":True,"E":True,"W":False},
+            3: {"N":True, "S":False,"E":True,"W":False},
+            4: {"N":True, "S":False,"E":False,"W":True}
+        }
         
         self.addBuilding()
         self.addStreet()
         self.addParking()
         self.addStoplights()
         self.addCar()
+        self.addTwoDirStreet()
         
     def addBuilding(self):
         for building, coords in self.buildingRanges.items():
@@ -183,7 +198,12 @@ class CityModel(mesa.Model):
             car = Car(self.next_id(), self, i+1,destination,targetParking)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
-
+    def addTwoDirStreet(self):
+        for street, coords in self.twoDirSteets.items():
+            (x,y) = coords
+            agent = AgentStreetDir(self.next_id(),self,street,self.twoDirSteetsDirections[street])
+            self.grid.place_agent(agent,(x-1,self.HEIGHT-y))
+            
     
     def step(self):
         self.schedule.step()

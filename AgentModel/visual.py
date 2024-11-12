@@ -11,6 +11,7 @@ from AgentParking import Parking
 from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentCar import Car
+from AgentStreetDir import AgentStreetDir
 
 def agentPortrayal(agent):
     """
@@ -46,6 +47,10 @@ def agentPortrayal(agent):
             portrayal["Color"] = "green"
             portrayal["text"] = str(agent.stoplightId)
             portrayal["text_color"] = "black"
+            
+    if isinstance(agent,AgentStreetDir):
+        portrayal["Shape"] ="rect"
+        portrayal["Color"] = "purple"
     if isinstance(agent, Street):
         portrayal["Shape"] = "arrowHead"
         portrayal["Color"] = "black"
