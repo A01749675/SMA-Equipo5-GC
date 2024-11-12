@@ -137,11 +137,9 @@ class Car(mesa.Agent):
                     continue
                 if possibleNextPos[0] < 0 or possibleNextPos[0] > self.model.grid.width - 1 or possibleNextPos[1] < 0 or possibleNextPos[1] > self.model.grid.height - 1:
                     continue
-                tempPossibleSteps.append(possibleNextPos)
+                possibleSteps.append(possibleNextPos)
             self.multipleDir = False
-            print("These are the possible steps")
-            print(possibleSteps)
-            possibleSteps.append(self.bestPosition(tempPossibleSteps))
+   
         else:
             self.getCurrentDirection()
             
@@ -185,7 +183,7 @@ class Car(mesa.Agent):
                             continue
                         possibleSteps.append(neighbor)
 
-        if len(set(self.positionHistory)) < 5:  # Detect a small repeated loop
+        if len(set(self.positionHistory)) < 3:  # Detect a small repeated loop
             if random.random() < 0.5:  # 50% chance to pick a random next step
                 nextPos = random.choice(possibleSteps)
             else:
@@ -194,7 +192,8 @@ class Car(mesa.Agent):
             nextPos = self.bestPosition(possibleSteps)
         
         nextCell = self.model.grid.get_cell_list_contents([nextPos])
-
+        print("AAAAAAAAAAAAAAAa")
+        print(self.positionHistory)
         for c in nextCell:
             if isinstance(c, Car):
                 print(f"Car {c.carId} is at {nextPos}")
