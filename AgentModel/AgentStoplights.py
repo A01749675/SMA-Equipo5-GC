@@ -28,18 +28,22 @@ class Stoplight(mesa.Agent):
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
                 if isinstance(c, Stoplight):
-                    self.partners.append(c)
-                    c.partners.append(self)
+                    if c not in self.partners:
+                        self.partners.append(c)
+                    if self not in c.partners:
+                        c.partners.append(self)
 
         for neighbor in self.neighbors:
             cell = self.model.grid.get_cell_list_contents([neighbor[0], neighbor[1]])
             for c in cell:
                 if isinstance(c, Stoplight):
-                    self.partners.append(c)
+                    if c not in self.partners:
+                        self.partners.append(c)
 
     def carMessage(self, eta):
 
         if not self.active:
+            print("neighborsA: ", self.neighbors)
             print("Stoplights: ", (self.partners), self.pos)
             for agent in self.partners:
                 print("Agent: ", agent.pos)
@@ -78,7 +82,7 @@ class Stoplight(mesa.Agent):
 
 
     def step(self):
-        if len(self.partners) == 0:
+        if len(self.partners) < 2:
             self.setPartner()
 
         if self.sync:
