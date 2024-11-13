@@ -41,11 +41,15 @@ def agentPortrayal(agent):
         portrayal["Shape"] = "rect"
         if agent.state == "Red":
             portrayal["Color"] = "red"
-            portrayal["text"] = str(agent.stoplightId)
+            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
+            portrayal["text_color"] = "black"
+        elif agent.state == "Green":
+            portrayal["Color"] = "green"
+            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
             portrayal["text_color"] = "black"
         else:
-            portrayal["Color"] = "green"
-            portrayal["text"] = str(agent.stoplightId)
+            portrayal["Color"] = "yellow"
+            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
             portrayal["text_color"] = "black"
             
     if isinstance(agent,AgentStreetDir):
@@ -107,7 +111,7 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 12}
+    {"numAgents": 1}
 )
 
 server.port = 3017

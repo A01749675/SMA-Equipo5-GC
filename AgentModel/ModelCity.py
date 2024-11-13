@@ -72,18 +72,31 @@ class CityModel(mesa.Model):
             10: ((19,17), (20,17))
         }
         
-        self.stoplightState = {
-            1: "Green",
-            2: "Red",
-            3: "Red",
-            4: "Green",
-            5: "Green",
-            6: "Green",
-            7: "Red",
-            8: "Red",
-            9: "Red",
-            10: "Green"
+        self.stoplightNeighbors = {
+            1: ((2, 4), (2, 5)),
+            2: ((0, 6), (1, 6)),
+            3: ((6, 2), (7, 2)),
+            4: ((5, 0), (5, 1)),
+            5: ((8, 17), (8, 18)),
+            6: ((8, 22), (8, 23)),
+            7: ((6, 21), (7, 21)),
+            8: ((6, 16), (7, 16)),
+            9: ((19, 7), (18, 7)),
+            10: ((17, 8), (17, 9))
         }
+
+        self.stoplightScync = [
+            (2, 4),
+            #(0, 6),
+            (6, 2),
+            #(5, 0),
+            (8, 17),
+            #(8, 22),
+            (6, 21),
+            #(6, 16),
+            (19, 7),
+            #(17, 8)
+        ]
         
         self.streets = {
             1: ((1,1), (2,22)),
@@ -175,9 +188,15 @@ class CityModel(mesa.Model):
             (xmin, ymin), (xmax, ymax) = coords
             for x in range(xmin, xmax+1):
                 for y in range(ymin, ymax+1):
-                    agent = Stoplight(self.next_id(), self, stoplight, self.stoplightState[stoplight])
+                    agent = Stoplight(self.next_id(), self, stoplight, self.stoplightNeighbors[stoplight])
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
                     self.schedule.add(agent)  # Add the stoplight to the scheduler
+
+        for stoplight in self.stoplightScync:
+            cell = self.grid.get_cell_list_contents([stoplight])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    c.sync = True
             
     def addStreet(self):
         for street, coords in self.streets.items():
@@ -198,6 +217,15 @@ class CityModel(mesa.Model):
             car = Car(self.next_id(), self, i+1,destination,targetParking)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
+
+        #car = Car(self.next_id(), self, 0, (1,1),1)
+        #self.grid.place_agent(car, (1,10))
+        #self.schedule.add(car)
+
+        #car = Car(self.next_id(), self, 1, (1, 1), 1)
+        #self.grid.place_agent(car, (5, 5))
+        #self.schedule.add(car)
+
     def addTwoDirStreet(self):
         for street, coords in self.twoDirSteets.items():
             (x,y) = coords

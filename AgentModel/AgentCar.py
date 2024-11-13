@@ -1,3 +1,5 @@
+import math
+
 import mesa
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -70,13 +72,13 @@ class Car(mesa.Agent):
             
         # Range of positions where there could be a stoplight
         if self.currentDir == "N":
-            positions = [(self.pos[0], self.pos[1] + i) for i in range(5) if self.pos[1] + i < self.model.grid.height - 1]
+            positions = [(self.pos[0], self.pos[1] + i) for i in range(6) if self.pos[1] + i < self.model.grid.height - 1]
         elif self.currentDir == "S":
-            positions = [(self.pos[0], self.pos[1] - i) for i in range(5) if self.pos[1] - i > 0]
+            positions = [(self.pos[0], self.pos[1] - i) for i in range(6) if self.pos[1] - i > 0]
         elif self.currentDir == "E":
-            positions = [(self.pos[0] + i, self.pos[1]) for i in range(5) if self.pos[0] + i < self.model.grid.width - 1]
+            positions = [(self.pos[0] + i, self.pos[1]) for i in range(6) if self.pos[0] + i < self.model.grid.width - 1]
         elif self.currentDir == "W":
-            positions = [(self.pos[0] - i, self.pos[1]) for i in range(5) if self.pos[0] - i > 0]
+            positions = [(self.pos[0] - i, self.pos[1]) for i in range(6) if self.pos[0] - i > 0]
         else:
             positions = []
         
@@ -94,9 +96,9 @@ class Car(mesa.Agent):
                 if isinstance(agent, Stoplight):
                     spotLightPos = position
                     print(self.currentDir)
-                    if agent.state == "Green":
+                    if agent.state == "Green" or agent.state == "Yellow":
                         spotlightFound = True
-                        print("Green at", position)
+                        print("Green or Yellow at", position)
                     else:
                         print("Red at", position)
                         spotlightFound = False
@@ -105,6 +107,12 @@ class Car(mesa.Agent):
                     spotlightFound = True
         if spotlightFound:
             self.basicMovementChecker()
+            print("Spotlight found at", spotLightPos)
+            if spotLightPos is not None:
+                stopCell = self.model.grid.get_cell_list_contents([spotLightPos])
+                for agent in stopCell:
+                    if isinstance(agent, Stoplight):
+                        agent.carMessage(math.dist(self.pos, spotLightPos))
 
     def bestPosition(self, positions):
         bestPos = None
