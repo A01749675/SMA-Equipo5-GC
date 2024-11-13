@@ -209,6 +209,8 @@ class Car(mesa.Agent):
             if isinstance(c,Stoplight):
                 if c.state == "Red":
                     return
+            if isinstance(c, Building):
+                return
             if isinstance(c, AgentStreetDir):
                 self.multipleDir = True
                 self.directions = c.direction  # Ensure this is correctly set
