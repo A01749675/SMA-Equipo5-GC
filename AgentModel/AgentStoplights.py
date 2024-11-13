@@ -18,9 +18,9 @@ class Stoplight(mesa.Agent):
         self.neighbors = neighbors
         self.neighborETA = 1000
         self.active = False
-        self.stopLights = []
         self.sync = False
-        self.partner = None
+        self.partners = []
+        self.syncLight = None
 
     def setPartner(self):
         neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
@@ -28,32 +28,33 @@ class Stoplight(mesa.Agent):
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
                 if isinstance(c, Stoplight):
-                    self.partner = c
-                    c.partner = self
+                    if c not in self.partners:
+                        self.partners.append(c)
+                    if self not in c.partners:
+                        c.partners.append(self)
+
+        for neighbor in self.neighbors:
+            cell = self.model.grid.get_cell_list_contents([neighbor[0], neighbor[1]])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    if c not in self.partners:
+                        self.partners.append(c)
 
     def carMessage(self, eta):
-        if self.partner is None:
-            self.setPartner()
 
         if not self.active:
-            neighbors = []
-            for neighbor in self.neighbors:
-                cell = self.model.grid.get_cell_list_contents([neighbor[0], neighbor[1]])
-                for c in cell:
-                    if isinstance(c, Stoplight):
-                        c.neighborETA = eta
-                        neighbors.append(c)
-            self.stopLights = neighbors
-            self.stopLights.append(self.partner)
-            print("Stoplights: ", self.stopLights, self.pos)
+            print("neighborsA: ", self.neighbors)
+            print("Stoplights: ", (self.partners), self.pos)
+            for agent in self.partners:
+                print("Agent: ", agent.pos)
 
             if eta < self.neighborETA:
                 self.state = "Green"
                 self.on = True
-                for neighbor in neighbors:
-                    neighbor.state = "Red"
-                    neighbor.on = False
-                    neighbor.active = True
+                for partner in self.partners:
+                    partner.state = "Red"
+                    partner.on = False
+                    partner.active = True
             else:
                 self.state = "Red"
                 self.on = False
@@ -66,17 +67,35 @@ class Stoplight(mesa.Agent):
 
         self.active = True
         self.noCars = 0
-        print("Stoplights2: ", self.stopLights, self.pos)
+        print("Stoplights2: ", self.partners, self.pos)
+
+    def turnOff(self):
+        self.active = False
+        self.state = "Yellow"
+        self.noCars = 0
+        self.countSteps = 0
+        for partner in self.partners:
+            partner.active = False
+            partner.state = "Yellow"
+            partner.noCars = 0
+            partner.countSteps = 0
 
 
     def step(self):
-        print("lights", self.stopLights, self.pos)
+        if len(self.partners) < 2:
+            self.setPartner()
+
         if self.sync:
-            print("lightsSync", self.stopLights)
-            for light in self.stopLights:
+            print("neighbors: ", self.neighbors)
+            print("lightsSync", self.partners, self.pos)
+            for light in self.partners:
+                print("LightSync: ", light.pos)
                 light.noCars = self.noCars
+                print("noCars: ", light.noCars, "self.noCars: ", self.noCars)
                 light.countSteps = self.countSteps
                 light.active = self.active
+                if self.active == False:
+                    light.turnOff()
         #print("Stoplight: ", self.pos, " State: ", self.state, "noCars: ", self.noCars, "countSteps: ", self.countSteps)
         if self.active:
             self.noCars += 1
@@ -89,9 +108,8 @@ class Stoplight(mesa.Agent):
                 self.state = "Red" if self.on else "Green"
 
         else:
-            self.noCars = 0
-            self.countSteps = 0
-            self.state = "Yellow"
+            self.turnOff()
+
             #for light in self.stopLights:
             #    print("Light: ", light.pos)
             #    light.state = "Yellow"
