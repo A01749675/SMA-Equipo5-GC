@@ -43,11 +43,11 @@ class Stoplight(mesa.Agent):
     def carMessage(self, eta):
 
         if not self.active:
-            print("neighborsA: ", self.neighbors)
-            print("Stoplights: ", (self.partners), self.pos)
+            #print("neighborsA: ", self.neighbors)
+            #print("Stoplights: ", (self.partners), self.pos)
             for agent in self.partners:
-                print("Agent: ", agent.pos)
-
+                #print("Agent: ", agent.pos)
+                continue
             if eta < self.neighborETA:
                 self.state = "Green"
                 self.on = True
@@ -67,7 +67,7 @@ class Stoplight(mesa.Agent):
 
         self.active = True
         self.noCars = 0
-        print("Stoplights2: ", self.partners, self.pos)
+        #print("Stoplights2: ", self.partners, self.pos)
 
     def turnOff(self):
         self.active = False
@@ -86,12 +86,12 @@ class Stoplight(mesa.Agent):
             self.setPartner()
 
         if self.sync:
-            print("neighbors: ", self.neighbors)
-            print("lightsSync", self.partners, self.pos)
+            #print("neighbors: ", self.neighbors)
+            #print("lightsSync", self.partners, self.pos)
             for light in self.partners:
-                print("LightSync: ", light.pos)
+                ##print("LightSync: ", light.pos)
                 light.noCars = self.noCars
-                print("noCars: ", light.noCars, "self.noCars: ", self.noCars)
+                #print("noCars: ", light.noCars, "self.noCars: ", self.noCars)
                 light.countSteps = self.countSteps
                 light.active = self.active
                 if self.active == False:

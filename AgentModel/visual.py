@@ -12,6 +12,7 @@ from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentCar import Car
 from AgentStreetDir import AgentStreetDir
+from SmartAgentCar import SmartCar
 
 def agentPortrayal(agent):
     """
@@ -77,7 +78,7 @@ def agentPortrayal(agent):
         elif agentDirection == "W":
             portrayal["heading_x"] = -1
             portrayal["heading_y"] = 0
-    if isinstance(agent, Car):
+    if isinstance(agent, Car) or isinstance(agent, SmartCar):
         possible = ["car.jpeg"]
         portrayal["Shape"] = random.choice(possible)
         portrayal["Color"] = "red"
@@ -114,7 +115,7 @@ server = mesa.visualization.ModularServer(
     {"numAgents": 1}
 )
 
-server.port = 3022
+server.port = 3033
 
 def signal_handler(sig, frame):
     print('Exiting gracefully...')

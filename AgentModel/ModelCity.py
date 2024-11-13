@@ -10,7 +10,10 @@ from AgentParking import Parking
 from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentCar import Car
+from SmartAgentCar import SmartCar
 from AgentStreetDir import AgentStreetDir
+
+from Waze import Waze
 
 class CityModel(mesa.Model):
     def __init__(self, numAgents):
@@ -162,6 +165,7 @@ class CityModel(mesa.Model):
             3: {"N":True, "S":False,"E":True,"W":False},
             4: {"N":True, "S":False,"E":False,"W":True}
         }
+        self.waze = Waze()
         
         self.addBuilding()
         self.addStreet()
@@ -214,7 +218,7 @@ class CityModel(mesa.Model):
             parkingLot = self.parkings[startingParking]
             destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)- self.parkings[targetParking][1])
             
-            car = Car(self.next_id(), self, i+1,destination,targetParking)
+            car = SmartCar(self.next_id(), self, i+1,destination,targetParking,startingParking,self.waze)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
 
