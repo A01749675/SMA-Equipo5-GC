@@ -108,7 +108,7 @@ public class VecOps
         return result;
     }
 
-    public static Bool DetectTurn(Vector3 prev, Vector3 next, Vector3 current){
+    public static bool DetectTurn(Vector3 prev, Vector3 next, Vector3 current){
         Vector3 dir = next - prev;
         Vector3 dir2 = current - next;
 
