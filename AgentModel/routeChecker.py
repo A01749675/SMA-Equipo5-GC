@@ -10,6 +10,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def visualize_route(route, grid_size=(24, 24)):
+    """Código de apoyo para visualizar las rutas generadas por el algoritmo de Kruskal y la clase waze.
+
+    Args:
+        route (list[int]): Lista de coordenadas de la ruta.
+        grid_size (tuple, optional): tamaño del grid. Default  (24, 24).
+    """
     # Crear una matriz de ceros
     grid = np.zeros(grid_size)
     route = [(y, x) for (x, y) in route]  # Invertir el eje y

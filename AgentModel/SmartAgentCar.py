@@ -102,7 +102,10 @@ class SmartCar(mesa.Agent):
         """
         Método que saca al agente de un estacionamiento.
         """
-        neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+        neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
+                         (self.pos[0] - 1, self.pos[1]),  # Left
+                         (self.pos[0], self.pos[1] + 1),  # Up
+                         (self.pos[0], self.pos[1] - 1)]
         
         for neighbor in neighbors:
             cell = self.model.grid.get_cell_list_contents([neighbor])
