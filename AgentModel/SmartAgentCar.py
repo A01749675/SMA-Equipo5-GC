@@ -83,7 +83,7 @@ class SmartCar(mesa.Agent):
             self.exitParkingLot()
             
         # Range of positions where there could be a stoplight
-        cellsAhead = 3
+        cellsAhead = 5
         if self.currentDir == "N":
             positions = [(self.pos[0], self.pos[1] + i) for i in range(cellsAhead) if self.pos[1] + i < self.model.grid.height - 1]
         elif self.currentDir == "S":

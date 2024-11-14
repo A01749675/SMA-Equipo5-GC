@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 from heapq import heapify, heappop
 from typing import NamedTuple
 from pprint import pprint
-type WeightedGraph = dict[int, set[tuple[int,int]]]
+WeightedGraph = dict[int, set[tuple[int,int]]]
 
 class Edge(NamedTuple):
     weight : int
