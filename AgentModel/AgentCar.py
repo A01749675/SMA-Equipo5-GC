@@ -7,6 +7,7 @@
 
 #Author :Carlos Iker Fuentes Reyes A01749675
 #Fecha de creación: 10/11/2024
+
 import math
 
 import mesa
