@@ -1,13 +1,34 @@
-WeightedGraph = dict[int, set[tuple[int, int]]]
+#Clase que define la estructura de un grafo ponderado en el que se guarda la información de los estacionamientos y las direcciones entre ellos.
+#Guarda, asimismo, los pasos a seguir para llegar de un estacionamiento a otro.
+#Author :Carlos Iker Fuentes Reyes A01749675
+#Fecha de creación: 13/11/2024
+
+
+
 from GraphStructure import *
 from collections import deque
+
+
+type WeightedGraph = dict[int, set[tuple[int, int]]]
+
+
 class Waze:
+    """
+    Clase que define la estructura de un grafo ponderado en el que se guarda la información de los estacionamientos y las direcciones entre ellos.
+    Guarda, asimismo, los pasos a seguir para llegar de un estaconamiento a otro.
+    """
     def __init__(self):
         self.parkingGraph: WeightedGraph = {}
         self.graphDirections = {}
         self.knownParkings = set()
 
     def addDirection(self, direction, steps):
+        """Añaade una dirección al grafo de direcciones. En caso de que ya exista, actualiza los pasos a seguir si son menores a los actuales.
+
+        Args:
+            direction (str): define como llegar de un estaconamiento a otro
+            steps (list[tuple[int,int]]): pasos a seguir para llegar de un estacionamiento a otro
+        """
         split = direction.split("-")
         if split[0] == split[1]:
             return
@@ -19,6 +40,13 @@ class Waze:
             self.graphDirections[direction] = steps
 
     def addParkingNeighbors(self, parkingId, neighbor, steps):
+        """Añaade un vecino a un estacionamiento en el grafo ponderado.
+
+        Args:
+            parkingId (int): id del estacionamiento
+            neighbor (int): id del vecino
+            steps (list[tuple[int,int]]): pasos a seguir para llegar de un estacionamiento a otro
+        """
         if parkingId in self.parkingGraph and parkingId != neighbor:
             self.parkingGraph[parkingId].add((neighbor, len(steps)))
         elif parkingId != neighbor and parkingId not in self.parkingGraph:
@@ -26,6 +54,16 @@ class Waze:
         self.knownParkings.add(parkingId)
 
     def routeExists(self, start, end):
+        """
+        Código que verifica si existe una ruta entre dos estacionamientos.
+
+        Args:
+            start (int): id del estacionamiento de inicio
+            end (int): id del estacionamiento de destino
+
+        Returns:
+            bool: depende de si existe una ruta entre los estacionamientos
+        """
         if start == end:
             return False
         if start not in self.knownParkings or end not in self.knownParkings:
@@ -37,6 +75,19 @@ class Waze:
         return False
 
     def bestRouteToParking(self, start, end):
+        """
+        Código que genera la mejor ruta entre dos estacionamientos, primero creando el arbol de expansion minima y luego buscando el camino más corto.
+        Se añden estos valores  a un queue que se regresa al final.
+        Como el grafo se va construyendo con el tiempo, puede que se encuentre incompleto en las primeras llamadas a la función, por lo que se implementó un 
+        manejo de errore sy un contador para evitar que se quede en un ciclo infinito.
+
+        Args:
+            start (int): estaconamiento de inicio
+            end (int): estacionamiento de destino
+
+        Returns:
+            deque: pasos a seguir para llegar de un estacionamiento a otro
+        """
         try: 
             queue = deque()
             direction = str(start) + "-" + str(end)

@@ -1,16 +1,28 @@
-from __future__ import annotations
+#CLase que implementa el algoritmo de Kruskal para encontrar el arbol de expansion minima de un grafo.
+#Author: Carlos Iker Fuentes Reyes A01749675 con inspiración de la clase del profesor Ariel Ortiz. El código fue adaptado para el presente problema
+#pero los méritos del desarrollo en su mayoría son del profesor Ariel Ortiz, 
 
 from heapq import heapify, heappop
 from typing import NamedTuple
 from pprint import pprint
-WeightedGraph = dict[int, set[tuple[int,int]]]
+type WeightedGraph = dict[int, set[tuple[int,int]]]
 
 class Edge(NamedTuple):
+    """Clase que hereda de NamedTuple y define una arista en un grafo ponderado.
+
+    Args:
+        NamedTuple Super clase
+
+    
+    """
     weight : int
     u : int #starting vertex
     v : int # ending vertex
     
     def __eq__(self, other :object)->bool:
+        """ 
+        Método que compara si dos aristas son iguales.
+        """
         if not isinstance(other,Edge):
             return False
         
@@ -19,10 +31,23 @@ class Edge(NamedTuple):
                     or (self.u == other.v and self.v == other.u)))
         
     def __hash__(self)->int:
+        """Genera un hash para la arista.
+
+        Returns:
+            int: hash de la arista
+        """
         return hash(self.weight)+hash(self.u)+hash(self.v)
                 
 
 def kruskal_mst(graph : WeightedGraph)-> tuple[int,WeightedGraph]:
+    """Genera el arbol de expansion minima de un grafo ponderado.
+
+    Args:
+        graph (WeightedGraph): grafo ponderado para los estacinamientos
+
+    Returns:
+        tuple[int,WeightedGraph]: grafo que establece las direcciones
+    """
     if not graph:
         return (0,{})
     queue : list[Edge] = make_heap(graph)
@@ -43,6 +68,14 @@ def kruskal_mst(graph : WeightedGraph)-> tuple[int,WeightedGraph]:
     return (total_cost,result)
 
 def make_heap(graph: WeightedGraph)->list[Edge]:
+    """Código que genera un heap a partir de los elementos del grafo
+
+    Args:
+        graph (WeightedGraph): _description_
+
+    Returns:
+        list[Edge]: _description_
+    """
     result : set[Edge] = set()
     u: str 
     neighbors: set[tuple[str,int]]
@@ -56,11 +89,23 @@ def make_heap(graph: WeightedGraph)->list[Edge]:
     return queue
 
 def add_edge(graph: WeightedGraph, edge: Edge)->None:
+    """Función para agregar una arista al grafo.
+
+    Args:
+        graph (WeightedGraph): grafo construido de los estacionamientos
+        edge (Edge): arista a agregar entre estacionamientos 
+    """
     weight,u,v = edge
     graph[u].add((v,weight))
     graph[v].add((u,weight))
     
 def remove_edge(graph: WeightedGraph, edge: Edge)->None:
+    """Eliminar una arista del grafo.
+
+    Args:
+        graph (WeightedGraph): : grafo construido de los estacionamientos
+        edge (Edge): arista a agregar entre estacionamientos 
+    """
     weight,u,v = edge
     graph[u].remove((v,weight))
     graph[v].remove((u,weight))
@@ -70,6 +115,7 @@ def has_cycle(initial: str,
               visited : set[str] | None = None,
               parent:str | None = None,
               path :list[str] | None=None)->bool:
+    """Función que determina si un grafo tiene ciclo"""
     if visited is None:
         visited = set()
     if path is None:
@@ -87,36 +133,5 @@ def has_cycle(initial: str,
     
     
     
-    
-    
 
-if __name__=='__main__':
-    g1 : WeightedGraph = {
-        'A':{('B',2),('C',6),('D',5)},
-        'B':{('A',2),('C',8),('D',11)},
-        'C':{('A',6),('B',8),('D',1)},
-        'D':{('A',5),('B',11),('C',1)}
-        
-    }
-    g2: WeightedGraph = {
-        'A':{('B',1),('D',12),('F',6)},
-        'B':{('A',1),('C',15),('D',13),('E',9)},
-        'C':{('B',15),('E',3),('G',7)},
-        'D':{('A',12),('B',13),('F',14),('G',2)},
-        'E':{('B',9),('C',3),('F',10),('G',8)},
-        'F':{('A',6),('D',14),('E',10),('G',11),('H',4)},
-        'G':{('C',7),('D',2),('E',8),('F',11),('H',5)},
-        'H':{('F',4),('G',5)}
-    }
-
-    e1 : Edge = Edge(2,'A','B')
-    e2 : Edge = Edge(6,'A','C')
-    e3 : Edge = Edge(2,'B','A')
-
-    print(e1 == e3)
-    print(hash(e1))
-    print(hash(e3))
-    pprint(kruskal_mst(g1))
-    pprint(kruskal_mst(g2))
-    
     
