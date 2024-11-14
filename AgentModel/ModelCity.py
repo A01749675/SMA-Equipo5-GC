@@ -1,3 +1,11 @@
+#Simulación de la ciudad del reto
+# Este código instancia el modelo de la ciudad, generando una matriz de 24x24 celdas en la que se colocan los diferentes agentes y elementos de la ciudad.
+# Se crean edificios, estacionamientos, semáforos, calles y carros. Colocandolos según la imagen de referencia del reto.
+
+
+#Author Carlos Iker Fuentes Reyes A01749675
+#Fecha de creación: 10/11/2024
+
 import mesa
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -16,6 +24,14 @@ from AgentStreetDir import AgentStreetDir
 from Waze import Waze
 
 class CityModel(mesa.Model):
+    """Clase principal del modelo CityModel en el que se construye la distribución de la ciudad, se colocan los elementos, instancian los agentes y
+            se ejecuta la simulación.
+            
+
+    Args:
+        numAgents (int): número de agentes que se instanciarán en la simulación. De momento los únicos agentes instanciados son los carros.
+                        Los demás elementos, de momento están manejados como parte del ambiente (edificios, estacionamientos, semáforos y calles).
+    """
     def __init__(self, numAgents):
         super().__init__()
         self.numAgents = numAgents
@@ -175,6 +191,7 @@ class CityModel(mesa.Model):
         self.addTwoDirStreet()
         
     def addBuilding(self):
+        """Añadir edificios a la cuadrícula."""
         for building, coords in self.buildingRanges.items():
             (xmin, ymin), (xmax, ymax) = coords
             for x in range(xmin, xmax+1):
@@ -183,11 +200,13 @@ class CityModel(mesa.Model):
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y)) 
 
     def addParking(self):
+        """Añadir estacionamientos a la cuadrícula."""
         for parking, (x,y) in self.parkings.items():
             agent = Parking(self.next_id(), self, parking)
             self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
             
     def addStoplights(self):
+        """Añadir semáforos a la cuadrícula."""
         for stoplight, coords in self.stoplights.items():
             (xmin, ymin), (xmax, ymax) = coords
             for x in range(xmin, xmax+1):
@@ -203,6 +222,7 @@ class CityModel(mesa.Model):
                     c.sync = True
             
     def addStreet(self):
+        """Añadir calles a la cuadrícula."""
         for street, coords in self.streets.items():
             (xmin, ymin), (xmax, ymax) = coords
             for x in range(xmin, xmax+1):
@@ -211,6 +231,7 @@ class CityModel(mesa.Model):
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
     
     def addCar(self):
+        """Añadir carros a la cuadrícula."""
         for i in range(self.numAgents):
             startingParking = self.random.choice(list(self.parkings.keys()))
             targetParking = self.random.choice(list(self.parkings.keys()))
@@ -231,6 +252,7 @@ class CityModel(mesa.Model):
         #self.schedule.add(car)
 
     def addTwoDirStreet(self):
+        """Añadir calles de doble dirección a la cuadrícula."""
         for street, coords in self.twoDirSteets.items():
             (x,y) = coords
             agent = AgentStreetDir(self.next_id(),self,street,self.twoDirSteetsDirections[street])
@@ -238,4 +260,5 @@ class CityModel(mesa.Model):
             
     
     def step(self):
+        """Avanzar un paso en la simulación."""
         self.schedule.step()

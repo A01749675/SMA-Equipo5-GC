@@ -1,3 +1,13 @@
+
+#CLase que declara los agentes de tipo carro Inteligentes, que tienen acceso a un manejador de rutas que les permite revisar si ya existe una ruta de 
+#un estacionamiento a otro y si no, generar una nueva ruta.
+
+#Esta clase combina el comportamiento de movimiento aleatorio con una heurística simple (reducir distancia) junto con la construcción de rutas directas entre 
+#estacionamientos.
+
+#Author :Carlos Iker Fuentes Reyes A01749675
+#Fecha de creación: 13/11/2024
+
 import math
 from collections import deque
 
@@ -17,6 +27,21 @@ import random
 from pprint import pprint
 
 class SmartCar(mesa.Agent):
+    """Clase de tipo carro inteligente que tiene acceso a un manejador de rutas que le permite revisar si ya existe una ruta de un estacionamiento a otro y si no, generar una nueva ruta.
+    Declara agentes de tipo carro inteligente, que puede interactuar con su entorno y moverse de un lugar a otro en el modelo de agentes.
+    Declara los comportamientos esperados a la hora de ir de punto a punto, evitando obstáculos y siguiendo las reglas de tránsito. (No subir a la banqueta, no chocar con otros autos, respetar los semáforos, etc.)
+    Declara los métodos necesarios para que el carro pueda moverse de un punto a otro en el modelo de agentes.
+
+    Args:
+        uniqueId (int): id que identifica al agente
+        model (mesa.Model): modelo en el que se encuentra el agente
+        car (int): id del carro en el que se encuentra el agente
+        targetDestination (tuple): coordenadas del destino al que se dirige el agente
+        targetParking (int): id del estacionamiento al que se dirige el agente
+        startParking (int): id del estacionamiento en el que se encuentra el agente
+        Waze (Waze): manejador de rutas que tiene acceso el agente
+    """
+    
     def __init__(self, uniqueId, model, car, targetDestination, targetParking, startParking, Waze):
         super().__init__(uniqueId, model)
         
@@ -59,15 +84,24 @@ class SmartCar(mesa.Agent):
         self.bestPath: deque = deque()
 
     def getCurrentDirection(self):
+        """
+        Método que obtiene la dirección en la que se puede mover el agente de tipo Car
+
+        Returns:
+            str : dirección en la que se puede mover el agente
+        """
         cell = self.model.grid.get_cell_list_contents([self.pos])
         for c in cell:
             if isinstance(c, Street):
                 for dir, value in c.availableDirections.items():
                     if value:
                         self.currentDir = dir
-        return (0, 0)  # Default to no movement if no direction is found
+        return ""  # Default to no movement if no direction is found
 
     def exitParkingLot(self):
+        """
+        Método que saca al agente de un estacionamiento.
+        """
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         
         for neighbor in neighbors:
@@ -79,6 +113,10 @@ class SmartCar(mesa.Agent):
                     return
 
     def checkStoplight(self):
+        """
+        Método que verifica si hay un semáforo en la dirección en la que se dirige el agente y determina si puede avanzar o no.
+        Esta función a su vez llama a los métodos basicMovementChecker y followBestPath para que el agente pueda moverse de un punto a otro.
+        """
         if self.justStarted:
             self.exitParkingLot()
             
@@ -128,8 +166,20 @@ class SmartCar(mesa.Agent):
                         agent.carMessage(math.dist(self.pos, spotLightPos))
 
     def bestPosition(self, positions):
+        """Método de heurística simple que regresa la mejor posición a la que se puede mover el agente tomando en cuenta su distancia manhattan al destino 
+        y el número de veces que ha visitado la posición.
+        
+        Esto último se hace para evitar ciclos. 
+
+        Args:
+            positions (list[tuple[int,int]]): lista de posiciones a las que se puede mover el agente
+
+        Returns:
+            tuple[int,int]: mejor posición a la que se puede mover el agente
+        """
         bestPos = None
         bestDistance = 1000
+        
         for position in positions:
             if position in self.visits:
                 visit_count = self.visits[position]
@@ -144,6 +194,22 @@ class SmartCar(mesa.Agent):
         return bestPos
 
     def basicMovementChecker(self):
+        """
+            Método que verifica si el agente puede moverse a una posición. 
+            Este método filtra los posibles movimientos siguiendo los criterios: 
+                1. No moverse a la posición anterior
+                2. No moverse a una posición fuera de los límites del grid
+                3. No moverse a una posición que ya ha visitado [depende de los ciclos, si puede visitarla, pero verifica si no la ha vistidado numerosas veces ya]
+                4. No moverse a una posición que contenga un semáforo en rojo
+                5. No moverse a una posición que contenga un edificio
+                6. No moverse a una posición que contenga otro carro
+                7. Si se tiene una calle con múltiples direcciones, añade ambas direcciones a su lista de posibles movimientos
+            Asimismo plantea las siguientes alternativas:
+                1. Pregunta si existe una ruta de un estacionamiento a otro
+                2. Si no existe una ruta, genera una nueva ruta
+                3. Si existe una ruta, sigue la mejor ruta
+               
+        """
         possibleSteps = []
         
         if self.multipleDir:
@@ -230,38 +296,46 @@ class SmartCar(mesa.Agent):
                 nextPos = self.bestPosition(possibleSteps)
         else:
             nextPos = self.bestPosition(possibleSteps)
-        
-        nextCell = self.model.grid.get_cell_list_contents([nextPos])
-        for c in nextCell:
-            if isinstance(c, SmartCar):
-                return
-            if isinstance(c, Stoplight):
-                if c.state == "Red":
-                    return
-            if isinstance(c, Building):
-                return
-            if isinstance(c, AgentStreetDir):
-                self.multipleDir = True
-                self.directions = c.direction  # Ensure this is correctly set
-            else:
-                self.multipleDir = False
-                self.directions = []
-        
-        if nextPos == self.target:
-            self.inDestination = True
             
-        self.prevPos = self.pos        
-        self.model.grid.move_agent(self, nextPos)
-        self.visits[nextPos] = self.visits.get(nextPos, 0) + 1
-        
-        self.getCurrentDirection()
-        if self.path: 
-            if self.path[-1] != self.pos:
+        try: 
+            nextCell = self.model.grid.get_cell_list_contents([nextPos])
+            for c in nextCell:
+                if isinstance(c, SmartCar):
+                    return
+                if isinstance(c, Stoplight):
+                    if c.state == "Red":
+                        return
+                if isinstance(c, Building):
+                    return
+                if isinstance(c, AgentStreetDir):
+                    self.multipleDir = True
+                    self.directions = c.direction  # Ensure this is correctly set
+                else:
+                    self.multipleDir = False
+                    self.directions = []
+            
+            if nextPos == self.target:
+                self.inDestination = True
+                
+            self.prevPos = self.pos        
+            self.model.grid.move_agent(self, nextPos)
+            self.visits[nextPos] = self.visits.get(nextPos, 0) + 1
+            
+            self.getCurrentDirection()
+            if self.path: 
+                if self.path[-1] != self.pos:
+                    self.path.append(self.pos)
+            else:
                 self.path.append(self.pos)
-        else:
-            self.path.append(self.pos)
+        except:
+            print("Error: No path to destination")
+            
         
     def followBestPath(self):
+        """
+        Método que sigue la mejor ruta para llegar a un destino, tomando en cuenta los valores generados en el código de Waze.
+        En caso de que la ruta no lo lleve a su destino, nuevaamente usa la heurística simple para encontrar la mejor posición a la que se puede mover el agente.
+        """
         if self.bestPath and not self.inDestination:
             print("My position is ", self.pos)
             print("Following best path ", self.bestPath, " to ", self.targetParking)
@@ -320,6 +394,10 @@ class SmartCar(mesa.Agent):
         
 
     def step(self):
+        """
+        Método que ejecuta las acciones de un agente SmartCar
+        
+        """
         if not self.inDestination:
             self.positionHistory.append(self.pos)
             if len(self.positionHistory) > 10:  # Keep only recent history

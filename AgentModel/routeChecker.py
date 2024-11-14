@@ -1,3 +1,11 @@
+
+#Código de apoyo para visualizar las rutas generadas por el algoritmo de Kruskal y la clase waze. 
+#No está involucrado en la funcionalidad del modelo de agentes, pero sirve para verificar que las rutas generadas sean correctas.
+
+
+#Author : Carlos Iker Fuentes Reyes A01749675
+#Fecha de creación: 13/11/2024
+
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -112,10 +112,10 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 80}
+    {"numAgents": 300}
 )
 
-server.port = 3333
+server.port = 3354
 
 def signal_handler(sig, frame):
     print('Exiting gracefully...')

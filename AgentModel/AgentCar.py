@@ -1,3 +1,12 @@
+
+
+#Clase carro de tipo agente reactivo que va de un estacionamiento a otro, siguiendo una heurisitca simple
+
+
+#DE MOMENTO NO SE ESTÁ UTILZIANDO
+
+#Author :Carlos Iker Fuentes Reyes A01749675
+#Fecha de creación: 10/11/2024
 import math
 
 import mesa
@@ -14,7 +23,20 @@ from AgentBuilding import Building
 from AgentStreetDir import AgentStreetDir
 import random
 
+
 class Car(mesa.Agent):
+    """
+    Clase que define a los agentes de tipo Car. Representan los autos que se mueven en el modelo de agentes.
+    Esta implementación es de agentes reactivos con memoria que evitan ciclarse, al llevar registro de sus últimas posiciones. 
+
+    Args:
+        uniqueId (int): id que identifica al agente
+        model (mesa.Model): modelo en el que se encuentra el agente
+        car (int): id del auto
+        targetDestination (tuple): coordenadas del destino del auto
+        targetParking (int): id del estacionamiento al que se dirige el auto
+        
+    """
     def __init__(self, uniqueId, model, car, targetDestination, targetParking):
         super().__init__(uniqueId, model)
         
@@ -46,6 +68,11 @@ class Car(mesa.Agent):
 
 
     def getCurrentDirection(self):
+        """ Método que obtiene la dirección actual del agente.
+
+        Returns:
+            str: dirección actual del agente
+        """
         cell = self.model.grid.get_cell_list_contents([self.pos])
         for c in cell:
             if isinstance(c, Street):
@@ -55,6 +82,9 @@ class Car(mesa.Agent):
         return (0, 0)  # Default to no movement if no direction is found
 
     def exitParkingLot(self):
+        """
+            Método que permite a un agente salir de un estacionamiento.
+        """
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         
         for neighbor in neighbors:
@@ -66,6 +96,9 @@ class Car(mesa.Agent):
                     return
 
     def checkStoplight(self):
+        """
+            Método que verifica si hay un semáforo en la dirección del agente.
+        """
         if self.justStarted:
             print("Exiting")
             self.exitParkingLot()
@@ -115,6 +148,15 @@ class Car(mesa.Agent):
                         agent.carMessage(math.dist(self.pos, spotLightPos))
 
     def bestPosition(self, positions):
+        """
+        Método que regresa la mejor posición a la que puede moverse el agente, usando una heurística simple que considera la distancia al destino y el número de visitas a la posición.
+
+        Args:
+            positions (list[tuple[int,int]]): lista de posiciones a las que puede moverse el agente
+
+        Returns:
+            tuple[int,int]: mejor posición a la que puede moverse el agente
+        """
         bestPos = None
         bestDistance = 1000
         for position in positions:
@@ -131,6 +173,11 @@ class Car(mesa.Agent):
         return bestPos
 
     def basicMovementChecker(self):
+        """
+        Método que declara el movimiento básico del agente, considerando las direcciones en las que puede moverse.
+        
+        """
+        
         possibleSteps = []
         if self.multipleDir:
             tempPossibleSteps = []
@@ -226,6 +273,9 @@ class Car(mesa.Agent):
         self.getCurrentDirection()
 
     def step(self):
+        """
+        Método que ejecuta las acciones de un agente Car.
+        """
         if not self.inDestination:
             self.positionHistory.append(self.pos)
             if len(self.positionHistory) > 10:  # Keep only recent history
