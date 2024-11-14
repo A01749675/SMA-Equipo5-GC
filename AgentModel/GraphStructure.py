@@ -21,8 +21,6 @@ class Edge(NamedTuple):
                 
 
 def kruskal_mst(graph : WeightedGraph)-> tuple[int,WeightedGraph]:
-    print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbb")
-    print(graph)
     if not graph:
         return (0,{})
     queue : list[Edge] = make_heap(graph)
