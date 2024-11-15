@@ -273,7 +273,7 @@ class SmartCar(mesa.Agent):
                         if self.waze.routeExists(c.parkingId, self.targetParking) and c.parkingId != self.targetParking:
                             print("There is a route from", c.parkingId, "to", self.targetParking)
                             self.foundRoute = True
-                            self.bestPath = self.waze.bestRouteToParking(c.parkingId, self.targetParking)
+                            self.bestPath = self.waze.shortestPath(c.parkingId, self.targetParking)
                             return 
 
                     if isinstance(c, SmartCar):
@@ -407,7 +407,7 @@ class SmartCar(mesa.Agent):
                 self.positionHistory.pop(0)
             self.checkStoplight()
             if not self.foundRoute:
-                self.bestPath = self.waze.bestRouteToParking(self.start, self.target)
+                self.bestPath = self.waze.shortestPath(self.start, self.target)
                 if self.bestPath:
                     self.foundRoute = True
             # print("----------------")

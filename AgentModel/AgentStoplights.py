@@ -1,3 +1,9 @@
+#Este código implementa la funcionalidad de los agentes de tipo semáforo en 
+# la simulación. Se encargan de regular el tráfico en la intersección de calles.
+
+
+#Author: César Augusto Flores Reyes A01751101
+#Date: 13/11/2024
 import mesa
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -8,6 +14,15 @@ import matplotlib.colors as mcolors
 class Stoplight(mesa.Agent):
 
     def __init__(self,uniqueId,model, stoplight, neighbors):
+        """
+        Constructor de la clase Stoplight para la simulación de tráfico.
+
+        Args:
+            uniqueId (int): identificador único del agente
+            model (mesa.Model): modelo de la simulación
+            stoplight (id): identificador del semáforo
+            neighbors (semáforos vecinos): semáforos vecinos
+        """
         super().__init__(uniqueId,model)
         self.stoplightId = stoplight
         self.countSteps = 0
@@ -23,6 +38,9 @@ class Stoplight(mesa.Agent):
         self.syncLight = None
 
     def setPartner(self):
+        """
+        Método que establece los semáforos vecinos de un semáforo.
+        """
         neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         for neighbor in neighborhood:
             cell = self.model.grid.get_cell_list_contents([neighbor])
@@ -48,7 +66,12 @@ class Stoplight(mesa.Agent):
                         self.neighborAgents.append(c)
 
     def carMessage(self, eta):
+        """
+        Método que recibe un mensaje de un carro.
 
+        Args:
+            eta (_type_): _description_
+        """
         if not self.active:
 
             self.state = "Green"
@@ -65,6 +88,9 @@ class Stoplight(mesa.Agent):
         self.noCars = 0
 
     def turnOff(self):
+        """
+        Método que apaga un semáforo.
+        """
         self.active = False
         self.state = "Yellow"
         self.noCars = 0
@@ -76,6 +102,12 @@ class Stoplight(mesa.Agent):
             partner.countSteps = 0
 
     def turnOn(self, state):
+        """
+        Método que enciende un semáforo.
+
+        Args:
+            state (_type_): _description_
+        """
         self.active = True
         self.state = state
         if state == "Green":
@@ -88,6 +120,10 @@ class Stoplight(mesa.Agent):
         self.state = "Green" if self.on else "Red"
 
     def step(self):
+        """
+        Método que ejecuta un paso de la simulación.
+        
+        """
         if len(self.partners) < 2:
             self.setPartner()
 

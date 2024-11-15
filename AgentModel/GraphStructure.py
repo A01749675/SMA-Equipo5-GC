@@ -6,7 +6,7 @@ from heapq import heapify, heappop
 from typing import NamedTuple
 from pprint import pprint
 type WeightedGraph = dict[int, set[tuple[int,int]]]
-
+from typing import Any
 class Edge(NamedTuple):
     """Clase que hereda de NamedTuple y define una arista en un grafo ponderado.
 
@@ -71,10 +71,10 @@ def make_heap(graph: WeightedGraph)->list[Edge]:
     """Código que genera un heap a partir de los elementos del grafo
 
     Args:
-        graph (WeightedGraph): _description_
+        graph (WeightedGraph): grafo ponderado
 
     Returns:
-        list[Edge]: _description_
+        list[Edge]: lista de aristas
     """
     result : set[Edge] = set()
     u: str 
@@ -131,7 +131,73 @@ def has_cycle(initial: str,
             return True
     return False
     
+
+
+
+
+
+
+def dijkstra_spt(
+        initial: int,
+        graph: WeightedGraph) -> WeightedGraph:
     
+    """Función que implementa el algoritmo de Dijkstra para encontrar el arbol de expansion minima de un grafo.
+
+    Returns:
+        WeightedGraph: grafo resultante a partir del punto incial
+    """
+    table : dict[int,dict[str,Any]] = {}
+    
+    visited : set[int] = set()
+    
+    resulting_graph : WeightedGraph = {vertex:set() for vertex in graph}
+    table = {vertex:{"cost":float("inf"),"previous":None} for vertex in graph}
+    
+
+    table[initial]["cost"] = 0
+    current_vertex : int = initial
+    
+    while len(visited)<len(graph.keys()):
+        children : set[tuple[int, int]] = graph[current_vertex]
+        visited.add(current_vertex)
+        
+        for child in children:
+            if child[0] in visited:
+                continue
+            
+            path_cost : float = table[current_vertex]["cost"] + child[1]
+            
+            if path_cost < table[child[0]]["cost"]:
+                table[child[0]]["cost"] = path_cost
+                table[child[0]]["previous"] = current_vertex 
+
+
+        for child in table.keys():
+            if child not in visited:
+                current_vertex=child
+                break 
+       
+        for vertex in table: 
+            if vertex not in visited:
+                if table[vertex]["cost"] < table[current_vertex]["cost"]:
+                    current_vertex = vertex
+                elif table[vertex]["cost"] == table[current_vertex]["cost"]:
+                    if vertex < current_vertex:
+                        current_vertex = vertex
+                    
+    for vertex in table:
+        if table[vertex]["previous"] is not None:
+            resulting_graph[vertex].add((table[vertex]["previous"],table[vertex]["cost"]-table[table[vertex]["previous"]]["cost"]))
+            resulting_graph[table[vertex]["previous"]].add((vertex,table[vertex]["cost"]-table[table[vertex]["previous"]]["cost"]))
+    
+
+    
+    
+    return resulting_graph
+
+
+
+
     
 
     

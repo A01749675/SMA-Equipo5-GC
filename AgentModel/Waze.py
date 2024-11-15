@@ -70,8 +70,10 @@ class Waze:
             return False
         if start not in self.parkingGraph or end not in self.parkingGraph:
             return False
-        if self.bestRouteToParking(start, end):
+        if self.shortestPath(start, end):
             return True
+        # if self.bestRouteToParking(start, end):
+        #     return True
         return False
 
     def bestRouteToParking(self, start, end):
@@ -98,6 +100,64 @@ class Waze:
             
             
             cost, result = kruskal_mst(self.parkingGraph)
+            best_path = []
+            current_node = start
+            
+            if end not in self.knownParkings:
+                return []
+        
+            seen = set()
+            seen.add(current_node)
+            max_cycle = len(self.knownParkings)
+            while current_node != end and max_cycle > 0:
+                for children in result[current_node]:
+                    if children[0] in seen:
+                        if children[0] == end:
+                            break
+                        continue
+                    child = children[0]
+
+                    best_path += self.graphDirections[str(current_node) + "-" + str(child)]
+                    current_node = child
+                    seen.add(current_node)
+                    if current_node == end: 
+                        break
+                max_cycle -= 1
+
+            print(f"Best path from {start} to {end} is {best_path}")
+            
+            if best_path:
+                for path in best_path:
+                    queue.append(path)
+        except Exception as e:
+            print
+            print(f"Error: {e}")
+            return deque()
+        print(F"result: {result}")
+        return queue
+    
+    def shortestPath(self,start,end):
+        """
+        This algorithm uses djiksra's algorithm to find the shortest path between two nodes in a graph. 
+        It generates the graph using the known parkings and the directions between them, and measures the distances having the starting graph. 
+
+        Args:
+            start (int): id del estacionamiento de inicio
+            end (int): id del estacionamiento de destino
+
+        Returns:
+            deque: pasos a seguir para llegar de un estacionamiento a otro
+        """
+        try: 
+            queue = deque()
+            direction = str(start) + "-" + str(end)
+            if direction in self.graphDirections:
+                for elem in self.graphDirections[direction]:
+                    queue.append(elem)
+                return queue
+            
+            
+            result = dijkstra_spt(start,self.parkingGraph)
             best_path = []
             current_node = start
             
