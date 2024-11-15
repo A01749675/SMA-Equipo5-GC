@@ -21,7 +21,7 @@ class Stoplight(mesa.Agent):
             uniqueId (int): identificador único del agente
             model (mesa.Model): modelo de la simulación
             stoplight (id): identificador del semáforo
-            neighbors (semáforos vecinos): semáforos vecinos
+            neighbors (semáforos vecinos): semáforos  de la intersección vecina
         """
         super().__init__(uniqueId,model)
         self.stoplightId = stoplight
@@ -39,7 +39,7 @@ class Stoplight(mesa.Agent):
 
     def setPartner(self):
         """
-        Método que establece los semáforos vecinos de un semáforo.
+        Método que establece listas los semáforos vecinos de un semáforo y de la intersección vecina.
         """
         neighborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         for neighbor in neighborhood:
@@ -67,10 +67,10 @@ class Stoplight(mesa.Agent):
 
     def carMessage(self, eta):
         """
-        Método que recibe un mensaje de un carro.
+        Método que recibe un mensaje de un carro indicando que el carro etá cerca.
 
         Args:
-            eta (_type_): _description_
+            eta (int): Distancia entre el carro y el semáforo
         """
         if not self.active:
 
@@ -89,7 +89,7 @@ class Stoplight(mesa.Agent):
 
     def turnOff(self):
         """
-        Método que apaga un semáforo.
+        Método que apaga un semáforo, lo vuelve amarillo y detiene las cuentas.
         """
         self.active = False
         self.state = "Yellow"
@@ -103,10 +103,10 @@ class Stoplight(mesa.Agent):
 
     def turnOn(self, state):
         """
-        Método que enciende un semáforo.
+        Método que enciende un semáforo y comeinza las cuentas.
 
         Args:
-            state (_type_): _description_
+            state (str): Estado en el que enciende verde o rojo
         """
         self.active = True
         self.state = state
@@ -144,23 +144,3 @@ class Stoplight(mesa.Agent):
             self.noCars += 1
             if self.noCars%20==0:
                 self.turnOff()
-
-        #print("Stoplight: ", self.pos, " State: ", self.state, "noCars: ", self.noCars, "countSteps: ", self.countSteps)
-        #if self.active:
-        #    self.noCars += 1
-        #    if self.noCars%20==0:
-        #        self.active = False
-        #        self.state = "Yellow"
-        #    self.countSteps += 1
-        #    if self.countSteps%self.TIME==0:
-        #        self.on = not self.on
-        #        self.state = "Red" if self.on else "Green"
-
-
-            #for light in self.stopLights:
-            #    print("Light: ", light.pos)
-            #    light.state = "Yellow"
-            #    light.noCars = self.noCars
-            #    light.countSteps = self.countSteps
-            #    light.active = self.active
-
