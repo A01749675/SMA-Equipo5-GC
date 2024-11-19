@@ -23,6 +23,7 @@ class Building(mesa.Agent):
         model (mesa.Model): modelo en el que se encuentra el agente
         building (int): id del edificio en el que se encuentra el agente
     """
-    def __init__(self,uniqueId,model, building):
+    def __init__(self,uniqueId,model, building, walkable=False):
         super().__init__(uniqueId,model)
         self.building = building
+        self.walkable = walkable
