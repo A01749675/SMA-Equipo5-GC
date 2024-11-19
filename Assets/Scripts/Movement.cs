@@ -1,0 +1,226 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public class Movement : MonoBehaviour
+{
+    [SerializeField]
+     float x;
+     [SerializeField]
+    float z;
+    MeshFilter mf;
+    List<Vector3> vertices;
+    Matrix4x4 carTranslate;
+    Vector3 position;
+    Matrix4x4 roty;
+    Matrix4x4 pneg;
+    Matrix4x4 ppos;
+    Vector3 pivot;
+    [SerializeField]
+    float angle;
+    Matrix4x4 m;
+    Matrix4x4 m_ant;
+    float objectiveAngle;
+    bool flag;
+    Matrix4x4 accumulatedTransform;
+    Vector4 m_ant_pos;
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        mf = gameObject.GetComponent<MeshFilter>();
+        vertices =new List<Vector3>(GetComponent<MeshFilter>().mesh.vertices);
+        carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+        position = new Vector3 (x, 0, z);
+        roty = VecOps.RotateYM(angle);
+        Debug.Log(angle);
+        Debug.Log(roty);
+        m =  carTranslate *roty;
+        Debug.Log(m);
+        mf.mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
+        mf.mesh.RecalculateNormals();
+        pivot = new Vector3 (x,0,z);
+        ppos = VecOps.TranslateM(pivot);
+        pneg = VecOps.TranslateM(-pivot);
+        flag = false;
+        accumulatedTransform = Matrix4x4.identity; // Matriz de transformación acumulativa
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+       // GetComponent<MeshFilter>().mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
+       // mf.mesh.RecalculateNormals();
+       if(AproximadamenteIgual(x,position.x,0.01f) & AproximadamenteIgual(z,position.z,0.01f)){
+        //Debug.Log("En objetivo");
+        } else{
+            if (AproximadamenteIgual(position.x, x, 0.01f)){
+                if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
+                    if (AproximadamenteIgual(m[2,3],z)){
+                        position.z=z;
+                    }else{
+                        if(position.z < z){
+                            move_z(0.01f);
+                            //Debug.Log("Arriba");
+                        } else{
+                            move_z(-0.01f);
+                            //Debug.Log("Abajo");
+                        }
+                        flag = false;
+                    }
+                } else{
+                    
+                    if (!flag){
+                        if (AproximadamenteIgual(angle,0)){
+                            if(z>position.z){
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                
+                                objectiveAngle = -90;
+                            } else {
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                objectiveAngle = 90;
+                            }
+                        } else if (AproximadamenteIgual(angle,180)){
+                            if(z>position.z){
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                objectiveAngle = 270;
+                            } else {
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(0f, 0,-2f));
+                                objectiveAngle = 90;
+                            }
+                        } else{
+                            if (z>position.z){
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
+                                objectiveAngle = -90;
+                            } else {
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                objectiveAngle = -270;
+                            }
+                        }
+                        flag = true;
+                    } else{
+                        if (angle > objectiveAngle){
+                            rotate_left();
+                        } else{
+                            rotate_right();
+                        }
+                    }
+                }
+            } else{
+                if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
+                    if (AproximadamenteIgual(m[0,3], x)){
+                        position.x=x;
+                    }else{
+                    if(position.x < x){
+                        move_x(0.01f);
+                        //Debug.Log("Derecha");
+                    } else{
+                        move_x(-0.01f);
+                        //Debug.Log("Izquierda");
+                    }
+                    if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
+                        angle = 0;
+                    }
+                    flag = false;
+                    }
+                } else{
+                    if (!flag){
+                        
+                        if (AproximadamenteIgual(angle,-90)){
+                            if(x>position.x){
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
+                                objectiveAngle = 0;
+                            } else {
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                objectiveAngle = -180;
+                            }
+                        } else if (AproximadamenteIgual(angle,-270)){
+                            if(x>position.x){
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                objectiveAngle = -360;
+                            } else {
+                                
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, 1f));
+                                objectiveAngle = -180;
+                            }
+                        } else if (AproximadamenteIgual(angle,90)){
+                            if(x>position.x){
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                objectiveAngle = 0;
+                            } else {
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                objectiveAngle = 180;
+                            }
+                        } else if (AproximadamenteIgual(angle,270)){
+                            if(x>position.x){
+                                pivot= new Vector3 (0,position.y,-0.5f);
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, 1f));
+                                objectiveAngle = 360;
+                            } else {
+                                pivot= new Vector3 (0,position.y,0.5f);
+                                objectiveAngle = 180;
+                            }
+                        }
+                        flag = true;
+                    } else{
+                        if (angle > objectiveAngle){ 
+                            rotate_left();
+                        } else{
+                            rotate_right();
+                        }
+                    }
+                }
+            }
+        }
+        ppos = VecOps.TranslateM(pivot);
+        pneg = VecOps.TranslateM(-pivot);
+        
+        m = carTranslate *ppos * roty * pneg;
+        Debug.Log(m);
+
+        mf.mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
+        //accumulatedTransform *= carTranslate * ppos * roty * pneg;
+        // Aplica la transformación a los vértices
+        //mf.mesh.vertices = VecOps.ApplyTransform(vertices, accumulatedTransform).ToArray();
+    
+        mf.mesh.RecalculateNormals();
+    }
+    void move_x(float speed)
+{
+    position.x += speed;
+    carTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
+}
+
+void move_z(float speed)
+{
+    position.z += speed;
+    carTranslate *= VecOps.TranslateM(new Vector3(0, 0, speed));
+}
+
+void rotate_left()
+{
+    angle--;
+    roty *= VecOps.RotateYM(-1); // Rotación acumulativa
+}
+
+void rotate_right()
+{
+    angle++;
+    roty *= VecOps.RotateYM(1); // Rotación acumulativa
+}
+
+bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.0001f)
+{
+    return Mathf.Abs(valor1 - valor2) < tolerancia;
+}
+}
+
