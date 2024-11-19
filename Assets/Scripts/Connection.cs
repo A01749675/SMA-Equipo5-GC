@@ -8,6 +8,7 @@ public class Connection : MonoBehaviour
     List<List<Vector3>> positions;
     List<Stoplight> stoplights;
     List<Car> carData;
+    Movement move;
 
 
     IEnumerator RequestCarPositions()
@@ -28,6 +29,8 @@ public class Connection : MonoBehaviour
 
                 foreach(Car car in carData){
                     Debug.Log(car.x+ " "+car.z);
+                    move.x=car.x;
+                    move.z=car.z;
                 }
             }
         }
@@ -60,6 +63,7 @@ public class Connection : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        move = GetComponent<Movement>();
         StartCoroutine(RequestCarPositions());
         StartCoroutine(RequestStoplightData());
     }
@@ -68,5 +72,10 @@ public class Connection : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void CallNextPos(){
+        StartCoroutine(RequestCarPositions());
+        StartCoroutine(RequestStoplightData());
     }
 }

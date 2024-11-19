@@ -6,7 +6,7 @@ from ModelCity import CityModel
 PORT = 8000
 app = Flask(__name__,static_url_path='')
 
-model = CityModel(100)
+model = CityModel(1)
 
 @app.route('/carData',methods=['GET','POST'])
 def getCarData():

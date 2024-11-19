@@ -1,15 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField]
-     float x;
-     [SerializeField]
-    float z;
-    MeshFilter mf;
+    
+    public float x;
+    public float z;
+    ProBuilderMesh pbMesh;
     List<Vector3> vertices;
     Matrix4x4 carTranslate;
     Vector3 position;
@@ -22,22 +22,43 @@ public class Movement : MonoBehaviour
     Matrix4x4 m;
     float objectiveAngle;
     bool flag;
+    Matrix4x4 scale;
+    [SerializeField]
+    GameObject carPrefab;
+    GameObject car;
+    [SerializeField]
+    Connection con;
+    
+    
 
 
     // Start is called before the first frame update
     void Start()
     {
-        mf = gameObject.GetComponent<MeshFilter>();
-        vertices =new List<Vector3>(GetComponent<MeshFilter>().mesh.vertices);
+        // Instancia el prefab del coche
+        if (carPrefab != null)
+        {
+            car = Instantiate(carPrefab);
+            car.name = "CarPrueba";
+        }
+        else
+        {
+            Debug.LogError("Car prefab is not assigned!");
+            return;
+        }
+        pbMesh = car.GetComponent<ProBuilderMesh>();
+        vertices =new List<Vector3>(pbMesh.positions);
         carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
         position = new Vector3 (x, 0, z);
         roty = VecOps.RotateYM(angle);
         Debug.Log(angle);
         Debug.Log(roty);
-        m =  carTranslate *roty;
+        scale= VecOps.ScaleM(new Vector3 (1,1,1));
+        m =  scale*carTranslate *roty;
         Debug.Log(m);
-        mf.mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
-        mf.mesh.RecalculateNormals();
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
         pivot = new Vector3 (x,0,z);
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
@@ -48,10 +69,11 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       // GetComponent<MeshFilter>().mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
-       // mf.mesh.RecalculateNormals();
        if(AproximadamenteIgual(x,position.x,0.01f) & AproximadamenteIgual(z,position.z,0.01f)){
-        //Debug.Log("En objetivo");
+            //Debug.Log("En objetivo");
+            flag = false;
+            con.CallNextPos();
+
         } else{
             if (AproximadamenteIgual(position.x, x, 0.01f)){
                 if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
@@ -125,8 +147,7 @@ public class Movement : MonoBehaviour
                     }
                     flag = false;
                 } else{
-                    if (!flag){
-                        
+                    if (!flag){ 
                         if (AproximadamenteIgual(angle,-90)){
                             if(x>position.x){
                                 //Check
@@ -151,9 +172,9 @@ public class Movement : MonoBehaviour
                             }
                         } else if (AproximadamenteIgual(angle,90)){
                             if(x>position.x){
-                                // BUG Funciona para algunos casos ...
+                                // Check
                                 pivot= new Vector3 (0,position.y,0.5f);
-                                //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
                                 objectiveAngle = 0;
                             } else {
                                 //Check
@@ -187,11 +208,12 @@ public class Movement : MonoBehaviour
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
         
-        m = carTranslate *ppos * roty * pneg;
+        m = scale*carTranslate *ppos * roty * pneg;
 
-        mf.mesh.vertices = VecOps.ApplyTransform(vertices,m).ToArray();
-    
-        mf.mesh.RecalculateNormals();
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        Debug.Log(m);
+        pbMesh.Refresh();
     }
     void move_x(float speed)
 {
