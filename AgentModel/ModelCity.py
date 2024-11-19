@@ -77,6 +77,8 @@ class CityModel(mesa.Model):
             16: (21,9),
             17: (21,20)
         }
+        self.walkableBuildings = [
+        ]
         
         self.stoplights = {
             1: ((1,18), (2,18)),
