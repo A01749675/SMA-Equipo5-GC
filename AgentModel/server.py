@@ -11,6 +11,7 @@ model = CityModel(1)
 @app.route('/carData',methods=['GET','POST'])
 def getCarData():
     model.step()
+    print(model.getCarData())
     return jsonify(model.getCarData())
 @app.route('/stoplightData',methods=['GET','POST'])
 def getStoplight():

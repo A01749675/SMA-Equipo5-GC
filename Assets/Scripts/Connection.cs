@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
 public class Connection : MonoBehaviour
@@ -9,10 +10,15 @@ public class Connection : MonoBehaviour
     List<Stoplight> stoplights;
     List<Car> carData;
     Movement move;
+    float time;
+    float timeToUpdate;
+
+    bool addingPos;
 
 
     IEnumerator RequestCarPositions()
     {
+        addingPos = true;
         WWWForm form = new WWWForm();
         string url = "http://localhost:8000/carData";
         using (UnityWebRequest www = UnityWebRequest.Post(url,form))
@@ -32,6 +38,8 @@ public class Connection : MonoBehaviour
                     move.x=car.x;
                     move.z=car.z;
                 }
+                addingPos = false;
+                
             }
         }
     }
@@ -63,15 +71,19 @@ public class Connection : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        timeToUpdate = 1.0f;
         move = GetComponent<Movement>();
-        StartCoroutine(RequestCarPositions());
+        //StartCoroutine(RequestCarPositions());
         StartCoroutine(RequestStoplightData());
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(move.callForNextPos && !addingPos){
+            StartCoroutine(RequestCarPositions());
+            move.callForNextPos = false;
+        }
     }
 
     public void CallNextPos(){

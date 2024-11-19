@@ -28,6 +28,10 @@ public class Movement : MonoBehaviour
     GameObject car;
     [SerializeField]
     Connection con;
+
+    public bool callForNextPos;
+
+    
     
     
 
@@ -69,20 +73,22 @@ public class Movement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-       if(AproximadamenteIgual(x,position.x,0.01f) & AproximadamenteIgual(z,position.z,0.01f)){
+       if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
             //Debug.Log("En objetivo");
             flag = false;
-            con.CallNextPos();
+            callForNextPos = true;
+            //con.CallNextPos();
+            
 
         } else{
-            if (AproximadamenteIgual(position.x, x, 0.01f)){
+            if (AproximadamenteIgual(position.x, x, 0.1f)){
                 if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
                     position.z=m[2,3];
                         if(position.z < z){
-                            move_z(0.01f);
+                            move_z(0.1f);
                             //Debug.Log("Arriba");
                         } else{
-                            move_z(-0.01f);
+                            move_z(-0.1f);
                             //Debug.Log("Abajo");
                         }
                         flag = false;
@@ -136,10 +142,10 @@ public class Movement : MonoBehaviour
                 if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                    position.x=m[0,3];
                     if(position.x < x){
-                        move_x(0.01f);
+                        move_x(0.1f);
                         //Debug.Log("Derecha");
                     } else{
-                        move_x(-0.01f);
+                        move_x(-0.1f);
                         //Debug.Log("Izquierda");
                     }
                     if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
