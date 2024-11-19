@@ -183,6 +183,8 @@ class CityModel(mesa.Model):
         }
         self.waze = Waze()
         
+        self.cars = []
+        self.stoplightsData = []
         self.addBuilding()
         self.addStreet()
         self.addParking()
@@ -214,6 +216,7 @@ class CityModel(mesa.Model):
                     agent = Stoplight(self.next_id(), self, stoplight, self.stoplightNeighbors[stoplight])
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
                     self.schedule.add(agent)  # Add the stoplight to the scheduler
+                    self.stoplightsData.append(agent)
 
         for stoplight in self.stoplightScync:
             cell = self.grid.get_cell_list_contents([stoplight])
@@ -242,6 +245,7 @@ class CityModel(mesa.Model):
             car = SmartCar(self.next_id(), self, i+1,destination,targetParking,startingParking,self.waze)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
+            self.cars.append(car)
 
         #car = Car(self.next_id(), self, 0, (1,1),1)
         #self.grid.place_agent(car, (1,10))
@@ -262,3 +266,14 @@ class CityModel(mesa.Model):
     def step(self):
         """Avanzar un paso en la simulación."""
         self.schedule.step()
+        
+    def getCarData(self):
+        result = {"cars":[]}
+        for car in self.cars:
+            result["cars"].append({"id":car.unique_id,"x":car.pos[0],"z":car.pos[1]})
+        return result
+    def getStopLight(self):
+        result = {"stoplight":[]}
+        for stop in self.stoplightsData:
+            result["stoplight"].append({"id":stop.stoplightId,"state":stop.state})
+        return result
