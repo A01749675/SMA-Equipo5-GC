@@ -5,6 +5,7 @@ from mesa.visualization.modules import ChartModule, BarChartModule
 import mesa
 import random
 
+from AgentPerson import Persona
 from ModelCity import CityModel
 from AgentBuilding import Building
 from AgentParking import Parking
@@ -29,7 +30,7 @@ def agentPortrayal(agent):
                  "Layer": 0,
                  "w": 1.0,
                  "h": 1.0}
-    
+
     if isinstance(agent, Building):
         portrayal["Shape"] = "rect"
         portrayal["Color"] = "blue"
@@ -86,6 +87,12 @@ def agentPortrayal(agent):
         portrayal["Shape"] = random.choice(possible)
         portrayal["Color"] = "red"
         portrayal["text_color"] = "black"
+
+    if isinstance(agent, Persona):
+        portrayal["Color"] = "red"
+        portrayal["Shape"] = "circle"
+        portrayal["r"] = 0.5
+
     return portrayal
 
 def generateRandomGridSize():
