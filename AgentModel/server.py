@@ -18,6 +18,11 @@ def getStoplight():
     model.step()
     return jsonify(model.getStopLight())
 
+@app.route('/allData',methods=['GET','POST'])
+def getAllData():
+    model.step()
+    return jsonify(model.getAllData())
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=PORT, debug=True)
     

@@ -9,6 +9,7 @@ public class Connection : MonoBehaviour
     List<List<Vector3>> positions;
     List<Stoplight> stoplights;
     List<Car> carData;
+    AllData allData;
     Movement move;
     float time;
     float timeToUpdate;
@@ -46,6 +47,37 @@ public class Connection : MonoBehaviour
                 move.waitingForNextPos = false;
                 move.started = true;
                 
+            }
+        }
+    }
+
+ IEnumerator RequestAllData()
+    {
+        addingPos = true;
+        move.waitingForNextPos = true;
+        WWWForm form = new WWWForm();
+        string url = "http://localhost:8000/carData";
+        using (UnityWebRequest www = UnityWebRequest.Post(url,form))
+        {
+            www.downloadHandler = new DownloadHandlerBuffer();
+            www.SetRequestHeader("Content-Type","application/json");
+            yield return www.SendWebRequest();
+            if(www.result == UnityWebRequest.Result.ConnectionError){
+                Debug.Log(www.error);
+            }
+            else{
+                string response = www.downloadHandler.text;
+                allData = AllData.CreateFromJSON(response);
+                Cars cars = allData.cars;
+                Stoplights stoplights = allData.stoplights;
+                foreach(Car car in cars.cars)
+                {
+                    Debug.Log("Got the position to start-------------------------------------------");
+                    //Debug.Log(car.x+ " "+car.z);
+                    move.setX(car.x-0.5f);
+                    move.setZ(car.z-0.5f);
+
+                }
             }
         }
     }
