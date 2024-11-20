@@ -19,6 +19,7 @@ public class Connection : MonoBehaviour
     IEnumerator RequestCarPositions()
     {
         addingPos = true;
+        move.waitingForNextPos = true;
         WWWForm form = new WWWForm();
         string url = "http://localhost:8000/carData";
         using (UnityWebRequest www = UnityWebRequest.Post(url,form))
@@ -41,6 +42,7 @@ public class Connection : MonoBehaviour
                     move.positions.Add(new Vector3(car.x,0,car.z));
                 }
                 addingPos = false;
+                move.waitingForNextPos = false;
                 
             }
         }

@@ -25,7 +25,8 @@ public class Movement2 : MonoBehaviour
     Matrix4x4 m;
     float objectiveAngle;
     bool flag;
-    float pivConstant;
+    float pivConstantX;
+    float pivConstantZ;
     Matrix4x4 scale;
     [SerializeField]
     GameObject carPrefab;
@@ -34,6 +35,7 @@ public class Movement2 : MonoBehaviour
     Connection con;
 
     public bool callForNextPos;
+    public bool waitingForNextPos;
     bool started;
 
     float prev_x;
@@ -48,6 +50,7 @@ public class Movement2 : MonoBehaviour
     void Start()
     {
         positions = new List<Vector3>();
+        waitingForNextPos = false;
         // Instancia el prefab del coche
         if (carPrefab != null)
         {
@@ -80,7 +83,8 @@ public class Movement2 : MonoBehaviour
         flag = false;
         prev_x = x;
         prev_z = z;
-        pivConstant = 0.0f;
+        pivConstantX = 0.0f;
+        pivConstantZ = 0.0f;
         
     }
 
@@ -102,7 +106,7 @@ public class Movement2 : MonoBehaviour
         }
 
     //Debug.Log("The position is: "+position);
-       if(!callForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
+       if(!callForNextPos && !waitingForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
             Debug.Log("Posiciones: ");
             foreach(Vector3 pos in positions){
                 Debug.Log(pos);
@@ -111,13 +115,12 @@ public class Movement2 : MonoBehaviour
             Debug.Log("En objetivo");
             flag = false;
             callForNextPos = true;
-            prev_x = x;
-            prev_z = z;
             //con.CallNextPos();
             
 
         } else{
             objectiveAngle = (360+Mathf.Atan2(z-prev_z, x-prev_x) * Mathf.Rad2Deg)%360;
+            angle = (360+angle)%360;
             Debug.Log("The objective angle is: "+objectiveAngle);
             Debug.Log("The current angle is: "+angle);
             Debug.Log("The current position is: "+position);
@@ -126,7 +129,8 @@ public class Movement2 : MonoBehaviour
             Debug.Log("Las added positions son: "+positions[positions.Count-1].x+","+positions[positions.Count-1].z);
             if(AproximadamenteIgual(angle,objectiveAngle,1)){
                 // Debug.Log("The angle is the same");
-                pivConstant = 0.0f;
+                pivConstantX = 0.0f;
+                pivConstantZ = 0.0f;
                 if(AproximadamenteIgual(position.x,x,0.1f)){
                     Debug.Log("The x is the same, moving z");
                     if(position.z < z){
@@ -152,16 +156,41 @@ public class Movement2 : MonoBehaviour
                 if(objectiveAngle>angle){
                     Debug.Log("Rotating left");
                     rotate_left();
-                    pivConstant = 0.5f;
+                    
                 } else{
                     Debug.Log("Rotating right");
                     rotate_right();
-                    pivConstant = -0.5f;
+
+                }
+                if(angle == 270 && objectiveAngle == 0){
+                    pivConstantX = 0.5f;
+                    pivConstantZ = 0;
+                } else if(angle == 270 && objectiveAngle == 180){
+                    pivConstantZ = -0.5f;
+                    pivConstantZ = 0;
+                } else if(angle == 0 && objectiveAngle == 270){
+                    pivConstantX = -0.0f;
+                    pivConstantZ = -0.5f;
+                } else if(angle == 180 && objectiveAngle == 270){
+                    pivConstantX = 0.0f;
+                    pivConstantZ = -0.5f;
+                }else if(angle == 0 && objectiveAngle == 90){
+                    pivConstantX = 0.5f;
+                    pivConstantZ = 0;
+                } else if(angle == 180 && objectiveAngle == 90){
+                    pivConstantX = -0.5f;
+                    pivConstantZ = 0;
+                } else if(angle == 90 && objectiveAngle == 0){
+                    pivConstantX = 0.5f;
+                    pivConstantZ = 0.0f;
+                } else if(angle == 90 && objectiveAngle == 180){
+                    pivConstantX = -0.5f;
+                    pivConstantZ = -0.0f;
                 }
             }
           
         }
-        pivot = new Vector3 (position.x,position.y,position.z+pivConstant);
+        pivot = new Vector3 (position.x+pivConstantX,position.y,position.z+pivConstantZ);
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
         
@@ -201,16 +230,19 @@ bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
 }
 
 public void setX(float x_n){
+    prev_x = x;
     if(x > x_n){
-        x = x_n;
+        
+        x = x_n+1;
     } else{
         x = x_n;
     }
 }
 
 public void setZ(float z_n){
+    prev_z = z;
     if(z > z_n){
-        z = z_n;
+        z = z_n+1;
     } else{
         z = z_n;
     }
