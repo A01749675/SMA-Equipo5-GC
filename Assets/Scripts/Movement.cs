@@ -84,6 +84,7 @@ public class Movement : MonoBehaviour
             if(!callForNextPos && !con.addingPos){
                 Debug.Log("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+                pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
                 roty = VecOps.RotateYM(angle);
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
@@ -321,7 +322,7 @@ void rotate_right()
     roty *= VecOps.RotateYM(1); // Rotación acumulativa
 }
 
-bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 2f)
+bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
 {
     return Mathf.Abs(valor1 - valor2) < tolerancia;
 }
