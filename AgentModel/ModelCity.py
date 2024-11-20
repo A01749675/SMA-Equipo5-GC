@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.colors as mcolors
 
 from AgentBuilding import Building
+from AgentPerson import Persona
 from AgentParking import Parking
 from AgentStoplights import Stoplight
 from AgentStreet import Street
@@ -339,6 +340,7 @@ class CityModel(mesa.Model):
         self.addStoplights()
         self.addCar()
         self.addTwoDirStreet()
+        self.addPedestrians(10)
         
     def addBuilding(self):
         """Añadir edificios a la cuadrícula."""
@@ -415,7 +417,12 @@ class CityModel(mesa.Model):
             (x,y) = coords
             agent = AgentStreetDir(self.next_id(),self,street,self.twoDirSteetsDirections[street])
             self.grid.place_agent(agent,(x-1,self.HEIGHT-y))
-            
+
+    def addPedestrians(self, numPedestrians):
+        for i in range (numPedestrians):
+            agent = Persona(self.next_id(), self)
+            self.schedule.add(agent)
+            self.grid.place_agent(agent, self.random.choice(self.walkableBuildings))
     
     def step(self):
         """Avanzar un paso en la simulación."""
