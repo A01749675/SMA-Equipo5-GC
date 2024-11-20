@@ -9,7 +9,7 @@ public class Connection : MonoBehaviour
     List<List<Vector3>> positions;
     List<Stoplight> stoplights;
     List<Car> carData;
-    Movement move;
+    Movement2 move;
     float time;
     float timeToUpdate;
 
@@ -38,6 +38,7 @@ public class Connection : MonoBehaviour
                     //Debug.Log(car.x+ " "+car.z);
                     move.setX(car.x);
                     move.setZ(car.z);
+                    move.positions.Add(new Vector3(car.x,0,car.z));
                 }
                 addingPos = false;
                 
@@ -73,7 +74,7 @@ public class Connection : MonoBehaviour
     void Start()
     {
         timeToUpdate = 1.0f;
-        move = GetComponent<Movement>();
+        move = GetComponent<Movement2>();
         //StartCoroutine(RequestCarPositions());
         StartCoroutine(RequestStoplightData());
     }

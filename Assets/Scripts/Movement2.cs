@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
@@ -16,6 +17,7 @@ public class Movement2 : MonoBehaviour
     Matrix4x4 roty;
     Matrix4x4 pneg;
     Matrix4x4 ppos;
+    public List<Vector3> positions;
     Vector3 pivot;
     [SerializeField]
     float angle;
@@ -23,6 +25,7 @@ public class Movement2 : MonoBehaviour
     Matrix4x4 m;
     float objectiveAngle;
     bool flag;
+    float pivConstant;
     Matrix4x4 scale;
     [SerializeField]
     GameObject carPrefab;
@@ -31,6 +34,10 @@ public class Movement2 : MonoBehaviour
     Connection con;
 
     public bool callForNextPos;
+    bool started;
+
+    float prev_x;
+    float prev_z;
 
     
     
@@ -40,6 +47,7 @@ public class Movement2 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        positions = new List<Vector3>();
         // Instancia el prefab del coche
         if (carPrefab != null)
         {
@@ -51,6 +59,8 @@ public class Movement2 : MonoBehaviour
             Debug.LogError("Car prefab is not assigned!");
             return;
         }
+        started = false;
+        callForNextPos = true;
         pbMesh = car.GetComponent<ProBuilderMesh>();
         vertices =new List<Vector3>(pbMesh.positions);
         carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
@@ -59,7 +69,7 @@ public class Movement2 : MonoBehaviour
         Debug.Log(angle);
         Debug.Log(roty);
         scale= VecOps.ScaleM(new Vector3 (1,1,1));
-        m =  scale*carTranslate *roty;
+        m =   roty*carTranslate*scale;
         Debug.Log(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
@@ -68,61 +78,97 @@ public class Movement2 : MonoBehaviour
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
+        prev_x = x;
+        prev_z = z;
+        pivConstant = 0.0f;
         
     }
 
     // Update is called once per frame
     void Update()
     {
-       if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
-            //Debug.Log("En objetivo");
+        if(!started){
+            if(!callForNextPos){
+                started = true;
+                carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+                position = new Vector3 (x, 0, z);
+                roty = VecOps.RotateYM(angle);
+                pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+                pbMesh.ToMesh();
+                pbMesh.Refresh();
+                prev_x = x;
+                prev_z = z;
+            }
+        }
+
+    //Debug.Log("The position is: "+position);
+       if(!callForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
+            Debug.Log("Posiciones: ");
+            foreach(Vector3 pos in positions){
+                Debug.Log(pos);
+            }
+            Debug.Log("-----------------------------");
+            Debug.Log("En objetivo");
             flag = false;
             callForNextPos = true;
+            prev_x = x;
+            prev_z = z;
             //con.CallNextPos();
             
 
         } else{
-            objectiveAngle = (360+Mathf.Atan2(z-position.z, x-position.x) * Mathf.Rad2Deg)%360;
-            if(angle==objectiveAngle){
+            objectiveAngle = (360+Mathf.Atan2(z-prev_z, x-prev_x) * Mathf.Rad2Deg)%360;
+            Debug.Log("The objective angle is: "+objectiveAngle);
+            Debug.Log("The current angle is: "+angle);
+            Debug.Log("The current position is: "+position);
+            Debug.Log("The start pos is: "+prev_x+","+prev_z);  
+            Debug.Log("The target pos is: "+x+","+z);
+            Debug.Log("Las added positions son: "+positions[positions.Count-1].x+","+positions[positions.Count-1].z);
+            if(AproximadamenteIgual(angle,objectiveAngle,1)){
+                // Debug.Log("The angle is the same");
+                pivConstant = 0.0f;
                 if(AproximadamenteIgual(position.x,x,0.1f)){
+                    Debug.Log("The x is the same, moving z");
                     if(position.z < z){
-                        move_z(0.1f);
+                        move_z(0.01f);
                         //Debug.Log("Arriba");
                     } else{
-                        move_z(-0.1f);
+                        move_z(-0.01f);
                         //Debug.Log("Abajo");
                     }
                 }
                 else{
+                    Debug.Log("The z is the same, moving x");
                     if(position.x < x){
-                        move_x(0.1f);
+                        move_x(0.01f);
                         //Debug.Log("Derecha");
                     } else{
-                        move_x(-0.1f);
+                        move_x(-0.01f);
                         //Debug.Log("Izquierda");
                     }
                 }
             }
             else{
-                if(objectiveAngle > angle ){
-                    pivot = new Vector3 (0,0,0.5f);
+                if(objectiveAngle>angle){
+                    Debug.Log("Rotating left");
                     rotate_left();
+                    pivConstant = 0.5f;
                 } else{
-                    pivot = new Vector3 (0,0,-0.5f);
+                    Debug.Log("Rotating right");
                     rotate_right();
+                    pivConstant = -0.5f;
                 }
             }
           
         }
-
+        pivot = new Vector3 (position.x,position.y,position.z+pivConstant);
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
         
-        m = scale*carTranslate *ppos * roty * pneg;
+        m =  ppos*roty*pneg*carTranslate*scale;
 
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
-        Debug.Log(m);
         pbMesh.Refresh();
     }
     void move_x(float speed)
@@ -149,9 +195,28 @@ void rotate_right()
     roty *= VecOps.RotateYM(-1); // Rotación acumulativa
 }
 
-bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.0001f)
+bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
 {
     return Mathf.Abs(valor1 - valor2) < tolerancia;
 }
+
+public void setX(float x_n){
+    if(x > x_n){
+        x = x_n;
+    } else{
+        x = x_n;
+    }
+}
+
+public void setZ(float z_n){
+    if(z > z_n){
+        z = z_n;
+    } else{
+        z = z_n;
+    }
+}
+
+
+
 }
 
