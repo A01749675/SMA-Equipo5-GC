@@ -7,7 +7,7 @@ public class Car
     public int id;
     public int x;
     public int z;
-    public int direction;
+    public string direction;
 
     public static Car CreateFromJSON(string jsonString)
     {
