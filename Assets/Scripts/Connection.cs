@@ -13,7 +13,7 @@ public class Connection : MonoBehaviour
     float time;
     float timeToUpdate;
 
-    bool addingPos;
+    public bool addingPos;
 
 
     IEnumerator RequestCarPositions()
@@ -36,9 +36,10 @@ public class Connection : MonoBehaviour
 
                 foreach(Car car in carData)
                 {
+                    Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x);
-                    move.setZ(car.z);
+                    move.setX(car.x-0.5f);
+                    move.setZ(car.z-0.5f);
                     move.positions.Add(new Vector3(car.x,0,car.z));
                 }
                 addingPos = false;

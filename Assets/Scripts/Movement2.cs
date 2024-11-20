@@ -10,6 +10,7 @@ public class Movement2 : MonoBehaviour
     
     public float x;
     public float z;
+    float prevAngle;
     ProBuilderMesh pbMesh;
     List<Vector3> vertices;
     Matrix4x4 carTranslate;
@@ -37,6 +38,7 @@ public class Movement2 : MonoBehaviour
     public bool callForNextPos;
     public bool waitingForNextPos;
     bool started;
+    bool assignPivot;
 
     float prev_x;
     float prev_z;
@@ -63,6 +65,7 @@ public class Movement2 : MonoBehaviour
             return;
         }
         started = false;
+        assignPivot = false;
         callForNextPos = true;
         pbMesh = car.GetComponent<ProBuilderMesh>();
         vertices =new List<Vector3>(pbMesh.positions);
@@ -92,7 +95,8 @@ public class Movement2 : MonoBehaviour
     void Update()
     {
         if(!started){
-            if(!callForNextPos){
+            if(!callForNextPos && !con.addingPos){
+                Debug.Log("Receriving positions");
                 started = true;
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
                 position = new Vector3 (x, 0, z);
@@ -102,103 +106,159 @@ public class Movement2 : MonoBehaviour
                 pbMesh.Refresh();
                 prev_x = x;
                 prev_z = z;
+                Debug.Log("The position is: "+position);
             }
         }
-
+        else{
     //Debug.Log("The position is: "+position);
-       if(!callForNextPos && !waitingForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
-            Debug.Log("Posiciones: ");
-            foreach(Vector3 pos in positions){
-                Debug.Log(pos);
-            }
-            Debug.Log("-----------------------------");
-            Debug.Log("En objetivo");
-            flag = false;
-            callForNextPos = true;
-            //con.CallNextPos();
-            
+        if(!callForNextPos && !waitingForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
+                Debug.Log("Posiciones: ");
+                foreach(Vector3 pos in positions){
+                    Debug.Log(pos);
+                }
+                Debug.Log("-----------------------------");
+                Debug.Log("En objetivo");
+                flag = false;
+                callForNextPos = true;
+                //con.CallNextPos();
+                
 
-        } else{
-            objectiveAngle = (360+Mathf.Atan2(z-prev_z, x-prev_x) * Mathf.Rad2Deg)%360;
-            angle = (360+angle)%360;
-            Debug.Log("The objective angle is: "+objectiveAngle);
-            Debug.Log("The current angle is: "+angle);
-            Debug.Log("The current position is: "+position);
-            Debug.Log("The start pos is: "+prev_x+","+prev_z);  
-            Debug.Log("The target pos is: "+x+","+z);
-            Debug.Log("Las added positions son: "+positions[positions.Count-1].x+","+positions[positions.Count-1].z);
-            if(AproximadamenteIgual(angle,objectiveAngle,1)){
-                // Debug.Log("The angle is the same");
-                pivConstantX = 0.0f;
-                pivConstantZ = 0.0f;
-                if(AproximadamenteIgual(position.x,x,0.1f)){
-                    Debug.Log("The x is the same, moving z");
-                    if(position.z < z){
-                        move_z(0.01f);
-                        //Debug.Log("Arriba");
-                    } else{
-                        move_z(-0.01f);
-                        //Debug.Log("Abajo");
+            } else{
+                objectiveAngle = (360+Mathf.Atan2(z-prev_z, x-prev_x) * Mathf.Rad2Deg)%360;
+                
+
+                if(AproximadamenteIgual((360+angle)%360,objectiveAngle,1)){
+                    angle = (360+angle)%360;
+                    assignPivot = false;
+                Debug.Log("The current position is: "+position);
+                Debug.Log("The start pos is: "+prev_x+","+prev_z);  
+                Debug.Log("The target pos is: "+x+","+z);
+                    // Debug.Log("The angle is the same");
+                    pivConstantX = 0.0f;
+                    pivConstantZ = 0.0f;
+                    prevAngle = objectiveAngle;
+                    if(AproximadamenteIgual(position.x,x,0.1f)){
+                        Debug.Log("The x is the same, moving z");
+                        if(position.z < z){
+                            move_z(0.01f);
+                            //Debug.Log("Arriba");
+                        } else{
+                            move_z(-0.01f);
+                            //Debug.Log("Abajo");
+                        }
+                    }
+                    else{
+                        Debug.Log("The z is the same, moving x");
+                        if(position.x < x){
+                            move_x(0.01f);
+                            //Debug.Log("Derecha");
+                        } else{
+                            move_x(-0.01f);
+                            //Debug.Log("Izquierda");
+                        }
                     }
                 }
                 else{
-                    Debug.Log("The z is the same, moving x");
-                    if(position.x < x){
-                        move_x(0.01f);
-                        //Debug.Log("Derecha");
-                    } else{
-                        move_x(-0.01f);
-                        //Debug.Log("Izquierda");
+                    assignPivot = true;
+                    Debug.Log("The objective angle is: "+objectiveAngle);
+                    Debug.Log("The current angle is: "+angle);
+                    // if(objectiveAngle>angle){
+                    //     Debug.Log("Rotating left");
+                    //     rotate_left();
+                        
+                    // } else{
+                    //     Debug.Log("Rotating right");
+                    //     rotate_right();
+
+                    // }
+                    if(prevAngle == 270 && objectiveAngle == 0){ //South to east
+                        Debug.Log("Down to right");
+                        rotate_left();
+                        pivConstantX = 0.5f;
+                        pivConstantZ = -0.0f;
+                    } else if(prevAngle == 270 && (objectiveAngle == 180)){ //Down to left
+                        rotate_right();
+                        pivConstantX = -0.5f;
+                        pivConstantZ = 0.0f;
+                        Debug.Log("Down to left");
+
+                    } else if(prevAngle == 0 && objectiveAngle == 270){ //Right to down
+                        Debug.Log("Right to down");
+                        
+                        rotate_right();
+                        pivConstantX = 0f;
+                        pivConstantZ = -0.5f;
+                    } 
+                    else if(prevAngle == 0 && objectiveAngle == 90){ //Right to up
+                        Debug.Log("Right to up");
+                        rotate_left();
+                        pivConstantX = 0.0f;
+                        pivConstantZ = 0.5f;
                     }
+                    else if((prevAngle == 180) && objectiveAngle == 270){ //left to down
+                        Debug.Log("Left to down");
+  
+                        rotate_left();
+                        
+                        pivConstantX = -0.0f;
+                        pivConstantZ = -0.5f;
+                    
+                    } else if((prevAngle == 180) && objectiveAngle == 90){
+                        Debug.Log("Left to up");
+                        rotate_right();
+                        pivConstantX = -0.0f;
+                        pivConstantZ = 0.5f;  
+
+                    } else if(prevAngle == 90 && objectiveAngle == 0){ //Up to right
+                        Debug.Log("Up to right");
+                        rotate_right();
+                        pivConstantX = 0.5f;
+                        pivConstantZ = 0.0f;
+                    } else if(prevAngle == 90 && (objectiveAngle == 180)){ //Up to left
+                        rotate_left();
+                        Debug.Log("Up to left");
+                        pivConstantX = -0.5f;
+                        pivConstantZ = 0.0f;
+                    }
+                    else if(prevAngle == 0 && objectiveAngle == 180){ //Right to left
+                        Debug.Log("Right to left");
+                        rotate_left();
+                        pivConstantX = -0.0f;
+                        pivConstantZ = 0.0f;
+                    } else if(prevAngle == 180 && objectiveAngle == 0){ //Left to right
+                        Debug.Log("Left to right");
+                        rotate_right();
+                        pivConstantX = 0.0f;
+                        pivConstantZ = 0.0f;
+
+                    }
+                    else{
+                        Debug.Log("No pivot");
+                        rotate_left();
+                        pivConstantX = 0.0f;
+                        pivConstantZ = 0.0f;
+                    }
+                    // pivConstantX = 0.0f;
+                    // pivConstantZ = 0.0f;
                 }
+            
+            }
+            if(assignPivot){
+                pivot = new Vector3 (position.x+pivConstantX,position.y,position.z+pivConstantZ);
             }
             else{
-                if(objectiveAngle>angle){
-                    Debug.Log("Rotating left");
-                    rotate_left();
-                    
-                } else{
-                    Debug.Log("Rotating right");
-                    rotate_right();
-
-                }
-                if(angle == 270 && objectiveAngle == 0){
-                    pivConstantX = 0.5f;
-                    pivConstantZ = 0;
-                } else if(angle == 270 && objectiveAngle == 180){
-                    pivConstantZ = -0.5f;
-                    pivConstantZ = 0;
-                } else if(angle == 0 && objectiveAngle == 270){
-                    pivConstantX = -0.0f;
-                    pivConstantZ = -0.5f;
-                } else if(angle == 180 && objectiveAngle == 270){
-                    pivConstantX = 0.0f;
-                    pivConstantZ = -0.5f;
-                }else if(angle == 0 && objectiveAngle == 90){
-                    pivConstantX = 0.5f;
-                    pivConstantZ = 0;
-                } else if(angle == 180 && objectiveAngle == 90){
-                    pivConstantX = -0.5f;
-                    pivConstantZ = 0;
-                } else if(angle == 90 && objectiveAngle == 0){
-                    pivConstantX = 0.5f;
-                    pivConstantZ = 0.0f;
-                } else if(angle == 90 && objectiveAngle == 180){
-                    pivConstantX = -0.5f;
-                    pivConstantZ = -0.0f;
-                }
+                pivot = new Vector3 (position.x,position.y,position.z);
             }
-          
-        }
-        pivot = new Vector3 (position.x+pivConstantX,position.y,position.z+pivConstantZ);
-        ppos = VecOps.TranslateM(pivot);
-        pneg = VecOps.TranslateM(-pivot);
-        
-        m =  ppos*roty*pneg*carTranslate*scale;
+            
+            ppos = VecOps.TranslateM(pivot);
+            pneg = VecOps.TranslateM(-pivot);
+            
+            m =  ppos*roty*pneg*carTranslate*scale;
 
-        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
-        pbMesh.ToMesh();
-        pbMesh.Refresh();
+            pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+            pbMesh.ToMesh();
+            pbMesh.Refresh();
+        }
     }
     void move_x(float speed)
 {
