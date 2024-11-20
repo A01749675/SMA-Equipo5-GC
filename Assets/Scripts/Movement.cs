@@ -71,6 +71,7 @@ public class Movement : MonoBehaviour
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
         waitingForNextPos = false;
+        callForNextPos = true;
         
     }
 
@@ -79,9 +80,11 @@ public class Movement : MonoBehaviour
     {
 
         if(!started){
+            Debug.Log("Not started");
             if(!callForNextPos && !con.addingPos){
                 Debug.Log("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+                pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
                 roty = VecOps.RotateYM(angle);
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
@@ -91,6 +94,7 @@ public class Movement : MonoBehaviour
             }
         }
         else{
+
             if(!callForNextPos && !waitingForNextPos &&AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
                 Debug.Log("En objetivo");
                 flag = false;
@@ -318,7 +322,7 @@ void rotate_right()
     roty *= VecOps.RotateYM(1); // Rotación acumulativa
 }
 
-bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 2f)
+bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
 {
     return Mathf.Abs(valor1 - valor2) < tolerancia;
 }

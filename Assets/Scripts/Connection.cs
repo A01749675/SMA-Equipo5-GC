@@ -80,7 +80,7 @@ public class Connection : MonoBehaviour
         timeToUpdate = 1.0f;
         move = GetComponent<Movement>();
         //StartCoroutine(RequestCarPositions());
-        StartCoroutine(RequestStoplightData());
+        //StartCoroutine(RequestStoplightData());
     }
 
     // Update is called once per frame
