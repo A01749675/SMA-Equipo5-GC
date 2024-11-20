@@ -238,8 +238,8 @@ public class Movement2 : MonoBehaviour
                         pivConstantX = 0.0f;
                         pivConstantZ = 0.0f;
                     }
-                    // pivConstantX = 0.0f;
-                    // pivConstantZ = 0.0f;
+                     pivConstantX = 0.0f;
+                     pivConstantZ = 0.0f;
                 }
             
             }

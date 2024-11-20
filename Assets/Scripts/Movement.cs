@@ -30,6 +30,8 @@ public class Movement : MonoBehaviour
     Connection con;
 
     public bool callForNextPos;
+    public bool waitingForNextPos;
+    bool started;
 
     
     
@@ -59,6 +61,7 @@ public class Movement : MonoBehaviour
         //Debug.Log(roty);
         scale= VecOps.ScaleM(new Vector3 (1,1,1));
         m =  scale*carTranslate *roty;
+        started = false;
         //Debug.Log(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
@@ -67,210 +70,226 @@ public class Movement : MonoBehaviour
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
+        waitingForNextPos = false;
         
     }
 
     // Update is called once per frame
     void Update()
     {
-       if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
-            //Debug.Log("En objetivo");
-            flag = false;
-            callForNextPos = true;
-            //con.CallNextPos();
-            
 
-        } else{
-            if (AproximadamenteIgual(position.x, x, 0.1f)){
-                if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
-                    position.z=m[2,3];
-                        if(position.z < z){
-                            move_z(0.1f);
-                            //Debug.Log("Arriba");
+        if(!started){
+            if(!callForNextPos && !con.addingPos){
+                Debug.Log("Receriving positions");
+                started = true;
+                carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+                position = new Vector3 (x, 0, z);
+                roty = VecOps.RotateYM(angle);
+                pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+                pbMesh.ToMesh();
+                pbMesh.Refresh();
+                Debug.Log("The position is: "+position);
+            }
+        }
+        else{
+        if(!callForNextPos && !waitingForNextPos &&AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
+                //Debug.Log("En objetivo");
+                flag = false;
+                callForNextPos = true;
+                //con.CallNextPos();
+
+            } else{
+                if (AproximadamenteIgual(position.x, x, 0.1f)){
+                    if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
+                        position.z=m[2,3];
+                            if(position.z < z){
+                                move_z(0.1f);
+                                //Debug.Log("Arriba");
+                            } else{
+                                move_z(-0.1f);
+                                //Debug.Log("Abajo");
+                            }
+                            flag = false;
+                        
+                    } else{
+                        
+                        if (!flag){
+                            if (AproximadamenteIgual(angle,0)){
+                                if(z>position.z){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales 0 a -90");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    
+                                    objectiveAngle = -90;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales 0 a 90");
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    objectiveAngle = 90;
+                                }
+                            } else if (AproximadamenteIgual(angle,180)){
+                                if(z>position.z){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales 180 a 270");
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    objectiveAngle = 270;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales 180 a 90");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    objectiveAngle = 90;
+                                }
+                            } else{
+                                if (z>position.z){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales -180 a -90");
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));
+                                    objectiveAngle = -90;
+                                } else {
+                                    //Check // Se presento buuug
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales -180 a -270");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    objectiveAngle = -270;
+                                }
+                            }
+                            flag = true;
                         } else{
-                            move_z(-0.1f);
-                            //Debug.Log("Abajo");
+                            if (angle > objectiveAngle){
+                                rotate_left();
+                                Debug.Log("LEEEEEEEEEFT 1");
+                            } else{
+                                rotate_right();
+                                Debug.Log("RIIIIIIIIGHT 1");
+                            }
+                        }
+                    }
+                } else{
+                    if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
+                    position.x=m[0,3];
+                        if(position.x < x){
+                            move_x(0.1f);
+                            //Debug.Log("Derecha");
+                        } else{
+                            move_x(-0.1f);
+                            //Debug.Log("Izquierda");
+                        }
+                        if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
+                            angle = 0;
                         }
                         flag = false;
-                    
-                } else{
-                    
-                    if (!flag){
-                        if (AproximadamenteIgual(angle,0)){
-                            if(z>position.z){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales 0 a -90");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                
-                                objectiveAngle = -90;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales 0 a 90");
-                                }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                objectiveAngle = 90;
-                            }
-                        } else if (AproximadamenteIgual(angle,180)){
-                            if(z>position.z){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales 180 a 270");
-                                }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                objectiveAngle = 270;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales 180 a 90");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                objectiveAngle = 90;
-                            }
-                        } else{
-                            if (z>position.z){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales -180 a -90");
-                                }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                carTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));
-                                objectiveAngle = -90;
-                            } else {
-                                //Check // Se presento buuug
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales -180 a -270");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                objectiveAngle = -270;
-                            }
-                        }
-                        flag = true;
                     } else{
-                        if (angle > objectiveAngle){
-                            rotate_left();
-                            Debug.Log("LEEEEEEEEEFT 1");
-                        } else{
-                            rotate_right();
-                            Debug.Log("RIIIIIIIIGHT 1");
-                        }
-                    }
-                }
-            } else{
-                if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
-                   position.x=m[0,3];
-                    if(position.x < x){
-                        move_x(0.1f);
-                        //Debug.Log("Derecha");
-                    } else{
-                        move_x(-0.1f);
-                        //Debug.Log("Izquierda");
-                    }
-                    if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
-                        angle = 0;
-                    }
-                    flag = false;
-                } else{
-                    if (!flag){ 
-                        if (AproximadamenteIgual(angle,-90)){
-                            if(x>position.x){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales -90 a 0");
+                        if (!flag){ 
+                            if (AproximadamenteIgual(angle,-90)){
+                                if(x>position.x){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales -90 a 0");
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
+                                    objectiveAngle = 0;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales -90 a -180");
+                                    } else{
+                                        carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0,-1f));
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    objectiveAngle = -180;
                                 }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
-                                objectiveAngle = 0;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales -90 a -180");
-                                } else{
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0,-1f));
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                objectiveAngle = -180;
-                            }
-                        } else if (AproximadamenteIgual(angle,-270)){
-                            if(x>position.x){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales de -270 a -360");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                objectiveAngle = -360;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales -270 a -180");
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0, 1f));
-                                } else{
+                            } else if (AproximadamenteIgual(angle,-270)){
+                                if(x>position.x){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales de -270 a -360");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    objectiveAngle = -360;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales -270 a -180");
+                                        carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0, 1f));
+                                    } else{
+                                        
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
                                     
+                                    objectiveAngle = -180;
                                 }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                
-                                objectiveAngle = -180;
+                            } else if (AproximadamenteIgual(angle,90)){
+                                if(x>position.x){
+                                    // Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales 90 a 0");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    objectiveAngle = 0;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales 90 a 180");
+                                    }
+                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    objectiveAngle = 180;
+                                }
+                            } else if (AproximadamenteIgual(angle,270)){
+                                if(x>position.x){
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,-0.5f)) {
+                                        Debug.Log("Pivotes iguales 270 a 360");
+                                    }
+                                    pivot= new Vector3 (-0f,position.y,-0.5f);
+                                    objectiveAngle = 360;
+                                } else {
+                                    //Check
+                                    if (pivot == new Vector3 (0,position.y,0.5f)) {
+                                        Debug.Log("Pivotes iguales 270 a 180");
+                                    }
+                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0, -1f));
+                                    objectiveAngle = 180;
+                                }
                             }
-                        } else if (AproximadamenteIgual(angle,90)){
-                            if(x>position.x){
-                                // Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales 90 a 0");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                objectiveAngle = 0;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales 90 a 180");
-                                }
-                                pivot= new Vector3 (0,position.y,-0.5f);
-                                //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                objectiveAngle = 180;
-                            }
-                        } else if (AproximadamenteIgual(angle,270)){
-                            if(x>position.x){
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,-0.5f)) {
-                                    Debug.Log("Pivotes iguales 270 a 360");
-                                }
-                                pivot= new Vector3 (-0f,position.y,-0.5f);
-                                objectiveAngle = 360;
-                            } else {
-                                //Check
-                                if (pivot == new Vector3 (0,position.y,0.5f)) {
-                                    Debug.Log("Pivotes iguales 270 a 180");
-                                }
-                                pivot= new Vector3 (0,position.y,0.5f);
-                                carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0, -1f));
-                                objectiveAngle = 180;
-                            }
-                        }
-                        flag = true;
-                    } else{
-                        if (angle > objectiveAngle){ 
-                            rotate_left();
-                            Debug.Log("LEEEEEEEEEFT 2");
+                            flag = true;
                         } else{
-                            rotate_right();
-                            Debug.Log("RIIIIIIIIGHT 2");
+                            if (angle > objectiveAngle){ 
+                                rotate_left();
+                                Debug.Log("LEEEEEEEEEFT 2");
+                            } else if(angle<objectiveAngle){
+                                rotate_right();
+                                Debug.Log("RIIIIIIIIGHT 2");
+                            }
                         }
                     }
                 }
             }
-        }
-        ppos = VecOps.TranslateM(pivot);
-        pneg = VecOps.TranslateM(-pivot);
-        
-        m = scale*carTranslate *ppos * roty * pneg;
+            ppos = VecOps.TranslateM(pivot);
+            pneg = VecOps.TranslateM(-pivot);
+            
+            m = scale*carTranslate *ppos * roty * pneg;
 
-        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
-        pbMesh.ToMesh();
-        //Debug.Log(m);
-        pbMesh.Refresh();
+            pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+            pbMesh.ToMesh();
+            //Debug.Log(m);
+            pbMesh.Refresh();
+        }
     }
     void move_x(float speed)
 {
@@ -296,7 +315,7 @@ void rotate_right()
     roty *= VecOps.RotateYM(1); // Rotación acumulativa
 }
 
-bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 1f)
+bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 2f)
 {
     return Mathf.Abs(valor1 - valor2) < tolerancia;
 }
