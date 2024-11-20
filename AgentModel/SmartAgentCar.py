@@ -110,9 +110,13 @@ class SmartCar(mesa.Agent):
         for neighbor in neighbors:
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
+                if isinstance(c, SmartCar):
+                    break
                 if isinstance(c, Street):
                     self.model.grid.move_agent(self, neighbor)
                     self.justStarted = False
+                    print("Entering streer from parking lot")
+                    print("The dir is: "+c.currentDirection())
                     return
 
     def checkStoplight(self):
