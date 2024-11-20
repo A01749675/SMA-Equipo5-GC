@@ -9,7 +9,7 @@ from GraphStructure import *
 from collections import deque
 
 
-type WeightedGraph = dict[int, set[tuple[int, int]]]
+WeightedGraph = dict[int, set[tuple[int, int]]]
 
 
 class Waze:
