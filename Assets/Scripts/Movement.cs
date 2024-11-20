@@ -71,6 +71,7 @@ public class Movement : MonoBehaviour
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
         waitingForNextPos = false;
+        callForNextPos = true;
         
     }
 
@@ -79,6 +80,7 @@ public class Movement : MonoBehaviour
     {
 
         if(!started){
+            Debug.Log("Not started");
             if(!callForNextPos && !con.addingPos){
                 Debug.Log("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
@@ -91,6 +93,7 @@ public class Movement : MonoBehaviour
             }
         }
         else{
+
             if(!callForNextPos && !waitingForNextPos &&AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
                 Debug.Log("En objetivo");
                 flag = false;
