@@ -3,7 +3,7 @@
 # Se crean edificios, estacionamientos, semáforos, calles y carros. Colocandolos según la imagen de referencia del reto.
 
 
-#Author Carlos Iker Fuentes Reyes A01749675
+#Author Carlos Iker Fuentes Reyes A01749675, Cesár Augusto Flores Reyes A01751101
 #Fecha de creación: 10/11/2024
 
 import mesa
@@ -78,8 +78,154 @@ class CityModel(mesa.Model):
             17: (21,20)
         }
         self.walkableBuildings = [
+            (2, 2),
+            (3, 2),
+            (4, 2),
+            (5, 2),
+            (2, 3),
+            (3, 3),
+            (4, 3),
+            (5, 3),
+
+            (2, 6),
+            (3, 6),
+            (4, 6),
+            (5, 6),
+            (2, 7),
+            (3, 7),
+            (4, 7),
+            (5, 7),
+
+            (8, 2),
+            (9, 2),
+            (10, 2),
+            (11, 2),
+            (8, 3),
+            (9, 3),
+            (10, 3),
+            (11, 3),
+
+            (8, 6),
+            (9, 6),
+            (10, 6),
+            (11, 6),
+            (8, 7),
+            (9, 7),
+            (10, 7),
+            (11, 7),
+
+            (16, 2),
+            (16, 3),
+            (16, 4),
+            (16, 5),
+            (16, 6),
+            (16, 7),
+            (17, 2),
+            (17, 3),
+            (17, 4),
+            (17, 5),
+            (17, 6),
+            (17, 7),
+
+            (20, 2),
+            (20, 3),
+            (20, 4),
+            (20, 5),
+            (20, 6),
+            (20, 7),
+            (21, 2),
+            (21, 3),
+            (21, 4),
+            (21, 5),
+            (21, 6),
+            (21, 7),
+
+            (2, 12),
+            (3, 12),
+            (4, 12),
+            (5, 12),
+            (2, 21),
+            (3, 21),
+            (4, 21),
+            (5, 21),
+            (2, 13),
+            (2, 14),
+            (2, 15),
+            (2, 16),
+            (2, 17),
+            (2, 18),
+            (2, 19),
+            (2, 20),
+            (5, 13),
+            (5, 14),
+            (5, 15),
+            (5, 16),
+            (5, 17),
+            (5, 18),
+            (5, 19),
+            (5, 20),
+
+            (8, 19),
+            (9, 19),
+            (10, 19),
+            (11, 19),
+            (8, 21),
+            (9, 21),
+            (10, 21),
+            (11, 21),
+            (8, 20),
+            (11, 20),
+
+            (8, 16),
+            (9, 16),
+            (10, 16),
+            (11, 16),
+            (8, 12),
+            (9, 12),
+            (10, 12),
+            (11, 12),
+            (8, 13),
+            (8, 14),
+            (8, 15),
+            (11, 13),
+            (11, 14),
+            (11, 15),
+
+            (16, 15),
+            (17, 15),
+            (18, 15),
+            (19, 15),
+            (20, 15),
+            (21, 15),
+            (16, 12),
+            (17, 12),
+            (18, 12),
+            (19, 12),
+            (20, 12),
+            (21, 12),
+            (16, 14),
+            (16, 13),
+            (21, 14),
+            (21, 13),
+
+            (16, 18),
+            (17, 18),
+            (18, 18),
+            (19, 18),
+            (20, 18),
+            (21, 18),
+            (16, 21),
+            (17, 21),
+            (18, 21),
+            (19, 21),
+            (20, 21),
+            (21, 21),
+            (16, 19),
+            (16, 20),
+            (21, 19),
+            (21, 20)
         ]
-        
+
         self.stoplights = {
             1: ((1,18), (2,18)),
             2: ((3,19), (3,20)),
@@ -201,7 +347,13 @@ class CityModel(mesa.Model):
             for x in range(xmin, xmax+1):
                 for y in range(ymin, ymax+1):
                     agent = Building(self.next_id(), self, building)
-                    self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y)) 
+                    self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
+
+        for buildingPos in self.walkableBuildings:
+            cell = self.grid.get_cell_list_contents([buildingPos])
+            for c in cell:
+                if isinstance(c, Building):
+                    c.walkable = True
 
     def addParking(self):
         """Añadir estacionamientos a la cuadrícula."""

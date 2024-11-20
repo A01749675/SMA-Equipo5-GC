@@ -22,6 +22,7 @@ class Building(mesa.Agent):
         uniqueId (int): id que identifica al agente
         model (mesa.Model): modelo en el que se encuentra el agente
         building (int): id del edificio en el que se encuentra el agente
+        walkable (bool): indica si el edificio es transitable por peatones
     """
     def __init__(self,uniqueId,model, building, walkable=False):
         super().__init__(uniqueId,model)

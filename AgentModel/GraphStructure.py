@@ -1,11 +1,12 @@
 #CLase que implementa el algoritmo de Kruskal para encontrar el arbol de expansion minima de un grafo.
 #Author: Carlos Iker Fuentes Reyes A01749675 con inspiración de la clase del profesor Ariel Ortiz. El código fue adaptado para el presente problema
-#pero los méritos del desarrollo en su mayoría son del profesor Ariel Ortiz, 
+#pero los méritos del desarrollo en su mayoría son del profesor Ariel Ortiz,
+from __future__ import annotations
 
 from heapq import heapify, heappop
 from typing import NamedTuple
 from pprint import pprint
-type WeightedGraph = dict[int, set[tuple[int,int]]]
+WeightedGraph = dict[int, set[tuple[int,int]]]
 from typing import Any
 class Edge(NamedTuple):
     """Clase que hereda de NamedTuple y define una arista en un grafo ponderado.

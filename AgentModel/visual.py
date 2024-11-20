@@ -33,6 +33,9 @@ def agentPortrayal(agent):
     if isinstance(agent, Building):
         portrayal["Shape"] = "rect"
         portrayal["Color"] = "blue"
+        if agent.walkable:
+            portrayal["text"] = "W"
+            portrayal["text_color"] = "black"
     if isinstance(agent, Parking):
         portrayal["Shape"] = "rect"
         portrayal["Color"] = "yellow"
