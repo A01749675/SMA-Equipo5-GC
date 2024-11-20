@@ -33,10 +33,11 @@ public class Connection : MonoBehaviour
                 string response = www.downloadHandler.text;
                 carData = Cars.CreateFromJSON(response).cars;
 
-                foreach(Car car in carData){
-                    Debug.Log(car.x+ " "+car.z);
-                    move.x=car.x;
-                    move.z=car.z;
+                foreach(Car car in carData)
+                {
+                    //Debug.Log(car.x+ " "+car.z);
+                    move.setX(car.x);
+                    move.setZ(car.z);
                 }
                 addingPos = false;
                 
@@ -60,7 +61,7 @@ public class Connection : MonoBehaviour
                 string response = www.downloadHandler.text;
                 stoplights = Stoplights.CreateFromJSON(response).stoplights;
                 foreach(Stoplight stoplight in stoplights){
-                    Debug.Log(stoplight.id+ " "+stoplight.state);
+                    //Debug.Log(stoplight.id+ " "+stoplight.state);
                 }
             }
         }
