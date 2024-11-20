@@ -44,6 +44,7 @@ public class Connection : MonoBehaviour
                 }
                 addingPos = false;
                 move.waitingForNextPos = false;
+                move.started = true;
                 
             }
         }

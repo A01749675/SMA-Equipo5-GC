@@ -31,7 +31,7 @@ public class Movement : MonoBehaviour
 
     public bool callForNextPos;
     public bool waitingForNextPos;
-    bool started;
+    public bool started;
 
     
     
@@ -81,7 +81,6 @@ public class Movement : MonoBehaviour
         if(!started){
             if(!callForNextPos && !con.addingPos){
                 Debug.Log("Receriving positions");
-                started = true;
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
                 position = new Vector3 (x, 0, z);
                 roty = VecOps.RotateYM(angle);
@@ -92,11 +91,11 @@ public class Movement : MonoBehaviour
             }
         }
         else{
-        if(!callForNextPos && !waitingForNextPos &&AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
-                //Debug.Log("En objetivo");
+            if(!callForNextPos && !waitingForNextPos &&AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
+                Debug.Log("En objetivo");
                 flag = false;
                 callForNextPos = true;
-                //con.CallNextPos();
+                con.CallNextPos();
 
             } else{
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
@@ -170,9 +169,11 @@ public class Movement : MonoBehaviour
                             if (angle > objectiveAngle){
                                 rotate_left();
                                 Debug.Log("LEEEEEEEEEFT 1");
-                            } else{
+                            } else if(angle<objectiveAngle){
                                 rotate_right();
                                 Debug.Log("RIIIIIIIIGHT 1");
+                            }else{
+                                angle = objectiveAngle;
                             }
                         }
                     }
@@ -275,6 +276,8 @@ public class Movement : MonoBehaviour
                             } else if(angle<objectiveAngle){
                                 rotate_right();
                                 Debug.Log("RIIIIIIIIGHT 2");
+                            }else{
+                                angle = objectiveAngle;
                             }
                         }
                     }

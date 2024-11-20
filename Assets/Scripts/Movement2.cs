@@ -96,7 +96,7 @@ public class Movement2 : MonoBehaviour
     {
         if(!started){
             if(!callForNextPos && !con.addingPos){
-                Debug.Log("Receriving positions");
+                Debug.Log("Receiving positions");
                 started = true;
                 carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
                 position = new Vector3 (x, 0, z);
@@ -112,12 +112,12 @@ public class Movement2 : MonoBehaviour
         else{
     //Debug.Log("The position is: "+position);
         if(!callForNextPos && !waitingForNextPos && AproximadamenteIgual(x,position.x,0.1f) && AproximadamenteIgual(z,position.z,0.1f)){
-                Debug.Log("Posiciones: ");
-                foreach(Vector3 pos in positions){
-                    Debug.Log(pos);
-                }
-                Debug.Log("-----------------------------");
-                Debug.Log("En objetivo");
+                // Debug.Log("Posiciones: ");
+                // foreach(Vector3 pos in positions){
+                //     Debug.Log(pos);
+                // }
+                // Debug.Log("-----------------------------");
+                // Debug.Log("En objetivo");
                 flag = false;
                 callForNextPos = true;
                 //con.CallNextPos();
