@@ -9,7 +9,7 @@ from GraphStructure import *
 from collections import deque
 
 
-WeightedGraph = dict[int, set[tuple[int, int]]]
+#type WeightedGraph = dict[int, set[tuple[int, int]]]
 
 
 class Waze:
@@ -18,7 +18,7 @@ class Waze:
     Guarda, asimismo, los pasos a seguir para llegar de un estaconamiento a otro.
     """
     def __init__(self):
-        self.parkingGraph: WeightedGraph = {}
+        self.parkingGraph = {}
         self.graphDirections = {}
         self.knownParkings = set()
 
