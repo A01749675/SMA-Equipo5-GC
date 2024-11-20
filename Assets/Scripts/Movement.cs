@@ -103,6 +103,7 @@ public class Movement : MonoBehaviour
 
             } else{
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
+                    Debug.Log("x igual");
                     if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
                         position.z=m[2,3];
                             if(position.z < z){
@@ -182,8 +183,12 @@ public class Movement : MonoBehaviour
                         }
                     }
                 } else{
+                    Debug.Log("x diferente");
+                    Debug.Log(angle);
+                    Debug.Log(objectiveAngle);
                     if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                     position.x=m[0,3];
+                    Debug.Log("Estoy apuntando hacia x");
                         if(position.x < x){
                             move_x(0.1f);
                             //Debug.Log("Derecha");
@@ -196,6 +201,8 @@ public class Movement : MonoBehaviour
                         }
                         flag = false;
                     } else{
+                        Debug.Log("Estoy AQUÍ!");
+                        Debug.Log(flag);
                         if (!flag){ 
                             if (AproximadamenteIgual(angle,-90)){
                                 if(x>position.x){
@@ -274,6 +281,10 @@ public class Movement : MonoBehaviour
                             }
                             flag = true;
                         } else{
+                            if (objectiveAngle != 0 && objectiveAngle != 180 && objectiveAngle != -180 && objectiveAngle != 360 && objectiveAngle != -360){
+                                Debug.Log("Fuerza Bruta!!!!");
+                                objectiveAngle = 0;
+                            }
                             if (angle > objectiveAngle){ 
                                 rotate_left();
                                 Debug.Log("LEEEEEEEEEFT 2");
