@@ -15,6 +15,7 @@ public class Connection : MonoBehaviour
     float timeToUpdate;
 
     public bool addingPos;
+    int llamadas;
 
 
     IEnumerator RequestCarPositions()
@@ -39,16 +40,18 @@ public class Connection : MonoBehaviour
                 {
                     Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x-0.5f);
-                    move.setZ(car.z-0.5f);
+                    move.setX(car.x);
+                    move.setZ(car.z);
+                    move.setAngle(car.direction);
 
                 }
                 addingPos = false;
                 move.waitingForNextPos = false;
-                move.started = true;
                 
             }
         }
+        llamadas +=1;
+        Debug.Log(llamadas);
     }
 
  IEnumerator RequestAllData()
@@ -109,6 +112,7 @@ public class Connection : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        llamadas=0;
         timeToUpdate = 1.0f;
         move = GetComponent<Movement>();
         //StartCoroutine(RequestCarPositions());
