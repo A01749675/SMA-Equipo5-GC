@@ -10,56 +10,20 @@ public class ConnectionRevised : MonoBehaviour
     List<Stoplight> stoplights;
     List<Car> carData;
     AllData allData;
-    Movement move;
-    float time;
-    float timeToUpdate;
 
     public bool addingPos;
     int llamadas;
 
+    [SerializeField]
+    Vehicles vehicles;  
 
-    IEnumerator RequestCarPositions()
-    {
-        addingPos = true;
-        move.waitingForNextPos = true;
-        WWWForm form = new WWWForm();
-        string url = "http://localhost:8000/carData";
-        using (UnityWebRequest www = UnityWebRequest.Post(url,form))
-        {
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type","application/json");
-            yield return www.SendWebRequest();
-            if(www.result == UnityWebRequest.Result.ConnectionError){
-                Debug.Log(www.error);
-            }
-            else{
-                string response = www.downloadHandler.text;
-                carData = Cars.CreateFromJSON(response).cars;
 
-                foreach(Car car in carData)
-                {
-                    Debug.Log("Got the position to start-------------------------------------------");
-                    //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x);
-                    move.setZ(car.z);
-                    move.setAngle(car.direction);
-
-                }
-                addingPos = false;
-                move.waitingForNextPos = false;
-                
-            }
-        }
-        llamadas +=1;
-        Debug.Log(llamadas);
-    }
 
  IEnumerator RequestAllData()
     {
-        addingPos = true;
-        move.waitingForNextPos = true;
+
         WWWForm form = new WWWForm();
-        string url = "http://localhost:8000/carData";
+        string url = "http://localhost:8000/allData";
         using (UnityWebRequest www = UnityWebRequest.Post(url,form))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
@@ -73,35 +37,9 @@ public class ConnectionRevised : MonoBehaviour
                 allData = AllData.CreateFromJSON(response);
                 Cars cars = allData.cars;
                 Stoplights stoplights = allData.stoplights;
-                foreach(Car car in cars.cars)
-                {
-                    Debug.Log("Got the position to start-------------------------------------------");
-                    //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x-0.5f);
-                    move.setZ(car.z-0.5f);
 
-                }
-            }
-        }
-    }
-
-    IEnumerator RequestStoplightData()
-    {
-        WWWForm form = new WWWForm();
-        string url = "http://localhost:8000/stoplightData";
-        using (UnityWebRequest www = UnityWebRequest.Post(url,form))
-        {
-            www.downloadHandler = new DownloadHandlerBuffer();
-            www.SetRequestHeader("Content-Type","application/json");
-            yield return www.SendWebRequest();
-            if(www.result == UnityWebRequest.Result.ConnectionError){
-                Debug.Log(www.error);
-            }
-            else{
-                string response = www.downloadHandler.text;
-                stoplights = Stoplights.CreateFromJSON(response).stoplights;
-                foreach(Stoplight stoplight in stoplights){
-                    //Debug.Log(stoplight.id+ " "+stoplight.state);
+                for(int i = 0; i < vehicles.numVehicles; i++){
+                    vehicles.vehicles[i].AddPositions(new Vector3(cars.cars[i].x,0,cars.cars[i].z));
                 }
             }
         }
@@ -112,24 +50,21 @@ public class ConnectionRevised : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        llamadas=0;
-        timeToUpdate = 1.0f;
-        move = GetComponent<Movement>();
-        //StartCoroutine(RequestCarPositions());
-        //StartCoroutine(RequestStoplightData());
+        bool start = false;
+        while(!start){
+            StartCoroutine(RequestAllData());
+            foreach(Vehicle vehicle in vehicles.vehicles){
+                start = vehicle.MetStartingConditions();
+            }
+
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(move.callForNextPos && !addingPos){
-            StartCoroutine(RequestCarPositions());
-            move.callForNextPos = false;
-        }
+        StartCoroutine(RequestAllData());
     }
 
-    public void CallNextPos(){
-        StartCoroutine(RequestCarPositions());
-        StartCoroutine(RequestStoplightData());
-    }
+
 }

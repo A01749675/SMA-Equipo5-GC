@@ -440,7 +440,7 @@ class CityModel(mesa.Model):
         return result
     
     def getAllData(self):
-        result = {"cars":[],"stoplights":[],"buses":[],"pedestrians":[]}
+        result = {"cars":[],"stoplights":[]}
         for car in self.cars:
             result["cars"].append({"id":car.unique_id,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir})
         for stop in self.stoplightsData:
