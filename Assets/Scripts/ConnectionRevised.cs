@@ -14,7 +14,7 @@ public class ConnectionRevised : MonoBehaviour
     public bool addingPos;
     int llamadas;
 
-    [SerializeField]
+   [SerializeField]
     Vehicles vehicles;  
 
 
@@ -37,9 +37,13 @@ public class ConnectionRevised : MonoBehaviour
                 allData = AllData.CreateFromJSON(response);
                 Cars cars = allData.cars;
                 Stoplights stoplights = allData.stoplights;
-
-                for(int i = 0; i < vehicles.numVehicles; i++){
-                    vehicles.vehicles[i].AddPositions(new Vector3(cars.cars[i].x,0,cars.cars[i].z));
+                if (vehicles.vehicles.Count > 0)
+                {
+                    for (int i = 0; i < vehicles.vehicles.Count - 1; i++)
+                    {
+                        Debug.Log(cars.cars[i]);
+                        vehicles.vehicles[i].AddPositions(new Vector3(cars.cars[i].x, 0, cars.cars[i].z));
+                    }
                 }
             }
         }

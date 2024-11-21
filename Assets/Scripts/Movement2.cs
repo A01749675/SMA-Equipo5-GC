@@ -162,6 +162,9 @@ public class Movement2 : MonoBehaviour
                     assignPivot = true;
                     Debug.Log("The objective angle is: "+objectiveAngle);
                     Debug.Log("The current angle is: "+angle);
+
+                    float rotationAmount = CalculateShortestRotation(angle, objectiveAngle);
+                    rotate_precise(rotationAmount);
                     // if(objectiveAngle>angle){
                     //     Debug.Log("Rotating left");
                     //     rotate_left();
@@ -171,78 +174,10 @@ public class Movement2 : MonoBehaviour
                     //     rotate_right();
 
                     // }
-                    if(prevAngle == 270 && objectiveAngle == 0){ //South to east
-                        Debug.Log("Down to right");
-                        rotate_left();
-                        pivConstantX = 0.5f;
-                        pivConstantZ = -0.0f;
-                    } else if(prevAngle == 270 && (objectiveAngle == 180)){ //Down to left
-                        rotate_right();
-                        pivConstantX = -0.5f;
-                        pivConstantZ = 0.0f;
-                        Debug.Log("Down to left");
-
-                    } else if(prevAngle == 0 && objectiveAngle == 270){ //Right to down
-                        Debug.Log("Right to down");
-                        
-                        rotate_right();
-                        pivConstantX = 0f;
-                        pivConstantZ = -0.5f;
-                    } 
-                    else if(prevAngle == 0 && objectiveAngle == 90){ //Right to up
-                        Debug.Log("Right to up");
-                        rotate_left();
-                        pivConstantX = 0.0f;
-                        pivConstantZ = 0.5f;
-                    }
-                    else if((prevAngle == 180) && objectiveAngle == 270){ //left to down
-                        Debug.Log("Left to down");
-  
-                        rotate_left();
-                        
-                        pivConstantX = -0.0f;
-                        pivConstantZ = -0.5f;
-                    
-                    } else if((prevAngle == 180) && objectiveAngle == 90){
-                        Debug.Log("Left to up");
-                        rotate_right();
-                        pivConstantX = -0.0f;
-                        pivConstantZ = 0.5f;  
-
-                    } else if(prevAngle == 90 && objectiveAngle == 0){ //Up to right
-                        Debug.Log("Up to right");
-                        rotate_right();
-                        pivConstantX = 0.5f;
-                        pivConstantZ = 0.0f;
-                    } else if(prevAngle == 90 && (objectiveAngle == 180)){ //Up to left
-                        rotate_left();
-                        Debug.Log("Up to left");
-                        pivConstantX = -0.5f;
-                        pivConstantZ = 0.0f;
-                    }
-                    else if(prevAngle == 0 && objectiveAngle == 180){ //Right to left
-                        Debug.Log("Right to left");
-                        rotate_left();
-                        pivConstantX = -0.0f;
-                        pivConstantZ = 0.0f;
-                    } else if(prevAngle == 180 && objectiveAngle == 0){ //Left to right
-                        Debug.Log("Left to right");
-                        rotate_right();
-                        pivConstantX = 0.0f;
-                        pivConstantZ = 0.0f;
-
-                    }
-                    else{
-                        Debug.Log("No pivot");
-                        rotate_left();
-                        pivConstantX = 0.0f;
-                        pivConstantZ = 0.0f;
-                    }
-                     pivConstantX = 0.0f;
-                     pivConstantZ = 0.0f;
                 }
             
             }
+        
             if(assignPivot){
                 pivot = new Vector3 (position.x+pivConstantX,position.y,position.z+pivConstantZ);
             }
@@ -259,11 +194,28 @@ public class Movement2 : MonoBehaviour
             pbMesh.ToMesh();
             pbMesh.Refresh();
         }
-    }
-    void move_x(float speed)
+    } 
+void move_x(float speed)
 {
     position.x += speed;
     carTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
+}
+
+void rotate_precise(float rotationDegrees)
+{
+    roty *= VecOps.RotateYM(rotationDegrees);
+
+    angle = (angle + rotationDegrees + 360) % 360;
+}
+
+float CalculateShortestRotation(float currentAngle, float targetAngle)
+{
+    float rotation = targetAngle - currentAngle;
+
+    if (rotation > 180) rotation -= 360;
+    else if (rotation < -180) rotation += 360;
+
+    return rotation;
 }
 
 void move_z(float speed)

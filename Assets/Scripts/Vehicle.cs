@@ -22,7 +22,7 @@ public class Vehicle : MonoBehaviour
 
     GameObject carPrefab;
 
-    List<Vector3> positions;
+    List<Vector3> positions = new List<Vector3>();
 
     
     // Start is called before the first frame update
@@ -45,6 +45,7 @@ public class Vehicle : MonoBehaviour
     void Start()
     {
         windowSize = 4;
+        positions = new List<Vector3>();   
     }
     public List<Vector3> Window(){
         return positions.GetRange(positions.Count-windowSize,windowSize);

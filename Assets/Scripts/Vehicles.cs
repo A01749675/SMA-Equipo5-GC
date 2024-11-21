@@ -14,12 +14,14 @@ public class Vehicles : MonoBehaviour
     List<GameObject> cars;
 
     public List<Vehicle> vehicles;
-
+    
 
 
     // Start is called before the first frame update
     void Start()
     {
+        vehicles = new List<Vehicle>();
+        
         for(int i = 0; i < numVehicles; i++){
             Vehicle vehicle = new Vehicle();
             vehicle.SetId(i);
@@ -33,6 +35,7 @@ public class Vehicles : MonoBehaviour
     void Update()
     {
         for(int i = 0; i < numVehicles; i++){
+            
             List<Vector3> window = vehicles[i].Window();
             foreach(Vector3 position in window){
                 Debug.Log(position);
