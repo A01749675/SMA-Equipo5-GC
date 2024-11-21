@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 [System.Serializable]
 public class Stoplights
 {
@@ -12,5 +11,4 @@ public class Stoplights
     {
         return JsonUtility.FromJson<Stoplights>(jsonString);
     }
-
 }
