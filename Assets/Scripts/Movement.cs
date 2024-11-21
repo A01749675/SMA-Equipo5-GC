@@ -88,7 +88,7 @@ public class Movement : MonoBehaviour
             Debug.Log("Not started");
             if(!callForNextPos && !con.addingPos){
                 Debug.Log("Receriving positions");
-                carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+                carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
                 Debug.Log("Angulo = " + angle);
@@ -111,12 +111,11 @@ public class Movement : MonoBehaviour
 
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
                 if (!callForNextPos  && !waitingForNextPos){
-                Debug.Log("En objetivo");
+                //Debug.Log("En objetivo");
                 flag = false;
                 callForNextPos = true;
-                //con.CallNextPos();
-                i +=1;
-                Debug.Log("Llame al servidor" + i);
+                //i +=1;
+                //Debug.Log("Llame al servidor" + i);
                 }
 
             } else{
@@ -141,48 +140,56 @@ public class Movement : MonoBehaviour
                             if (AproximadamenteIgual(angle,0)){
                                 if(z>position.z){
                                     //Check
-                                    pivot= new Vector3 (0,position.y,0.5f);
-                                    
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
                                     objectiveAngle = -90;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     objectiveAngle = 90;
                                 }
                             } else if (AproximadamenteIgual(angle,180)){
                                 if(z>position.z){
                                     //Check
                                     
-                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     objectiveAngle = 270;
                                 } else {
                                     //Check
                                     
-                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     objectiveAngle = 90;
                                 }
                             } else{
                                 if (z>position.z){
                                     //Check
                                     
-                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
                                     //carTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));*/
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     objectiveAngle = -90;
                                 } else {
                                     //Check // Se presento buuug
-                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     objectiveAngle = -270;
                                 }
                             }
                             flag = true;
                         } else{
-                            if (angle > objectiveAngle){
+                            /*if (angle > objectiveAngle){
                                 rotate_left();
                                 //Debug.Log("LEEEEEEEEEFT 1");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
                                 //Debug.Log("RIIIIIIIIGHT 1");
-                            }
+                            }*/
+                            Debug.Log("Rotar a " + objectiveAngle);
+                            roty=VecOps.RotateYM(objectiveAngle);
+                            angle = objectiveAngle;
                         }
                     }
                 } else{
@@ -209,25 +216,29 @@ public class Movement : MonoBehaviour
                             if (AproximadamenteIgual(angle,-90)){
                                 if(x>position.x){
                                     //Check
-                                    pivot= new Vector3 (0,position.y,-0.5f);
-                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));*/
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
                                     objectiveAngle = 0;
                                 } else {
                                     //Check
                                     
-                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     objectiveAngle = -180;
                                 }
                             } else if (AproximadamenteIgual(angle,-270)){
                                 if(x>position.x){
                                     //Check
                                 
-                                    pivot= new Vector3 (0,position.y,0.5f);
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     objectiveAngle = -360;
                                 } else {
                                     //Check
                                 
-                                    pivot= new Vector3 (0,position.y,-0.5f);
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     
                                     objectiveAngle = -180;
                                 }
@@ -235,24 +246,27 @@ public class Movement : MonoBehaviour
                                 if(x>position.x){
                                     // Check
                                     
-                                    pivot= new Vector3 (0,position.y,0.5f);
-                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));*/
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     objectiveAngle = 0;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (0,position.y,-0.5f);
-                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));*/
+                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -1f));
                                     objectiveAngle = 180;
                                 }
                             } else if (AproximadamenteIgual(angle,270)){
                                 if(x>position.x){
                                     //Check
-                                    pivot= new Vector3 (-0f,position.y,-0.5f);
+                                    //pivot= new Vector3 (-0f,position.y,-0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     objectiveAngle = 360;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-1f, 0, -1f));
+                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     objectiveAngle = 180;
                                 }
                             }
@@ -261,13 +275,17 @@ public class Movement : MonoBehaviour
                             /*if (objectiveAngle != 0 && objectiveAngle != 180 && objectiveAngle != -180 && objectiveAngle != 360 && objectiveAngle != -360){
                                 flag = false;
                             }*/
-                            if (angle > objectiveAngle){ 
+                            /*if (angle > objectiveAngle){ 
                                 rotate_left();
                                 //Debug.Log("LEEEEEEEEEFT 2");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
                                 //Debug.Log("RIIIIIIIIGHT 2");
-                            }
+                            }*/
+                            Debug.Log("Rotar a " + objectiveAngle);
+                            roty=VecOps.RotateYM(objectiveAngle);
+                            angle = objectiveAngle;
+                            
                         }
                     }
                 }
@@ -275,14 +293,9 @@ public class Movement : MonoBehaviour
             ppos = VecOps.TranslateM(pivot);
             pneg = VecOps.TranslateM(-pivot);
             
-            m = scale*carTranslate *ppos * roty * pneg;
+            m = scale * carTranslate *roty;
+            //m = scale*carTranslate *ppos * roty * pneg;
 
-            if (!AproximadamenteIgual(m[0,3], position.x, 0.6f)){
-                Debug.Log("Se tepeo en x");
-            }
-            if (!AproximadamenteIgual(m[2,3], position.z, 0.6f)){
-                Debug.Log("Se tepeo en z");
-            }
 
             pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
             pbMesh.ToMesh();

@@ -17,6 +17,8 @@ public class Connection : MonoBehaviour
     public bool addingPos;
     int llamadas;
 
+    public List<StopLightControl> stopLightControls;
+
 
     IEnumerator RequestCarPositions()
     {
@@ -38,7 +40,7 @@ public class Connection : MonoBehaviour
 
                 foreach(Car car in carData)
                 {
-                    Debug.Log("Got the position to start-------------------------------------------");
+                    //Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
                     move.setX(car.x);
                     move.setZ(car.z);
@@ -51,7 +53,7 @@ public class Connection : MonoBehaviour
             }
         }
         llamadas +=1;
-        Debug.Log(llamadas);
+        //Debug.Log(llamadas);
     }
 
  IEnumerator RequestAllData()
@@ -101,7 +103,10 @@ public class Connection : MonoBehaviour
                 string response = www.downloadHandler.text;
                 stoplights = Stoplights.CreateFromJSON(response).stoplights;
                 foreach(Stoplight stoplight in stoplights){
-                    //Debug.Log(stoplight.id+ " "+stoplight.state);
+                    Debug.Log(stoplight.id+ " "+stoplight.state);
+                    foreach(StopLightControl stopLightControl in stopLightControls){
+                        stopLightControl.setState(stoplight.id,stoplight.state);
+                    }
                 }
             }
         }
@@ -124,6 +129,7 @@ public class Connection : MonoBehaviour
     {
         if(move.callForNextPos && !addingPos){
             StartCoroutine(RequestCarPositions());
+            StartCoroutine(RequestStoplightData());
             move.callForNextPos = false;
         }
     }
