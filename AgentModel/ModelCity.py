@@ -22,7 +22,7 @@ from AgentCar import Car
 from SmartAgentCar import SmartCar
 from AgentStreetDir import AgentStreetDir
 from AgentBusStop import BusStop
-
+from AgentBus import AgentBus
 from Waze import Waze
 
 class CityModel(mesa.Model):
@@ -228,6 +228,29 @@ class CityModel(mesa.Model):
             (21, 20)
         ]
 
+        self.bannedPersonSpawns = [
+            (4, 3),
+            (9, 2),
+            (3, 6),
+            (10, 7),
+            (20, 4),
+            (17, 4),
+            (17, 6),
+            (4, 12),
+            (2, 14),
+            (5, 17),
+            (3, 21),
+            (8, 15),
+            (10, 12),
+            (10, 19),
+            (17, 21),
+            (20, 18),
+            (20, 15),
+            (17, 6),
+            (17, 4),
+            (20, 4),
+        ]
+
         self.stoplights = {
             1: ((1,18), (2,18)),
             2: ((3,19), (3,20)),
@@ -351,6 +374,7 @@ class CityModel(mesa.Model):
         self.addTwoDirStreet()
         self.addPedestrians(10)
         self.addBusStop()
+        self.addBusses()
         
     def addBuilding(self):
         """Añadir edificios a la cuadrícula."""
@@ -412,7 +436,7 @@ class CityModel(mesa.Model):
             parkingLot = self.parkings[startingParking]
             destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)- self.parkings[targetParking][1])
             
-            car = SmartCar(self.next_id(), self, i+1,destination,targetParking,startingParking,self.waze)
+            car = SmartCar(self.next_id(), self, i,destination,targetParking,startingParking,self.waze)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
             self.cars.append(car)
@@ -424,7 +448,15 @@ class CityModel(mesa.Model):
         #car = Car(self.next_id(), self, 1, (1, 1), 1)
         #self.grid.place_agent(car, (5, 5))
         #self.schedule.add(car)
-
+    def addBusses(self):
+        """Añadir autobuses a la cuadrícula."""
+        for i in range(5):
+            bus = AgentBus(self.next_id(), self, i+1)
+            self.schedule.add(bus)
+            position = self.random.choice(list(self.busStops.values()))
+            cell = self.grid.get_cell_list_contents([position])    
+            self.grid.place_agent(bus, self.busStops[i+1])
+            
     def addTwoDirStreet(self):
         """Añadir calles de doble dirección a la cuadrícula."""
         for street, coords in self.twoDirSteets.items():
@@ -434,9 +466,22 @@ class CityModel(mesa.Model):
 
     def addPedestrians(self, numPedestrians):
         for i in range (numPedestrians):
+            peaton = True
             agent = Persona(self.next_id(), self)
             self.schedule.add(agent)
-            self.grid.place_agent(agent, self.random.choice(self.walkableBuildings))
+            pos = self.random.choice(self.walkableBuildings)
+
+            while peaton:
+                cell = self.grid.get_cell_list_contents([pos])
+                for p in cell:
+                    if isinstance(p, Persona) or pos in self.bannedPersonSpawns:
+                        peaton = True
+                        pos = self.random.choice(self.walkableBuildings)
+                    else:
+                        peaton = False
+
+            self.grid.place_agent(agent, pos)
+            print("Pedestrian placed: ", agent.unique_id)
     
     def step(self):
         """Avanzar un paso en la simulación."""
@@ -456,7 +501,7 @@ class CityModel(mesa.Model):
     def getAllData(self):
         result = {"cars":[],"stoplights":[]}
         for car in self.cars:
-            result["cars"].append({"id":car.unique_id,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir})
+            result["cars"].append({"id":car.carId,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir,"arrived":car.inDestination})
         for stop in self.stoplightsData:
             result["stoplights"].append({"id":stop.stoplightId,"state":stop.state})
         

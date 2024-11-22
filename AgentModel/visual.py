@@ -15,6 +15,7 @@ from AgentCar import Car
 from AgentStreetDir import AgentStreetDir
 from SmartAgentCar import SmartCar
 from AgentBusStop import BusStop
+from AgentBus import AgentBus
 
 def agentPortrayal(agent):
     """
@@ -93,11 +94,20 @@ def agentPortrayal(agent):
         portrayal["Color"] = "red"
         portrayal["Shape"] = "circle"
         portrayal["r"] = 0.5
+        portrayal["text"] = agent.unique_id
+        portrayal["text_color"] = "black"
         
     if isinstance(agent, BusStop):
         portrayal["Color"] = "green"
         portrayal["Shape"] = "rect"
         portrayal["text"] = agent.busStop
+        portrayal["text_color"] = "black"
+        
+    if isinstance(agent, AgentBus):
+        portrayal["Color"] = "blue"
+        portrayal["Shape"] = "bus.jpeg"
+        portrayal["r"] = 0.5
+        portrayal["text"] = agent.bus
         portrayal["text_color"] = "black"
 
 
@@ -130,7 +140,7 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 80}
+    {"numAgents": 100}
 )
 
 server.port = 3900
