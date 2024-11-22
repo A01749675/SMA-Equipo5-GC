@@ -22,7 +22,9 @@ public class Vehicle : MonoBehaviour
 
     GameObject carPrefab;
 
-    List<Vector3> positions = new List<Vector3>();
+    bool first = false;
+
+    public List<Vector3> positions = new List<Vector3>();
 
     
     // Start is called before the first frame update
@@ -48,12 +50,26 @@ public class Vehicle : MonoBehaviour
         positions = new List<Vector3>();   
     }
     public List<Vector3> Window(){
-        return positions.GetRange(positions.Count-windowSize,windowSize);
+        if(positions.Count < 4){
+            return positions;
+        }
+        List<Vector3> result = new List<Vector3>();
+        int start = positions.Count-4;
+        for(int i = 0; i < 4; i++){
+            result.Add(positions[start+i]);
+        }
+
+        return result;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        // if(carPrefab && !first){
+        //     if(positions.Count >= windowSize){
+        //         Instantiate(carPrefab,positions[positions.Count-1],Quaternion.identity);
+        //         first = true;
+        //     }
+        // }   
     }
 }

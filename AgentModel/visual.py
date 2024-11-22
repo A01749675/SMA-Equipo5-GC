@@ -14,6 +14,7 @@ from AgentStreet import Street
 from AgentCar import Car
 from AgentStreetDir import AgentStreetDir
 from SmartAgentCar import SmartCar
+from AgentBusStop import BusStop
 
 def agentPortrayal(agent):
     """
@@ -46,15 +47,15 @@ def agentPortrayal(agent):
         portrayal["Shape"] = "rect"
         if agent.state == "Red":
             portrayal["Color"] = "red"
-            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
+            portrayal["text"] = agent.stoplightId
             portrayal["text_color"] = "black"
         elif agent.state == "Green":
             portrayal["Color"] = "green"
-            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
+            portrayal["text"] = agent.stoplightId
             portrayal["text_color"] = "black"
         else:
             portrayal["Color"] = "yellow"
-            portrayal["text"] = str(agent.noCars) + " " + str(agent.sync)
+            portrayal["text"] =agent.stoplightId
             portrayal["text_color"] = "black"
             
     if isinstance(agent,AgentStreetDir):
@@ -92,6 +93,13 @@ def agentPortrayal(agent):
         portrayal["Color"] = "red"
         portrayal["Shape"] = "circle"
         portrayal["r"] = 0.5
+        
+    if isinstance(agent, BusStop):
+        portrayal["Color"] = "green"
+        portrayal["Shape"] = "rect"
+        portrayal["text"] = agent.busStop
+        portrayal["text_color"] = "black"
+
 
     return portrayal
 
