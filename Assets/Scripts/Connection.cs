@@ -10,7 +10,7 @@ public class Connection : MonoBehaviour
     List<Stoplight> stoplights;
     List<Car> carData;
     AllData allData;
-    Movement2 move;
+    Movement move;
     float time;
     float timeToUpdate;
 
@@ -119,7 +119,7 @@ public class Connection : MonoBehaviour
     {
         llamadas=0;
         timeToUpdate = 1.0f;
-        move = GetComponent<Movement2>();
+        move = GetComponent<Movement>();
         //StartCoroutine(RequestCarPositions());
         //StartCoroutine(RequestStoplightData());
     }
