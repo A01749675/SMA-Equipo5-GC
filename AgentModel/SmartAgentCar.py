@@ -23,6 +23,9 @@ from AgentStoplights import Stoplight
 from AgentParking import Parking
 from AgentBuilding import Building
 from AgentStreetDir import AgentStreetDir
+from AgentPerson import Persona
+from AgentBusStop import BusStop
+
 import random
 from pprint import pprint
 
@@ -50,6 +53,7 @@ class SmartCar(mesa.Agent):
         self.targetParking = targetParking
         
         self.currentDir = ""
+        self.busInFront = False
         
         self.movementEquivalence = {
             "N": (0, 1),
@@ -115,8 +119,8 @@ class SmartCar(mesa.Agent):
                 if isinstance(c, Street):
                     self.model.grid.move_agent(self, neighbor)
                     self.justStarted = False
-                    print("Entering streer from parking lot")
-                    print("The dir is: "+c.currentDirection())
+                    #print("Entering streer from parking lot")
+                    #print("The dir is: "+c.currentDirection())
                     return
 
     def checkStoplight(self):
@@ -275,13 +279,18 @@ class SmartCar(mesa.Agent):
                             self.previousParking = c.parkingId
                             
                         if self.waze.routeExists(c.parkingId, self.targetParking) and c.parkingId != self.targetParking:
-                            print("There is a route from", c.parkingId, "to", self.targetParking)
+                            #print("There is a route from", c.parkingId, "to", self.targetParking)
                             self.foundRoute = True
                             self.bestPath = self.waze.shortestPath(c.parkingId, self.targetParking)
                             return 
 
                     if isinstance(c, SmartCar):
                         continue
+                    if isinstance(c, Persona):
+                        continue
+                    if self.is_agent_bus(c):
+                        continue
+                    
                     
                     if isinstance(c, AgentStreetDir):
                         possibleSteps.append(neighbor)
@@ -309,6 +318,10 @@ class SmartCar(mesa.Agent):
             for c in nextCell:
                 if isinstance(c, SmartCar):
                     return
+                if self.is_agent_bus(c):
+                    return
+                if isinstance(c, Persona):
+                    continue
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
                         return
@@ -336,7 +349,10 @@ class SmartCar(mesa.Agent):
                 self.path.append(self.pos)
         except:
             print("Error: No path to destination")
-            
+
+    def is_agent_bus(self, obj):
+        from AgentBus import AgentBus  # Lazy import here
+        return isinstance(obj, AgentBus)
         
     def followBestPath(self):
         """
@@ -348,7 +364,7 @@ class SmartCar(mesa.Agent):
             print("Following best path ", self.bestPath, " to ", self.targetParking)
             nextPos = self.bestPath.popleft()
             if nextPos == self.target:
-                print("Reached with best path destination")
+                #print("Reached with best path destination")
                 self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
                 return
@@ -367,7 +383,7 @@ class SmartCar(mesa.Agent):
                         if c.parkingId == self.targetParking:
                             self.inDestination = True
                             self.model.grid.move_agent(self, neighbor)
-                            print("Reached with best path destination")
+                            #print("Reached with best path destination")
                             return 
             nextCell = self.model.grid.get_cell_list_contents([nextPos])
             for c in nextCell:
@@ -377,6 +393,8 @@ class SmartCar(mesa.Agent):
                         self.model.grid.move_agent(self, nextPos)
                         return
                 if isinstance(c, SmartCar):
+                    return
+                if self.is_agent_bus(c):
                     return
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
@@ -396,7 +414,7 @@ class SmartCar(mesa.Agent):
                             self.model.grid.move_agent(self, neighbor)
                             return
             if not self.inDestination:
-                print("Error: No path to destination")
+                #print("Error: No path to destination")
                 self.foundRoute = False
         
 

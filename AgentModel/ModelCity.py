@@ -22,7 +22,7 @@ from AgentCar import Car
 from SmartAgentCar import SmartCar
 from AgentStreetDir import AgentStreetDir
 from AgentBusStop import BusStop
-
+from AgentBus import AgentBus
 from Waze import Waze
 
 class CityModel(mesa.Model):
@@ -351,6 +351,7 @@ class CityModel(mesa.Model):
         self.addTwoDirStreet()
         self.addPedestrians(10)
         self.addBusStop()
+        self.addBusses()
         
     def addBuilding(self):
         """Añadir edificios a la cuadrícula."""
@@ -424,7 +425,15 @@ class CityModel(mesa.Model):
         #car = Car(self.next_id(), self, 1, (1, 1), 1)
         #self.grid.place_agent(car, (5, 5))
         #self.schedule.add(car)
-
+    def addBusses(self):
+        """Añadir autobuses a la cuadrícula."""
+        for i in range(5):
+            bus = AgentBus(self.next_id(), self, i+1)
+            self.schedule.add(bus)
+            position = self.random.choice(list(self.busStops.values()))
+            cell = self.grid.get_cell_list_contents([position])    
+            self.grid.place_agent(bus, self.busStops[i+1])
+            
     def addTwoDirStreet(self):
         """Añadir calles de doble dirección a la cuadrícula."""
         for street, coords in self.twoDirSteets.items():
