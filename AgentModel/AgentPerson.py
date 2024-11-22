@@ -7,9 +7,10 @@ class Persona(mesa.Agent):
         uniqueId (int): id que identifica al agente
         model (mesa.Model): modelo en el que se encuentra el agente
     """
-    def __init__(self, uniqueId, model):
+    def __init__(self, uniqueId, model, inBus = False):
         super().__init__(uniqueId,model)
         self.unique_id = uniqueId
+        self.in_Bus = inBus
 
     def caminar(self):
         """
