@@ -24,11 +24,11 @@ public class Movement : MonoBehaviour
     float objectiveAngle;
     bool flag;
     Matrix4x4 scale;
-    [SerializeField]
-    GameObject carPrefab;
+    public GameObject carPrefab;
     GameObject car;
     [SerializeField]
     Connection con;
+    public int id;
 
     public bool callForNextPos;
     public bool waitingForNextPos;
@@ -47,11 +47,10 @@ public class Movement : MonoBehaviour
         if (carPrefab != null)
         {
             car = Instantiate(carPrefab);
-            car.name = "CarPrueba";
         }
         else
         {
-            //Debug.LogError("Car prefab is not assigned!");
+            ////DebugLogError("Car prefab is not assigned!");
             return;
         }
         x= 0;
@@ -61,12 +60,12 @@ public class Movement : MonoBehaviour
         carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
         position = new Vector3 (x, 0, z);
         roty = VecOps.RotateYM(angle);
-        //Debug.Log(angle);
-        //Debug.Log(roty);
+        ////DebugLog(angle);
+        ////DebugLog(roty);
         scale= VecOps.ScaleM(new Vector3 (1,1,1));
         m =  scale*carTranslate *roty;
         started = false;
-        //Debug.Log(m);
+        ////DebugLog(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
         pbMesh.Refresh();
@@ -85,24 +84,24 @@ public class Movement : MonoBehaviour
     {
 
         if(!started){
-            Debug.Log("Not started");
+            //DebugLog("Not started");
             if(!callForNextPos && !con.addingPos){
-                Debug.Log("Receriving positions");
+                //DebugLog("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
-                Debug.Log("Angulo = " + angle);
+                //DebugLog("Angulo = " + angle);
                 roty = VecOps.RotateYM(angle);
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
                 pbMesh.Refresh();
-                Debug.Log("The position is: "+position);
+                //DebugLog("The position is: "+position);
                 ppos = VecOps.TranslateM(pivot);
                 pneg = VecOps.TranslateM(-pivot);
                 m = scale*carTranslate *ppos * roty * pneg;
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
-                //Debug.Log(m);
+                ////DebugLog(m);
                 pbMesh.Refresh();
                 started = true;
             }
@@ -111,30 +110,30 @@ public class Movement : MonoBehaviour
 
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
                 if (!callForNextPos  && !waitingForNextPos){
-                //Debug.Log("En objetivo");
+                ////DebugLog("En objetivo");
                 flag = false;
                 callForNextPos = true;
                 //i +=1;
-                //Debug.Log("Llame al servidor" + i);
+                ////DebugLog("Llame al servidor" + i);
                 }
 
             } else{
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
-                    //Debug.Log("x igual");
+                    ////DebugLog("x igual");
                     if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
-                        //Debug.Log("Avanzaré a z");
+                        ////DebugLog("Avanzaré a z");
                         position.z=m[2,3];
                             if(position.z < z){
                                 move_z(0.1f);
-                                //Debug.Log("Arriba");
+                                ////DebugLog("Arriba");
                             } else{
                                 move_z(-0.1f);
-                                //Debug.Log("Abajo");
+                                ////DebugLog("Abajo");
                             }
                             flag = false;
                         
                     } else{
-                        //Debug.Log("Voy a girar hacia z");
+                        ////DebugLog("Voy a girar hacia z");
                         if (!flag){
                             
                             if (AproximadamenteIgual(angle,0)){
@@ -182,35 +181,35 @@ public class Movement : MonoBehaviour
                         } else{
                             /*if (angle > objectiveAngle){
                                 rotate_left();
-                                //Debug.Log("LEEEEEEEEEFT 1");
+                                ////DebugLog("LEEEEEEEEEFT 1");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
-                                //Debug.Log("RIIIIIIIIGHT 1");
+                                ////DebugLog("RIIIIIIIIGHT 1");
                             }*/
-                            Debug.Log("Rotar a " + objectiveAngle);
+                            //DebugLog("Rotar a " + objectiveAngle);
                             roty=VecOps.RotateYM(objectiveAngle);
                             angle = objectiveAngle;
                         }
                     }
                 } else{
-                    //Debug.Log("x diferente");
+                    ////DebugLog("x diferente");
                     if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                     position.x=m[0,3];
-                    //Debug.Log("Estoy apuntando hacia x");
+                    ////DebugLog("Estoy apuntando hacia x");
                         if(position.x < x){
                             move_x(0.1f);
-                            //Debug.Log("Derecha");
+                            ////DebugLog("Derecha");
                         } else{
                             move_x(-0.1f);
-                            //Debug.Log("Izquierda");
+                            ////DebugLog("Izquierda");
                         }
                         if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                             angle = 0;
                         }
                         flag = false;
                     } else{
-                        //Debug.Log("Voy a girar hacia x");
-                        //Debug.Log(flag);
+                        ////DebugLog("Voy a girar hacia x");
+                        ////DebugLog(flag);
                         if (!flag){ 
 
                             if (AproximadamenteIgual(angle,-90)){
@@ -277,12 +276,12 @@ public class Movement : MonoBehaviour
                             }*/
                             /*if (angle > objectiveAngle){ 
                                 rotate_left();
-                                //Debug.Log("LEEEEEEEEEFT 2");
+                                ////DebugLog("LEEEEEEEEEFT 2");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
-                                //Debug.Log("RIIIIIIIIGHT 2");
+                                ////DebugLog("RIIIIIIIIGHT 2");
                             }*/
-                            Debug.Log("Rotar a " + objectiveAngle);
+                            //DebugLog("Rotar a " + objectiveAngle);
                             roty=VecOps.RotateYM(objectiveAngle);
                             angle = objectiveAngle;
                             
@@ -299,7 +298,7 @@ public class Movement : MonoBehaviour
 
             pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
             pbMesh.ToMesh();
-            //Debug.Log(m);
+            ////DebugLog(m);
             pbMesh.Refresh();
             if(angle == objectiveAngle){
                 flag = false;
@@ -360,8 +359,8 @@ public void setZ(float z_n){
 }
 public void setAngle(string direction){
     if(!started){
-        Debug.Log("Seteando angulo");
-        Debug.Log(direction);
+        //DebugLog("Seteando angulo");
+        //DebugLog(direction);
         
         switch (direction)
         {
@@ -378,7 +377,7 @@ public void setAngle(string direction){
                 angle = 180;
                 break;
             default:
-                Debug.LogWarning("Dirección no reconocida: " + direction);
+                //DebugLogWarning("Dirección no reconocida: " + direction);
                 break;
         }
     }

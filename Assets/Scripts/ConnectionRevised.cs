@@ -6,7 +6,7 @@ using UnityEngine.Networking;
 
 public class ConnectionRevised : MonoBehaviour
 {
-    List<List<Vector3>> positions;
+    /*List<List<Vector3>> positions;
     List<Stoplight> stoplights;
     List<Car> carData;
     AllData allData;
@@ -121,5 +121,5 @@ public class ConnectionRevised : MonoBehaviour
             time = 1f;
             StartCoroutine(RequestCarPositions());
         }
-    }
+    }*/
 }

@@ -52,16 +52,20 @@ public class Connection : MonoBehaviour
                 
             }
         }
-        llamadas +=1;
+        //llamadas +=1;
         //Debug.Log(llamadas);
     }
 
  IEnumerator RequestAllData()
     {
+        llamadas +=1;
         addingPos = true;
         move.waitingForNextPos = true;
+        Debug.Log("Requesting all data");
+        //addingPos = true;
+        //move.waitingForNextPos = true;
         WWWForm form = new WWWForm();
-        string url = "http://localhost:8000/carData";
+        string url = "http://localhost:8000/allData";
         using (UnityWebRequest www = UnityWebRequest.Post(url,form))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
@@ -72,18 +76,29 @@ public class Connection : MonoBehaviour
             }
             else{
                 string response = www.downloadHandler.text;
+                //Debug.Log(response);
                 allData = AllData.CreateFromJSON(response);
-                Cars cars = allData.cars;
-                Stoplights stoplights = allData.stoplights;
-                foreach(Car car in cars.cars)
+                //Debug.Log(allData.cars.Count);
+                List<Car> cars = allData.cars;
+                List<Stoplight> stoplights = allData.stoplights;
+                foreach(Car car in cars)
                 {
-                    Debug.Log("Got the position to start-------------------------------------------");
+                    //Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x-0.5f);
-                    move.setZ(car.z-0.5f);
+                    move.setX(car.x);
+                    move.setZ(car.z);
 
                 }
+                foreach(Stoplight stoplight in stoplights){
+                    //Debug.Log(stoplight.id+ " "+stoplight.state);
+                    foreach(StopLightControl stopLightControl in stopLightControls){
+                        stopLightControl.setState(stoplight.id,stoplight.state);
+                    }
+                }
+                addingPos = false;
+                move.waitingForNextPos = false;
             }
+            
         }
     }
 
@@ -128,8 +143,7 @@ public class Connection : MonoBehaviour
     void Update()
     {
         if(move.callForNextPos && !addingPos){
-            StartCoroutine(RequestCarPositions());
-            StartCoroutine(RequestStoplightData());
+            StartCoroutine(RequestAllData());   
             move.callForNextPos = false;
         }
     }
@@ -137,5 +151,10 @@ public class Connection : MonoBehaviour
     public void CallNextPos(){
         StartCoroutine(RequestCarPositions());
         StartCoroutine(RequestStoplightData());
+    }
+    
+    public void CallAllData(){
+        //Debug.Log("Calling all data");
+        StartCoroutine(RequestAllData());
     }
 }

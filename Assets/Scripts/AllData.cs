@@ -5,8 +5,8 @@ using UnityEngine;
 [System.Serializable]
 public class AllData
 {
-    public Cars cars;
-    public Stoplights stoplights;
+    public List<Car> cars;
+    public List<Stoplight> stoplights;
 
     public static AllData CreateFromJSON(string jsonString)
     {

@@ -45,7 +45,7 @@ public class StopLightControl : MonoBehaviour
     }
 
     public void setState(int id,string newState){
-        UnityEngine.Debug.Log("Setting state of "+id+" to "+newState);
+        //UnityEngine.Debug.Log("Setting state of "+id+" to "+newState);
         if(id == this.id){
             state = newState;
         }
