@@ -436,7 +436,7 @@ class CityModel(mesa.Model):
             parkingLot = self.parkings[startingParking]
             destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)- self.parkings[targetParking][1])
             
-            car = SmartCar(self.next_id(), self, i+1,destination,targetParking,startingParking,self.waze)
+            car = SmartCar(self.next_id(), self, i,destination,targetParking,startingParking,self.waze)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))
             self.schedule.add(car)
             self.cars.append(car)
@@ -501,7 +501,7 @@ class CityModel(mesa.Model):
     def getAllData(self):
         result = {"cars":[],"stoplights":[]}
         for car in self.cars:
-            result["cars"].append({"id":car.unique_id,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir,"arrived":car.inDestination})
+            result["cars"].append({"id":car.carId,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir,"arrived":car.inDestination})
         for stop in self.stoplightsData:
             result["stoplights"].append({"id":stop.stoplightId,"state":stop.state})
         
