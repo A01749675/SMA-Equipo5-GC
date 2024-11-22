@@ -360,15 +360,16 @@ class SmartCar(mesa.Agent):
         En caso de que la ruta no lo lleve a su destino, nuevaamente usa la heurística simple para encontrar la mejor posición a la que se puede mover el agente.
         """
         if self.bestPath and not self.inDestination:
+            moved = True
             print("My position is ", self.pos)
             print("Following best path ", self.bestPath, " to ", self.targetParking)
+            
             nextPos = self.bestPath.popleft()
             if nextPos == self.target:
                 #print("Reached with best path destination")
                 self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
                 return
-            
             
             neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
                          (self.pos[0] - 1, self.pos[1]),  # Left
@@ -385,6 +386,7 @@ class SmartCar(mesa.Agent):
                             self.model.grid.move_agent(self, neighbor)
                             #print("Reached with best path destination")
                             return 
+                        
             nextCell = self.model.grid.get_cell_list_contents([nextPos])
             for c in nextCell:
                 if isinstance(c, Parking):
@@ -393,15 +395,23 @@ class SmartCar(mesa.Agent):
                         self.model.grid.move_agent(self, nextPos)
                         return
                 if isinstance(c, SmartCar):
-                    return
+                    moved = False
+                    break
                 if self.is_agent_bus(c):
+                    moved = False
                     return
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
+                        moved = False
                         return
                 if isinstance(c, Building):
+                    moved = False
                     return
-            self.model.grid.move_agent(self, nextPos)
+            if moved:
+                self.model.grid.move_agent(self, nextPos)
+            else:
+                self.bestPath.appendleft(nextPos)
+            return 
             
         if not self.bestPath:
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)

@@ -82,13 +82,13 @@ class AgentBus(mesa.Agent):
             self.route = busRoutes[f"{self.bus}-{target}"]
             self.routeIndex = 0
         else:
-
             nextPos = self.route[self.routeIndex]
             cell = self.model.grid.get_cell_list_contents(nextPos)
             for cellContent in cell:
 
                 if isinstance(cellContent,Building):
                     print("Building")
+                    
                     return
                 if isinstance(cellContent,AgentBus):
                     print("Bus")
