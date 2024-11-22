@@ -78,7 +78,6 @@ class AgentBus(mesa.Agent):
             target = self.bus+1
         else:
             target = 1
-
         if self.route == []:
             self.route = busRoutes[f"{self.bus}-{target}"]
             self.routeIndex = 0
@@ -113,6 +112,9 @@ class AgentBus(mesa.Agent):
                         self.routeIndex = 0
                         self.waiting = True
                         self.route = []
+                        self.bus+=1
+                        if(self.bus>5):
+                            self.bus = 1
                     return
                 if isinstance(cellContent,AgentStreetDir):
                     self.currentDir = cellContent.direction
@@ -122,6 +124,9 @@ class AgentBus(mesa.Agent):
                         self.routeIndex = 0
                         self.waiting = True
                         self.route = []
+                        self.bus+=1
+                        if(self.bus>5):
+                            self.bus = 1
                         return
                     
     def checkStoplight(self):
