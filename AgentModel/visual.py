@@ -94,6 +94,8 @@ def agentPortrayal(agent):
         portrayal["Color"] = "red"
         portrayal["Shape"] = "circle"
         portrayal["r"] = 0.5
+        portrayal["text"] = agent.unique_id
+        portrayal["text_color"] = "black"
         
     if isinstance(agent, BusStop):
         portrayal["Color"] = "green"

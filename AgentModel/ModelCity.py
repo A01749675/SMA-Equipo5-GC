@@ -228,6 +228,29 @@ class CityModel(mesa.Model):
             (21, 20)
         ]
 
+        self.bannedPersonSpawns = [
+            (4, 3),
+            (9, 2),
+            (3, 6),
+            (10, 7),
+            (20, 4),
+            (17, 4),
+            (17, 6),
+            (4, 12),
+            (2, 14),
+            (5, 17),
+            (3, 21),
+            (8, 15),
+            (10, 12),
+            (10, 19),
+            (17, 21),
+            (20, 18),
+            (20, 15),
+            (17, 6),
+            (17, 4),
+            (20, 4),
+        ]
+
         self.stoplights = {
             1: ((1,18), (2,18)),
             2: ((3,19), (3,20)),
@@ -443,9 +466,22 @@ class CityModel(mesa.Model):
 
     def addPedestrians(self, numPedestrians):
         for i in range (numPedestrians):
+            peaton = True
             agent = Persona(self.next_id(), self)
             self.schedule.add(agent)
-            self.grid.place_agent(agent, self.random.choice(self.walkableBuildings))
+            pos = self.random.choice(self.walkableBuildings)
+
+            while peaton:
+                cell = self.grid.get_cell_list_contents([pos])
+                for p in cell:
+                    if isinstance(p, Persona) or pos in self.bannedPersonSpawns:
+                        peaton = True
+                        pos = self.random.choice(self.walkableBuildings)
+                    else:
+                        peaton = False
+
+            self.grid.place_agent(agent, pos)
+            print("Pedestrian placed: ", agent.unique_id)
     
     def step(self):
         """Avanzar un paso en la simulación."""
