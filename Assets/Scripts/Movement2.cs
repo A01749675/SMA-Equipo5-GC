@@ -75,7 +75,9 @@ public class Movement2 : MonoBehaviour
         Debug.Log(angle);
         Debug.Log(roty);
         scale= VecOps.ScaleM(new Vector3 (1,1,1));
-        m =   roty*carTranslate*scale;
+        m = roty*scale*carTranslate;
+        //m =   carTranslate*roty*scale;
+        //m =   roty*scale*carTranslate;
         Debug.Log(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
@@ -174,10 +176,10 @@ public class Movement2 : MonoBehaviour
                     //     rotate_right();
 
                     // }
+                    
                 }
             
             }
-        
             if(assignPivot){
                 pivot = new Vector3 (position.x+pivConstantX,position.y,position.z+pivConstantZ);
             }
@@ -188,7 +190,11 @@ public class Movement2 : MonoBehaviour
             ppos = VecOps.TranslateM(pivot);
             pneg = VecOps.TranslateM(-pivot);
             
-            m =  ppos*roty*pneg*carTranslate*scale;
+            //m =  pneg*roty*ppos*scale*carTranslate;
+            m =  ppos*roty*pneg*scale*carTranslate;
+            //m =   roty*scale*carTranslate;
+            //m = scale * carTranslate * ppos * roty * pneg;
+            //m = roty * carTranslate * scale;
 
             pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
             pbMesh.ToMesh();
@@ -203,17 +209,20 @@ void move_x(float speed)
 
 void rotate_precise(float rotationDegrees)
 {
+    
     roty *= VecOps.RotateYM(rotationDegrees);
 
-    angle = (angle + rotationDegrees + 360) % 360;
+    angle = (angle + rotationDegrees + 180) % 180;
+    
+    Debug.Log($"Rotating {rotationDegrees} degrees. New angle: {angle}");
 }
 
 float CalculateShortestRotation(float currentAngle, float targetAngle)
 {
     float rotation = targetAngle - currentAngle;
 
-    if (rotation > 180) rotation -= 360;
-    else if (rotation < -180) rotation += 360;
+    /*if (rotation < 180) rotation -= 360;
+    else if (rotation > -180) rotation += 360;*/
 
     return rotation;
 }
