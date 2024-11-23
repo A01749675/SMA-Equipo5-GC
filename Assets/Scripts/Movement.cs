@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
@@ -19,21 +20,21 @@ public class Movement : MonoBehaviour
     Matrix4x4 ppos;
     Vector3 pivot;
     [SerializeField]
-    float angle;
+    public float angle;
     Matrix4x4 m;
     float objectiveAngle;
     bool flag;
     Matrix4x4 scale;
     public GameObject carPrefab;
     GameObject car;
-    [SerializeField]
-    Connection con;
+    public Connection con;
     public int id;
 
     public bool callForNextPos;
     public bool waitingForNextPos;
     public bool started;
     public int i;
+    public bool getStarted;
 
     
     
@@ -76,6 +77,7 @@ public class Movement : MonoBehaviour
         waitingForNextPos = false;
         callForNextPos = true;
         i = 0;
+        getStarted = false;
         
     }
 
@@ -84,8 +86,9 @@ public class Movement : MonoBehaviour
     {
 
         if(!started){
-            //DebugLog("Not started");
-            if(!callForNextPos && !con.addingPos){
+            Debug.Log("Not started" + id);
+            Debug.Log(getStarted);
+            if(getStarted){
                 //DebugLog("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
@@ -381,6 +384,11 @@ public void setAngle(string direction){
                 break;
         }
     }
+}
+public void setArrived(){
+    Debug.Log("Llegué");
+    car.SetActive(false);
+
 }
 }
 

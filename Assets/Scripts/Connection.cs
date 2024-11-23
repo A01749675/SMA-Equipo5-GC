@@ -10,7 +10,8 @@ public class Connection : MonoBehaviour
     List<Stoplight> stoplights;
     List<Car> carData;
     AllData allData;
-    Movement move;
+    [SerializeField]
+    CarController carController;
     float time;
     float timeToUpdate;
 
@@ -23,7 +24,7 @@ public class Connection : MonoBehaviour
     IEnumerator RequestCarPositions()
     {
         addingPos = true;
-        move.waitingForNextPos = true;
+        carController.waitingForNextPos = true;
         WWWForm form = new WWWForm();
         string url = "http://localhost:8000/carData";
         using (UnityWebRequest www = UnityWebRequest.Post(url,form))
@@ -42,13 +43,17 @@ public class Connection : MonoBehaviour
                 {
                     //Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x);
-                    move.setZ(car.z);
-                    //move.setAngle(car.direction);
+                    carController.setX(car.x,car.id);
+                    carController.setZ(car.z,car.id);
+                    carController.setAngle(car.direction,car.id);
+                    if(car.arrived){
+                        carController.setArrived(car.id);
+                    }
 
                 }
                 addingPos = false;
-                move.waitingForNextPos = false;
+                carController.waitingForNextPos = false;
+
                 
             }
         }
@@ -60,7 +65,7 @@ public class Connection : MonoBehaviour
     {
         llamadas +=1;
         addingPos = true;
-        move.waitingForNextPos = true;
+        carController.waitingForNextPos = true;
         Debug.Log("Requesting all data");
         //addingPos = true;
         //move.waitingForNextPos = true;
@@ -81,12 +86,17 @@ public class Connection : MonoBehaviour
                 //Debug.Log(allData.cars.Count);
                 List<Car> cars = allData.cars;
                 List<Stoplight> stoplights = allData.stoplights;
+                carController.setNoC(allData.cars.Count);
                 foreach(Car car in cars)
                 {
                     //Debug.Log("Got the position to start-------------------------------------------");
                     //Debug.Log(car.x+ " "+car.z);
-                    move.setX(car.x);
-                    move.setZ(car.z);
+                    carController.setX(car.x,car.id);
+                    carController.setZ(car.z,car.id);
+                    carController.setAngle(car.direction,car.id);
+                    if(car.arrived){
+                        carController.setArrived(car.id);
+                    }
 
                 }
                 foreach(Stoplight stoplight in stoplights){
@@ -96,7 +106,7 @@ public class Connection : MonoBehaviour
                     }
                 }
                 addingPos = false;
-                move.waitingForNextPos = false;
+                carController.waitingForNextPos = false;
             }
             
         }
@@ -134,7 +144,7 @@ public class Connection : MonoBehaviour
     {
         llamadas=0;
         timeToUpdate = 1.0f;
-        move = GetComponent<Movement>();
+        //move = GetComponent<Movement>();
         //StartCoroutine(RequestCarPositions());
         //StartCoroutine(RequestStoplightData());
     }
@@ -142,9 +152,9 @@ public class Connection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(move.callForNextPos && !addingPos){
+        if(carController.callForNextPos && !addingPos){
             StartCoroutine(RequestAllData());   
-            move.callForNextPos = false;
+            carController.callForNextPos = false;
         }
     }
 

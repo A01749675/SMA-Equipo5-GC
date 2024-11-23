@@ -12,48 +12,151 @@ public class CarController : MonoBehaviour
     GameObject carPrefab3;
     [SerializeField]
     GameObject carPrefab4;
+    public bool callForNextPos;
+    public bool waitingForNextPos;
+    [SerializeField]
+    Connection con;
+    bool started;
+    public int numberOfCars;
+    public List<float> startx;
+    public List<float> startz;
+    public List<string> startangle ;
     
-    List<GameObject> cars = new List<GameObject>(); // Initialize the list
+    List<GameObject> cars; // Initialize the list
+
+    List<bool> arrived;
 
     // Start is called before the first frame update
     void Start()
     {
-        for (int i = 0; i < 5; i++)
-        {
-            GameObject car = new GameObject("EmptyObject");
-            car.AddComponent<Movement>();
-            Movement movement = car.GetComponent<Movement>();
-            if (i % 4 == 0)
-            {
-                movement.carPrefab = carPrefab4;
-            }
-            else if (i % 3 == 0)
-            {
-                movement.carPrefab = carPrefab3;
-            }
-            else if (i % 2 == 0)
-            {
-                movement.carPrefab = carPrefab2;
-            }
-            else
-            {
-                movement.carPrefab = carPrefab;
-            }
-            movement.id = i;
-            car.name = "Car" + i;
-            //car.transform.position = new Vector3(0, 0, i);
-            cars.Add(car); // Add the instantiated car to the list
-        }
+        started = false;
+        waitingForNextPos = false;
+        callForNextPos = true;
+        startx = new List<float>();
+        startz = new List<float>();
+        startangle = new List<string>();
+        cars = new List<GameObject>();
+        arrived = new List<bool>();
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        foreach (GameObject car in cars)
-        {
+        if(!started){
+            //DebugLog("Not started");
+            if(!callForNextPos && !con.addingPos){
+                for (int i = 0; i < numberOfCars; i++)
+                    {
+                    GameObject car = new GameObject("EmptyObject");
+                    car.AddComponent<Movement>();
+                    Movement movement = car.GetComponent<Movement>();
+                    if (i % 4 == 0)
+                    {
+                        movement.carPrefab = carPrefab4;
+                    }
+                    else if (i % 3 == 0)
+                    {
+                        movement.carPrefab = carPrefab3;
+                    }
+                    else if (i % 2 == 0)
+                    {
+                        movement.carPrefab = carPrefab2;
+                    }
+                    else
+                    {
+                        movement.carPrefab = carPrefab;
+                    }
+                    movement.id = i;
+                    car.name = "Car" + i;
+                    cars.Add(car); 
+                    movement.con = con;
+                    movement.setAngle(startangle[i]);
+                    movement.setX(startx[i]);
+                    movement.setZ(startz[i]);
+                    arrived.Add(false);
+                    movement.getStarted = true;
+                }
+                started = true;
+            }
+        }
+        else{
+            bool call = true;
+            foreach (GameObject car in cars)
+            {
+                Movement movement = car.GetComponent<Movement>();
+                call = movement.callForNextPos && call;
+            }  
+            if (call && !waitingForNextPos)
+            {
+                foreach (GameObject car in cars)
+            {
+                Movement movement = car.GetComponent<Movement>();
+                movement.callForNextPos = false;
+                movement.waitingForNextPos = true;
+            } 
+                callForNextPos = true;
+            } else {
+                foreach (GameObject car in cars)
+            {
+                Movement movement = car.GetComponent<Movement>();
+                movement.waitingForNextPos = false;
+                movement.getStarted = true;
+            } 
+
+            }
+        }
+    }
+
+    public void setX(float x, int id)
+    {
+        if(started){
+            if(!arrived[id]){
+                GameObject car = cars[id];
+                Movement movement = car.GetComponent<Movement>();
+                movement.setX(x);
+            }
+        } else {
+            startx.Add(x);
+        }
+    }
+    public void setZ(float z, int id)
+    {
+        if(started){
+            if(!arrived[id]){
+                GameObject car = cars[id];
+                Movement movement = car.GetComponent<Movement>();
+                movement.setZ(z);
+            }
+        } else{
+            startz.Add(z);
+        }
+    }
+    public void setAngle(string direction, int id)
+    {
+        if(started){
+            if(!arrived[id]){
+                GameObject car = cars[id];
+                Movement movement = car.GetComponent<Movement>();
+                movement.setAngle(direction);
+            }
+        }
+        else{
+            startangle.Add(direction);
+        }
+    }
+    public void setNoC(int noC)
+    {
+        numberOfCars = noC;
+    }
+    public void setArrived(int id)
+    {
+        if(started){
+            Debug.Log("Car "+id+" has arrived");
+            GameObject car = cars[id];
             Movement movement = car.GetComponent<Movement>();
-            movement.x = 10;
-            movement.z = 1;
-        }   
+            movement.setArrived();
+            arrived[id] = true;
+        }
     }
 }
