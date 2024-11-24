@@ -35,6 +35,14 @@ public class Movement : MonoBehaviour
     public bool started;
     public int i;
     public bool getStarted;
+    bool flagrotating;
+
+    Matrix4x4 carTranslateR;
+    bool once;
+    Vector3 temp;
+    float rotating_angle;
+    Matrix4x4 rotyr;
+    int rotating_dir;
 
     
     
@@ -44,6 +52,7 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        
         // Instancia el prefab del coche
         if (carPrefab != null)
         {
@@ -51,7 +60,7 @@ public class Movement : MonoBehaviour
         }
         else
         {
-            ////DebugLogError("Car prefab is not assigned!");
+            //////DebugLogError("Car prefab is not assigned!");
             return;
         }
         x= 0;
@@ -61,12 +70,13 @@ public class Movement : MonoBehaviour
         carTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
         position = new Vector3 (x, 0, z);
         roty = VecOps.RotateYM(angle);
-        ////DebugLog(angle);
-        ////DebugLog(roty);
+        rotyr = VecOps.RotateYM(0);
+        //////DebugLog(angle);
+        //////DebugLog(roty);
         scale= VecOps.ScaleM(new Vector3 (1,1,1));
         m =  scale*carTranslate *roty;
         started = false;
-        ////DebugLog(m);
+        //////DebugLog(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
         pbMesh.ToMesh();
         pbMesh.Refresh();
@@ -78,6 +88,7 @@ public class Movement : MonoBehaviour
         callForNextPos = true;
         i = 0;
         getStarted = false;
+        once = false;
         
     }
 
@@ -86,25 +97,25 @@ public class Movement : MonoBehaviour
     {
 
         if(!started){
-            Debug.Log("Not started" + id);
-            Debug.Log(getStarted);
+            //Debug.Log("Not started" + id);
+            //Debug.Log(getStarted);
             if(getStarted){
-                //DebugLog("Receriving positions");
+                ////DebugLog("Receriving positions");
                 carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
-                //DebugLog("Angulo = " + angle);
+                ////DebugLog("Angulo = " + angle);
                 roty = VecOps.RotateYM(angle);
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
                 pbMesh.Refresh();
-                //DebugLog("The position is: "+position);
+                ////DebugLog("The position is: "+position);
                 ppos = VecOps.TranslateM(pivot);
                 pneg = VecOps.TranslateM(-pivot);
                 m = scale*carTranslate *ppos * roty * pneg;
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
-                ////DebugLog(m);
+                //////DebugLog(m);
                 pbMesh.Refresh();
                 started = true;
             }
@@ -113,180 +124,198 @@ public class Movement : MonoBehaviour
 
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
                 if (!callForNextPos  && !waitingForNextPos){
-                ////DebugLog("En objetivo");
+                //////DebugLog("En objetivo");
                 flag = false;
                 callForNextPos = true;
                 //i +=1;
-                ////DebugLog("Llame al servidor" + i);
+                //////DebugLog("Llame al servidor" + i);
                 }
 
             } else{
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
-                    ////DebugLog("x igual");
+                    //////DebugLog("x igual");
                     if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
-                        ////DebugLog("Avanzaré a z");
+                        //////DebugLog("Avanzaré a z");
                         position.z=m[2,3];
                             if(position.z < z){
-                                move_z(0.1f);
-                                ////DebugLog("Arriba");
+                                move_z(0.0111111f);
+                                //////DebugLog("Arriba");
                             } else{
-                                move_z(-0.1f);
-                                ////DebugLog("Abajo");
+                                move_z(-0.0111111f);
+                                //////DebugLog("Abajo");
                             }
                             flag = false;
                         
                     } else{
-                        ////DebugLog("Voy a girar hacia z");
+                        //////DebugLog("Voy a girar hacia z");
                         if (!flag){
                             
                             if (AproximadamenteIgual(angle,0)){
                                 if(z>position.z){
                                     //Check
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    //Debug.Log("Aqui");
+                                    
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]+0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = -90;
                                 } else {
                                     //Check
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = 90;
                                 }
                             } else if (AproximadamenteIgual(angle,180)){
                                 if(z>position.z){
                                     //Check
                                     
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]+0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = 270;
                                 } else {
                                     //Check
                                     
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = 90;
                                 }
                             } else{
                                 if (z>position.z){
                                     //Check
                                     
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]+0.5f);
                                     //carTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));*/
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    temp= new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = -90;
                                 } else {
                                     //Check // Se presento buuug
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3],position.y,carTranslate[2,3]-0.5f);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = -270;
                                 }
                             }
                             flag = true;
+                            flagrotating = true;
                         } else{
                             /*if (angle > objectiveAngle){
                                 rotate_left();
-                                ////DebugLog("LEEEEEEEEEFT 1");
+                                //////DebugLog("LEEEEEEEEEFT 1");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
-                                ////DebugLog("RIIIIIIIIGHT 1");
+                                //////DebugLog("RIIIIIIIIGHT 1");
                             }*/
-                            //DebugLog("Rotar a " + objectiveAngle);
-                            roty=VecOps.RotateYM(objectiveAngle);
-                            angle = objectiveAngle;
+                            ////DebugLog("Rotar a " + objectiveAngle);
+                            //roty=VecOps.RotateYM(objectiveAngle);
+                            //angle = objectiveAngle;
                         }
                     }
                 } else{
-                    ////DebugLog("x diferente");
+                    //////DebugLog("x diferente");
                     if (AproximadamenteIgual(angle, 0) || AproximadamenteIgual(angle,180) || AproximadamenteIgual(angle,-180) || AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                     position.x=m[0,3];
-                    ////DebugLog("Estoy apuntando hacia x");
+                    //////DebugLog("Estoy apuntando hacia x");
                         if(position.x < x){
-                            move_x(0.1f);
-                            ////DebugLog("Derecha");
+                            move_x(0.0111111f);
+                            //////DebugLog("Derecha");
                         } else{
-                            move_x(-0.1f);
-                            ////DebugLog("Izquierda");
+                            move_x(-0.0111111f);
+                            //////DebugLog("Izquierda");
                         }
                         if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
                             angle = 0;
                         }
                         flag = false;
                     } else{
-                        ////DebugLog("Voy a girar hacia x");
-                        ////DebugLog(flag);
+                        //////DebugLog("Voy a girar hacia x");
+                        //////DebugLog(flag);
                         if (!flag){ 
 
                             if (AproximadamenteIgual(angle,-90)){
                                 if(x>position.x){
                                     //Check
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    pivot= new Vector3 (carTranslate[0,3]+0.5f,position.y,carTranslate[2,3]);
                                     //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = 0;
+                                    
                                 } else {
                                     //Check
                                     
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3]-0.5f,position.y,carTranslate[2,3]);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = -180;
                                 }
                             } else if (AproximadamenteIgual(angle,-270)){
                                 if(x>position.x){
                                     //Check
                                 
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3]+0.5f,position.y,carTranslate[2,3]);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = -360;
                                 } else {
                                     //Check
                                 
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
-                                    
+                                    pivot= new Vector3 (carTranslate[0,3]-0.5f,position.y,carTranslate[2,3]);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = -180;
                                 }
                             } else if (AproximadamenteIgual(angle,90)){
                                 if(x>position.x){
                                     // Check
                                     
-                                    //pivot= new Vector3 (0,position.y,0.5f);
+                                    pivot= new Vector3 (carTranslate[0,3]+0.5f,position.y,carTranslate[2,3]);
                                     //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = 0;
                                 } else {
                                     //Check
-                                    //pivot= new Vector3 (0,position.y,-0.5f);
+                                    pivot= new Vector3 (carTranslate[0,3]-0.5f,position.y,carTranslate[2,3]);
                                     //carTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -1f));
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -1f));
+                                    temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = 180;
                                 }
                             } else if (AproximadamenteIgual(angle,270)){
                                 if(x>position.x){
                                     //Check
-                                    //pivot= new Vector3 (-0f,position.y,-0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3]+0.5f,position.y,carTranslate[2,3]);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = 360;
                                 } else {
                                     //Check
-                                    //pivot= new Vector3 (0,position.y,0.5f);
-                                    carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (carTranslate[0,3]-0.5f,position.y,carTranslate[2,3]);
+                                    //carTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = 180;
                                 }
                             }
                             flag = true;
+                            flagrotating = true;
                         } else{
                             /*if (objectiveAngle != 0 && objectiveAngle != 180 && objectiveAngle != -180 && objectiveAngle != 360 && objectiveAngle != -360){
                                 flag = false;
                             }*/
                             /*if (angle > objectiveAngle){ 
                                 rotate_left();
-                                ////DebugLog("LEEEEEEEEEFT 2");
+                                //////DebugLog("LEEEEEEEEEFT 2");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
-                                ////DebugLog("RIIIIIIIIGHT 2");
+                                //////DebugLog("RIIIIIIIIGHT 2");
                             }*/
-                            //DebugLog("Rotar a " + objectiveAngle);
-                            roty=VecOps.RotateYM(objectiveAngle);
-                            angle = objectiveAngle;
+                            ////DebugLog("Rotar a " + objectiveAngle);
+                            //roty=VecOps.RotateYM(objectiveAngle);
+                            //angle = objectiveAngle;
                             
                         }
                     }
@@ -295,47 +324,116 @@ public class Movement : MonoBehaviour
             ppos = VecOps.TranslateM(pivot);
             pneg = VecOps.TranslateM(-pivot);
             
+            if (!flagrotating){
             m = scale * carTranslate *roty;
+            pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+            pbMesh.ToMesh();
+            //////DebugLog(m);
+            pbMesh.Refresh();
+            } else{
+                rotating();
+            }
             //m = scale*carTranslate *ppos * roty * pneg;
 
 
-            pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
-            pbMesh.ToMesh();
-            ////DebugLog(m);
-            pbMesh.Refresh();
+            
             if(angle == objectiveAngle){
                 flag = false;
             }
         }
     }
     void move_x(float speed)
-{
-    position.x += speed;
-    carTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
-}
+    {
+        position.x += speed;
+        carTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
+    }
 
-void move_z(float speed)
-{
-    position.z += speed;
-    carTranslate *= VecOps.TranslateM(new Vector3(0, 0, speed));
-}
+    void move_z(float speed)
+    {
+        position.z += speed;
+        carTranslate *= VecOps.TranslateM(new Vector3(0, 0, speed));
+    }
 
-void rotate_left()
-{
-    angle--;
-    roty *= VecOps.RotateYM(-1); // Rotación acumulativa
-}
+    void rotate_left()
+    {
+        angle--;
+        roty *= VecOps.RotateYM(-1); // Rotación acumulativa
+    }
 
-void rotate_right()
-{
-    angle++;
-    roty *= VecOps.RotateYM(1); // Rotación acumulativa
-}
+    void rotate_right()
+    {
+        angle++;
+        roty *= VecOps.RotateYM(1); // Rotación acumulativa
+    }
 
-bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
-{
-    return Mathf.Abs(valor1 - valor2) < tolerancia;
-}
+    bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
+    {
+        return Mathf.Abs(valor1 - valor2) < tolerancia;
+    }
+
+    void rotate_leftr()
+    {
+        rotating_angle--;
+        rotyr *= VecOps.RotateYM(-1); // Rotación acumulativa
+    }
+
+    void rotate_rightr()
+    {
+        rotating_angle++;
+        rotyr *= VecOps.RotateYM(1); // Rotación acumulativa
+    }
+
+    void rotating(){
+        if (!once){
+            ////Debug.Log("Guardando carTranslateR");
+            carTranslateR = carTranslate;
+            ////Debug.Log(carTranslateR);
+            once = true;
+            rotating_angle = 0;
+            if (angle > objectiveAngle){
+                rotating_dir =-1;
+            } else if(angle < objectiveAngle){
+                rotating_dir = 1;
+            }
+            //Debug.Log("Iniciando en" +m[0,3]);
+            rotyr = VecOps.RotateYM(0);
+        }
+        if (rotating_dir == -1){
+            ////Debug.Log("Rotando a la izquierda");
+            //rotate_left();
+            rotate_leftr();
+            
+        } else if(rotating_dir == 1){
+            ////Debug.Log("Rotando a la derecha");
+            //rotate_right();
+            rotate_rightr();
+        }
+        
+        pneg = VecOps.TranslateM(-pivot);
+        ppos = VecOps.TranslateM(pivot);
+        ////Debug.Log(pivot);
+        m =  ppos * rotyr * pneg * carTranslateR* roty* scale;
+        ////Debug.Log(m[0,3]);
+        //GameObject pivote = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        //pivote.transform.position = pivot;
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
+
+        if (rotating_angle == 90 || rotating_angle == -90 || rotating_angle == 0 || rotating_angle == 180 || rotating_angle == -180 || rotating_angle == 270 || rotating_angle == -270 || rotating_angle == 360 || rotating_angle == -360) {
+            flagrotating = false;
+            once = false;
+            carTranslate *= VecOps.TranslateM(temp); 
+            if (rotating_dir == 1){
+                angle+=90;
+                roty = VecOps.RotateYM(angle);
+            } else if(rotating_dir == -1){
+                angle-=90;
+                roty = VecOps.RotateYM(angle);
+            }
+        }
+
+    }
 
 public void setX(float x_n){
     if (x == x_n){
@@ -362,8 +460,8 @@ public void setZ(float z_n){
 }
 public void setAngle(string direction){
     if(!started){
-        //DebugLog("Seteando angulo");
-        //DebugLog(direction);
+        ////DebugLog("Seteando angulo");
+        ////DebugLog(direction);
         
         switch (direction)
         {
@@ -380,13 +478,13 @@ public void setAngle(string direction){
                 angle = 180;
                 break;
             default:
-                //DebugLogWarning("Dirección no reconocida: " + direction);
+                ////DebugLogWarning("Dirección no reconocida: " + direction);
                 break;
         }
     }
 }
 public void setArrived(){
-    Debug.Log("Llegué");
+    //Debug.Log("Llegué");
     car.SetActive(false);
 
 }
