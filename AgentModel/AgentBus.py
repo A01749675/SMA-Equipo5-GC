@@ -85,21 +85,17 @@ class AgentBus(mesa.Agent):
             nextPos = self.route[self.routeIndex]
             cell = self.model.grid.get_cell_list_contents(nextPos)
 
-            # Check for conflicting agents
+
             for cellContent in cell:
                 if cellContent is self:
-                    continue  # Skip self-check to avoid blocking itself
+                    continue  
 
                 if isinstance(cellContent, (AgentBus, SmartCar, Persona, Building, Parking)):
-                    # Block movement if the position contains any conflicting agent
-                    print(f"Blocked by {type(cellContent).__name__} at {nextPos}")
                     return
                 if isinstance(cellContent, Stoplight) and cellContent.state != "Green":
-                    # Stop if there is a red or yellow light
-                    print("Blocked by Stoplight at", nextPos)
                     return
 
-            # If the position is clear, move to the next position
+
             for cellContent in cell:
                 if isinstance(cellContent, (Street, AgentStreetDir)):
                     self.currentDir = cellContent.direction

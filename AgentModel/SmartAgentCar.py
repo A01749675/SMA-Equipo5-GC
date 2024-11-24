@@ -321,6 +321,8 @@ class SmartCar(mesa.Agent):
         try: 
             nextCell = self.model.grid.get_cell_list_contents([nextPos])
             for c in nextCell:
+                if nextCell is self:
+                    continue
                 if isinstance(c, SmartCar):
                     return
                 if self.is_agent_bus(c):
