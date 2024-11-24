@@ -241,11 +241,12 @@ class SmartCar(mesa.Agent):
             currentDir = self.movementEquivalence[self.currentDir]
             predefinedMovement = (self.pos[0] + currentDir[0], self.pos[1] + currentDir[1])
             
-            neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
-                         (self.pos[0] - 1, self.pos[1]),  # Left
-                         (self.pos[0], self.pos[1] + 1),  # Up
-                         (self.pos[0], self.pos[1] - 1)]
-            
+            neighbors = [(self.pos[0] + 1, self.pos[1]),  # East
+                         (self.pos[0] - 1, self.pos[1]),  # West
+                         (self.pos[0], self.pos[1] + 1),  # North
+                         (self.pos[0], self.pos[1] - 1)] # South
+            equivalence = ["E", "W", "N", "S"]
+            count = 0
             if (predefinedMovement[0] >= 0 or predefinedMovement[0] <= self.model.grid.width - 1 and predefinedMovement[1] >= 0 or predefinedMovement[1] <= self.model.grid.height - 1):
                 possibleSteps.append(predefinedMovement)
  
@@ -299,11 +300,15 @@ class SmartCar(mesa.Agent):
                         cellDirection = c.currentDirection()
                         cellEquivalence = self.movementEquivalence[cellDirection]
                         possibleNextPos = (neighbor[0] + cellEquivalence[0], neighbor[1] + cellEquivalence[1])
+                        possibleNextDir = equivalence[count]
                         if cellDirection == self.oppositeDir[self.currentDir]:
                             continue
                         if possibleNextPos == self.pos:
                             continue
+                        if possibleNextDir == self.oppositeDir[self.currentDir]:
+                            continue
                         possibleSteps.append(neighbor)
+                count += 1
 
         if len(set(self.positionHistory)) < 8:  # Detect a small repeated loop
             if random.random() < 0.5:  # 50% chance to pick a random next step
@@ -395,18 +400,22 @@ class SmartCar(mesa.Agent):
                         self.model.grid.move_agent(self, nextPos)
                         return
                 if isinstance(c, SmartCar):
-                    return
+                    moved = False
+                    break
                 if self.is_agent_bus(c):
-                    return
-                if isinstance(c, Stoplight):
-                    if c.state == "Red":
-                        return
+                    moved = False
+                    break
+                # if isinstance(c, Stoplight):
+                #     if c.state == "Red":
+                #         return
                 if isinstance(c, Building):
-
-                    return
-
-            self.model.grid.move_agent(self, nextPos)
-           
+                    moved = False
+                    break
+            if not moved:
+                self.bestPath.appendleft(nextPos)
+                return
+            else:
+                self.model.grid.move_agent(self, nextPos)
 
             
         if not self.bestPath:

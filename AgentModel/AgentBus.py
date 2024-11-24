@@ -86,21 +86,20 @@ class AgentBus(mesa.Agent):
             cell = self.model.grid.get_cell_list_contents(nextPos)
             for cellContent in cell:
 
-                if isinstance(cellContent,Building):
-                    print("Building")
-                    
-                    return
                 if isinstance(cellContent,AgentBus):
                     print("Bus")
-                    return
-                if isinstance(cellContent,Parking):
-                    print("Parking")
                     return
                 
                 if isinstance(cellContent,SmartCar):
                     return
                 if isinstance(cellContent,Persona):
                     print("Person")
+                    return
+                if isinstance(cellContent,Building):
+                    print("Building")
+                    return
+                if isinstance(cellContent,Parking):
+                    print("Parking")
                     return
 
                 if isinstance(cellContent,Street):
