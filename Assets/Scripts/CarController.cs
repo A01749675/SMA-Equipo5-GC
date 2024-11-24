@@ -53,19 +53,19 @@ public class CarController : MonoBehaviour
                     Movement movement = car.GetComponent<Movement>();
                     if (i % 4 == 0)
                     {
-                        movement.carPrefab = carPrefab4;
+                        movement.carPrefab = carPrefab;
                     }
                     else if (i % 3 == 0)
                     {
-                        movement.carPrefab = carPrefab3;
+                        movement.carPrefab = carPrefab2;
                     }
                     else if (i % 2 == 0)
                     {
-                        movement.carPrefab = carPrefab2;
+                        movement.carPrefab = carPrefab3;
                     }
                     else
                     {
-                        movement.carPrefab = carPrefab;
+                        movement.carPrefab = carPrefab4;
                     }
                     movement.id = i;
                     car.name = "Car" + i;
