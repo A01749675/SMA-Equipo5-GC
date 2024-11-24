@@ -73,60 +73,47 @@ class AgentBus(mesa.Agent):
         self.people.remove(Persona)
         
     def travel(self):
-
-        if self.bus!=5:
-            target = self.bus+1
+        if self.bus != 5:
+            target = self.bus + 1
         else:
             target = 1
+
         if self.route == []:
             self.route = busRoutes[f"{self.bus}-{target}"]
             self.routeIndex = 0
         else:
             nextPos = self.route[self.routeIndex]
             cell = self.model.grid.get_cell_list_contents(nextPos)
+
+            # Check for conflicting agents
             for cellContent in cell:
+                if cellContent is self:
+                    continue  # Skip self-check to avoid blocking itself
 
-                if isinstance(cellContent,AgentBus):
-                    print("Bus")
+                if isinstance(cellContent, (AgentBus, SmartCar, Persona, Building, Parking)):
+                    # Block movement if the position contains any conflicting agent
+                    print(f"Blocked by {type(cellContent).__name__} at {nextPos}")
                     return
-                
-                if isinstance(cellContent,SmartCar):
-                    return
-                if isinstance(cellContent,Persona):
-                    print("Person")
-                    return
-                if isinstance(cellContent,Building):
-                    print("Building")
-                    return
-                if isinstance(cellContent,Parking):
-                    print("Parking")
+                if isinstance(cellContent, Stoplight) and cellContent.state != "Green":
+                    # Stop if there is a red or yellow light
+                    print("Blocked by Stoplight at", nextPos)
                     return
 
-                if isinstance(cellContent,Street):
-                    print("Street")
+            # If the position is clear, move to the next position
+            for cellContent in cell:
+                if isinstance(cellContent, (Street, AgentStreetDir)):
                     self.currentDir = cellContent.direction
-                    self.model.grid.move_agent(self,nextPos)
-                    self.routeIndex+=1
+                    self.model.grid.move_agent(self, nextPos)
+                    self.routeIndex += 1
                     if self.routeIndex == len(self.route):
                         self.routeIndex = 0
                         self.waiting = True
                         self.route = []
-                        self.bus+=1
-                        if(self.bus>5):
+                        self.bus += 1
+                        if self.bus > 5:
                             self.bus = 1
                     return
-                if isinstance(cellContent,AgentStreetDir):
-                    self.currentDir = cellContent.direction
-                    self.model.grid.move_agent(self,nextPos)
-                    self.routeIndex+=1
-                    if self.routeIndex == len(self.route):
-                        self.routeIndex = 0
-                        self.waiting = True
-                        self.route = []
-                        self.bus+=1
-                        if(self.bus>5):
-                            self.bus = 1
-                        return
+        
                     
     def checkStoplight(self):
         """
