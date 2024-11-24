@@ -85,10 +85,13 @@ public class CarController : MonoBehaviour
             foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
+                Debug.Log("Car "+movement.id+" "+movement.callForNextPos);
                 call = movement.callForNextPos && call;
+                Debug.Log("Call "+call);
             }  
             if (call && !waitingForNextPos)
             {
+                Debug.Log("Calling for next pos");
                 foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
