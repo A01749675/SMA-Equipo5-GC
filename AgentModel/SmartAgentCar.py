@@ -395,23 +395,19 @@ class SmartCar(mesa.Agent):
                         self.model.grid.move_agent(self, nextPos)
                         return
                 if isinstance(c, SmartCar):
-                    moved = False
-                    break
+                    return
                 if self.is_agent_bus(c):
-                    moved = False
                     return
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
-                        moved = False
                         return
                 if isinstance(c, Building):
-                    moved = False
+
                     return
-            if moved:
-                self.model.grid.move_agent(self, nextPos)
-            else:
-                self.bestPath.appendleft(nextPos)
-            return 
+
+            self.model.grid.move_agent(self, nextPos)
+           
+
             
         if not self.bestPath:
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
