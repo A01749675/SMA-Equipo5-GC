@@ -361,77 +361,64 @@ class SmartCar(mesa.Agent):
         
     def followBestPath(self):
         """
-        Método que sigue la mejor ruta para llegar a un destino, tomando en cuenta los valores generados en el código de Waze.
-        En caso de que la ruta no lo lleve a su destino, nuevaamente usa la heurística simple para encontrar la mejor posición a la que se puede mover el agente.
+        Follow the best path to reach the target destination. Handle obstacles dynamically and retry blocked positions.
         """
+        if not hasattr(self, 'blockedPositions'):
+            self.blockedPositions = {}
+
         if self.bestPath and not self.inDestination:
-            moved = True
             print("My position is ", self.pos)
             print("Following best path ", self.bestPath, " to ", self.targetParking)
-            
+
             nextPos = self.bestPath.popleft()
+
+            # If the target position is reached
             if nextPos == self.target:
-                #print("Reached with best path destination")
                 self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
                 return
-            
-            neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
-                         (self.pos[0] - 1, self.pos[1]),  # Left
-                         (self.pos[0], self.pos[1] + 1),  # Up
-                         (self.pos[0], self.pos[1] - 1)]
-            for neighbor in neighbors:
-                if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
-                    continue
-                cell = self.model.grid.get_cell_list_contents([neighbor])
-                for c in cell:
-                    if isinstance(c, Parking):
-                        if c.parkingId == self.targetParking:
-                            self.inDestination = True
-                            self.model.grid.move_agent(self, neighbor)
-                            #print("Reached with best path destination")
-                            return 
-                        
-            nextCell = self.model.grid.get_cell_list_contents([nextPos])
-            for c in nextCell:
-                if isinstance(c, Parking):
-                    if c.parkingId == self.targetParking:
-                        self.inDestination = True
-                        self.model.grid.move_agent(self, nextPos)
-                        return
-                if isinstance(c, SmartCar):
-                    moved = False
-                    break
-                if self.is_agent_bus(c):
-                    moved = False
-                    break
-                # if isinstance(c, Stoplight):
-                #     if c.state == "Red":
-                #         return
-                if isinstance(c, Building):
-                    moved = False
-                    break
-            if not moved:
-                self.bestPath.appendleft(nextPos)
-                return
-            else:
-                self.model.grid.move_agent(self, nextPos)
 
-            
-        if not self.bestPath:
+            # Check the next position for obstacles
+            nextCell = self.model.grid.get_cell_list_contents([nextPos])
+            blocked = False
+
+            for c in nextCell:
+                if isinstance(c, (SmartCar, Building, Stoplight)) and not (isinstance(c, Stoplight) and c.state == "Green"):
+                    blocked = True
+                    break
+
+            if blocked:
+                # Add position back to the path and track blocked positions with a cooldown
+                self.bestPath.appendleft(nextPos)
+                self.blockedPositions[nextPos] = self.blockedPositions.get(nextPos, 0) + 1
+
+                # If a position has been retried too many times, consider it permanently blocked
+                if self.blockedPositions[nextPos] > 5:
+                    print(f"Position {nextPos} is permanently blocked. Recomputing path...")
+                    self.foundRoute = False
+                    return
+
+                return
+
+            # If the position is clear, move the agent
+            if nextPos in self.blockedPositions:
+                del self.blockedPositions[nextPos]  # Clear it from blocked positions
+
+            self.model.grid.move_agent(self, nextPos)
+
+        # If no path remains, check neighbors heuristically
+        if not self.bestPath and not self.inDestination:
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
             for neighbor in neighbors:
                 cell = self.model.grid.get_cell_list_contents([neighbor])
                 for c in cell:
-                    if isinstance(c, Parking):
-                        if c.parkingId == self.targetParking:
-                            self.inDestination = True
-                            self.model.grid.move_agent(self, neighbor)
-                            return
+                    if isinstance(c, Parking) and c.parkingId == self.targetParking:
+                        self.inDestination = True
+                        self.model.grid.move_agent(self, neighbor)
+                        return
             if not self.inDestination:
-                #print("Error: No path to destination")
+                print("Error: No path to destination")
                 self.foundRoute = False
-        
 
     def step(self):
         """
