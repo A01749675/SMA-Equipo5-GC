@@ -383,14 +383,14 @@ public class Movement : MonoBehaviour
 
     void rotate_leftr()
     {
-        rotating_angle--;
-        rotyr *= VecOps.RotateYM(-1); // Rotación acumulativa
+        rotating_angle-=4;
+        rotyr *= VecOps.RotateYM(-4); // Rotación acumulativa
     }
 
     void rotate_rightr()
     {
-        rotating_angle++;
-        rotyr *= VecOps.RotateYM(1); // Rotación acumulativa
+        rotating_angle+=4;
+        rotyr *= VecOps.RotateYM(4); // Rotación acumulativa
     }
 
     void rotating(){
@@ -430,7 +430,7 @@ public class Movement : MonoBehaviour
         pbMesh.ToMesh();
         pbMesh.Refresh();
 
-        if (rotating_angle == 90 || rotating_angle == -90 || rotating_angle == 0 || rotating_angle == 180 || rotating_angle == -180 || rotating_angle == 270 || rotating_angle == -270 || rotating_angle == 360 || rotating_angle == -360) {
+        if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
             flagrotating = false;
             once = false;
             carTranslate *= VecOps.TranslateM(temp); 
