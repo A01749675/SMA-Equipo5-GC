@@ -43,6 +43,8 @@ public class Movement : MonoBehaviour
     float rotating_angle;
     Matrix4x4 rotyr;
     int rotating_dir;
+    bool startFinished;
+    public CarController carController;
 
     
     
@@ -52,7 +54,7 @@ public class Movement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        startFinished = false;
         // Instancia el prefab del coche
         if (carPrefab != null)
         {
@@ -85,10 +87,11 @@ public class Movement : MonoBehaviour
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
         waitingForNextPos = false;
-        callForNextPos = true;
+        callForNextPos = false;
         i = 0;
         getStarted = false;
         once = false;
+        startFinished=true;
         
     }
 
@@ -101,7 +104,7 @@ public class Movement : MonoBehaviour
             //Debug.Log(getStarted);
             if(getStarted){
                 ////DebugLog("Receriving positions");
-                carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
+                /*carTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
                 ////DebugLog("Angulo = " + angle);
@@ -116,22 +119,29 @@ public class Movement : MonoBehaviour
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
                 //////DebugLog(m);
-                pbMesh.Refresh();
+                pbMesh.Refresh();*/
                 started = true;
             }
         }
         else{
+            //Debug.Log("Ya empezó");
+            if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f) ){
+                //Debug.Log("En objetivo");
+                //Debug.Log("callForNextPos" + callForNextPos);
+                //Debug.Log("waitingForNextPos" + waitingForNextPos);
+                //Debug.Log("con.addingPos" + con.addingPos);
+                if (!callForNextPos  && !waitingForNextPos && !con.addingPos){
+                    Debug.Log("Car id " + id + " tried to get a new position");
+                    flag = false;
+                    callForNextPos = true;
+                    carController.trycalling();
+                    i +=1;
 
-            if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f)){
-                if (!callForNextPos  && !waitingForNextPos){
-                //////DebugLog("En objetivo");
-                flag = false;
-                callForNextPos = true;
-                i +=1;
                 //////DebugLog("Llame al servidor" + i);
                 }
 
             } else{
+                //Debug.Log("En movimiento");
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
                     //////DebugLog("x igual");
                     if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
@@ -373,14 +383,14 @@ public class Movement : MonoBehaviour
 
     void rotate_leftr()
     {
-        rotating_angle--;
-        rotyr *= VecOps.RotateYM(-1); // Rotación acumulativa
+        rotating_angle-=4;
+        rotyr *= VecOps.RotateYM(-4); // Rotación acumulativa
     }
 
     void rotate_rightr()
     {
-        rotating_angle++;
-        rotyr *= VecOps.RotateYM(1); // Rotación acumulativa
+        rotating_angle+=4;
+        rotyr *= VecOps.RotateYM(4); // Rotación acumulativa
     }
 
     void rotating(){
@@ -420,7 +430,7 @@ public class Movement : MonoBehaviour
         pbMesh.ToMesh();
         pbMesh.Refresh();
 
-        if (rotating_angle == 90 || rotating_angle == -90 || rotating_angle == 0 || rotating_angle == 180 || rotating_angle == -180 || rotating_angle == 270 || rotating_angle == -270 || rotating_angle == 360 || rotating_angle == -360) {
+        if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
             flagrotating = false;
             once = false;
             carTranslate *= VecOps.TranslateM(temp); 
@@ -482,6 +492,41 @@ public void setAngle(string direction){
                 break;
         }
     }
+}
+public void setInitialPos(float x_n, float z_n, string direction)
+{
+    StartCoroutine(SetInitialPosCoroutine(x_n, z_n, direction));
+}
+
+private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string direction)
+{
+    // Espera hasta que Start haya terminado
+    while (!startFinished)
+    {
+        yield return null;
+    }
+
+    
+    carTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
+    pivot = new Vector3 (0,0,0);
+    position = new Vector3 (x_n, 0, z_n);
+    ////DebugLog("Angulo = " + angle);
+    roty = VecOps.RotateYM(angle);
+    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+    pbMesh.ToMesh();
+    pbMesh.Refresh();
+    ////DebugLog("The position is: "+position);
+    ppos = VecOps.TranslateM(pivot);
+    pneg = VecOps.TranslateM(-pivot);
+    m = scale*carTranslate *ppos * roty * pneg;
+    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+    pbMesh.ToMesh();
+    //////DebugLog(m);
+    pbMesh.Refresh();
+    x=x_n;
+    z=z_n;
+    position = new Vector3 (x, 0, z);
+    getStarted = true;
 }
 public void setArrived(){
     //Debug.Log("Llegué");

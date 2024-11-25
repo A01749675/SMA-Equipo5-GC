@@ -2,27 +2,25 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CarController : MonoBehaviour
+public class BusController : MonoBehaviour
 {
     [SerializeField]
-    GameObject carPrefab;
+    public GameObject busesPrefab;
     [SerializeField]
-    GameObject carPrefab2;
+    public GameObject busesPrefab2;
     [SerializeField]
-    GameObject carPrefab3;
-    [SerializeField]
-    GameObject carPrefab4;
+    public GameObject busesPrefab3;
     public bool callForNextPos;
     public bool waitingForNextPos;
     [SerializeField]
     Connection con;
     bool started;
-    public int numberOfCars;
+    public int numberOfbuses;
     public List<float> startx;
     public List<float> startz;
     public List<string> startangle ;
     
-    List<GameObject> cars; // Initialize the list
+    List<GameObject> buses; // Initialize the list
 
     List<bool> arrived;
 
@@ -35,8 +33,10 @@ public class CarController : MonoBehaviour
         startx = new List<float>();
         startz = new List<float>();
         startangle = new List<string>();
-        cars = new List<GameObject>();
+        buses = new List<GameObject>();
         arrived = new List<bool>();
+        //GameObject bus = Instantiate(busesPrefab);
+        //bus.transform.position = new Vector3(13, 0, 8);
         
     }
 
@@ -46,36 +46,32 @@ public class CarController : MonoBehaviour
         if(!started){
             //DebugLog("Not started");
             if(!callForNextPos && !con.addingPos){
-                for (int i = 0; i < numberOfCars; i++)
+                for (int i = 0; i < numberOfbuses; i++)
                     {
-                    GameObject car = new GameObject("EmptyObject");
-                    car.AddComponent<Movement>();
-                    Movement movement = car.GetComponent<Movement>();
-                    if (i % 4 == 0)
+                    GameObject bus = new GameObject("EmptyObject");
+                    bus.AddComponent<Movement>();
+                    Movement2 movement = bus.GetComponent<Movement2>();
+                    if (i % 3 == 0)
                     {
-                        movement.carPrefab = carPrefab;
-                    }
-                    else if (i % 3 == 0)
-                    {
-                        movement.carPrefab = carPrefab2;
+                        movement.busPrefab = busesPrefab;
                     }
                     else if (i % 2 == 0)
                     {
-                        movement.carPrefab = carPrefab3;
+                        movement.busPrefab = busesPrefab2;
                     }
-                    else
+                    else if (i % 1 == 0)
                     {
-                        movement.carPrefab = carPrefab4;
+                        movement.busPrefab = busesPrefab3;
                     }
                     movement.id = i;
-                    car.name = "Car" + i;
-                    cars.Add(car); 
+                    bus.name = "bus" + i;
+                    buses.Add(bus); 
                     movement.con = con;
                     movement.setAngle(startangle[i]);
                     movement.setX(startx[i]);
                     movement.setZ(startz[i]);
                     arrived.Add(false);
-                    movement.carController = this;
+                    movement.busController = this;
                     //movement.getStarted = true;
                     movement.setInitialPos(startx[i],startz[i],startangle[i]);
                     movement.getStarted=true;
@@ -84,34 +80,34 @@ public class CarController : MonoBehaviour
             }
         }
         /*else{
-            bool allCarsReady = true;
-            foreach (GameObject car in cars)
+            bool allbusessReady = true;
+            foreach (GameObject bus in buses)
             {
-                Movement movement = car.GetComponent<Movement>();
-                //Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                Movement movement = bus.GetComponent<Movement>();
+                //Debug.Log("bus " + movement.id + " " + movement.callForNextPos);
                 if (!movement.callForNextPos)
                 {
-                    allCarsReady = false;
+                    allbusessReady = false;
                     break;
                 }
             }
 
-            if (allCarsReady && !waitingForNextPos)
+            if (allbusessReady && !waitingForNextPos)
             {
                 //Debug.Log("Calling for next pos");
-                foreach (GameObject car in cars)
+                foreach (GameObject bus in buses)
                 {
-                    Movement movement = car.GetComponent<Movement>();
+                    Movement movement = bus.GetComponent<Movement>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
             } else{
-                Debug.Log("Not all cars ready");
+                Debug.Log("Not all buses ready");
             }
             /*else {
-                foreach (GameObject car in cars)
+                foreach (GameObject bus in buses)
             {
-                Movement movement = car.GetComponent<Movement>();
+                Movement movement = bus.GetComponent<Movement>();
                 movement.callForNextPos = false;
                 movement.waitingForNextPos = false;
                 movement.getStarted = true;
@@ -125,8 +121,8 @@ public class CarController : MonoBehaviour
     {
         if(started){
             if(!arrived[id]){
-                GameObject car = cars[id];
-                Movement movement = car.GetComponent<Movement>();
+                GameObject bus = buses[id];
+                Movement movement = bus.GetComponent<Movement>();
                 movement.setX(x);
             }
         } else {
@@ -137,8 +133,8 @@ public class CarController : MonoBehaviour
     {
         if(started){
             if(!arrived[id]){
-                GameObject car = cars[id];
-                Movement movement = car.GetComponent<Movement>();
+                GameObject bus = buses[id];
+                Movement2 movement = bus.GetComponent<Movement2>();
                 movement.setZ(z);
             }
         } else{
@@ -149,8 +145,8 @@ public class CarController : MonoBehaviour
     {
         if(started){
             if(!arrived[id]){
-                GameObject car = cars[id];
-                Movement movement = car.GetComponent<Movement>();
+                GameObject bus = buses[id];
+                Movement2 movement = bus.GetComponent<Movement2>();
                 movement.setAngle(direction);
                 movement.callForNextPos = false;
                 movement.waitingForNextPos = false;
@@ -163,43 +159,43 @@ public class CarController : MonoBehaviour
     }
     public void setNoC(int noC)
     {
-        numberOfCars = noC;
+        numberOfbuses = noC;
     }
     public void setArrived(int id)
     {
         if(started){
-            Debug.Log("Car "+id+" has arrived");
-            GameObject car = cars[id];
-            Movement movement = car.GetComponent<Movement>();
+            Debug.Log("bus "+id+" has arrived");
+            GameObject bus = buses[id];
+            Movement2 movement = bus.GetComponent<Movement2>();
             movement.setArrived();
             arrived[id] = true;
         }
     }
 
     public void trycalling(){
-        bool allCarsReady = true;
-            foreach (GameObject car in cars)
+        bool allbusessReady = true;
+            foreach (GameObject bus in buses)
             {
-                Movement movement = car.GetComponent<Movement>();
-                //Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                Movement2 movement = bus.GetComponent<Movement2>();
+                //Debug.Log("bus " + movement.id + " " + movement.callForNextPos);
                 if (!movement.callForNextPos)
                 {
-                    allCarsReady = false;
+                    allbusessReady = false;
                     break;
                 }
             }
 
-            if (allCarsReady && !waitingForNextPos)
+            if (allbusessReady && !waitingForNextPos)
             {
                 //Debug.Log("Calling for next pos");
-                foreach (GameObject car in cars)
+                foreach (GameObject bus in buses)
                 {
-                    Movement movement = car.GetComponent<Movement>();
+                    Movement2 movement = bus.GetComponent<Movement2>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
             } else{
-                Debug.Log("Not all cars ready");
+                Debug.Log("Not all buses ready");
             }
     }
 }
