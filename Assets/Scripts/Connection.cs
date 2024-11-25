@@ -155,7 +155,7 @@ public class Connection : MonoBehaviour
         if(carController.callForNextPos && !addingPos){
             StartCoroutine(RequestAllData());   
             carController.callForNextPos = false;
-            Debug.Log(llamadas);
+            //Debug.Log(llamadas);
         }
     }
 

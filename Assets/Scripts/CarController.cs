@@ -76,38 +76,43 @@ public class CarController : MonoBehaviour
                     movement.setZ(startz[i]);
                     arrived.Add(false);
                     movement.getStarted = true;
+                    movement.setInitialPos(startx[i],startz[i],startangle[i]);
                 }
                 started = true;
             }
         }
         else{
-            bool call = true;
+            bool allCarsReady = true;
             foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
-                Debug.Log("Car "+movement.id+" "+movement.callForNextPos);
-                call = movement.callForNextPos && call;
-                Debug.Log("Call "+call);
-            }  
-            if (call && !waitingForNextPos)
+                Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                if (!movement.callForNextPos)
+                {
+                    allCarsReady = false;
+                    break;
+                }
+            }
+
+            if (allCarsReady && !waitingForNextPos)
             {
                 Debug.Log("Calling for next pos");
+                foreach (GameObject car in cars)
+                {
+                    Movement movement = car.GetComponent<Movement>();
+                    movement.waitingForNextPos = true;
+                }
+                callForNextPos = true;
+            } /*else {
                 foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
                 movement.callForNextPos = false;
-                movement.waitingForNextPos = true;
-            } 
-                callForNextPos = true;
-            } else {
-                foreach (GameObject car in cars)
-            {
-                Movement movement = car.GetComponent<Movement>();
                 movement.waitingForNextPos = false;
                 movement.getStarted = true;
             } 
 
-            }
+            }*/
         }
     }
 
@@ -142,6 +147,9 @@ public class CarController : MonoBehaviour
                 GameObject car = cars[id];
                 Movement movement = car.GetComponent<Movement>();
                 movement.setAngle(direction);
+                movement.callForNextPos = false;
+                movement.waitingForNextPos = false;
+                movement.getStarted = true;
             }
         }
         else{
@@ -161,5 +169,30 @@ public class CarController : MonoBehaviour
             movement.setArrived();
             arrived[id] = true;
         }
+    }
+
+    public void setCallForNextPos()
+    {
+        bool allCarsReady = true;
+        foreach (GameObject car in cars){
+                Movement movement = car.GetComponent<Movement>();
+                Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                if (!movement.callForNextPos)
+                {
+                    allCarsReady = false;
+                    break;
+                }
+            }
+
+            if (allCarsReady && !waitingForNextPos)
+            {
+                Debug.Log("Calling for next pos");
+                foreach (GameObject car in cars)
+                {
+                    Movement movement = car.GetComponent<Movement>();
+                    movement.waitingForNextPos = true;
+                }
+                callForNextPos = true;
+            }
     }
 }
