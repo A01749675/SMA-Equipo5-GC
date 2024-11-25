@@ -44,12 +44,16 @@ public class BusController : MonoBehaviour
     void Update()
     {
         if(!started){
-            //DebugLog("Not started");
+            /*Debug.Log("Not started");
+            Debug.Log("callForNextPos: "+callForNextPos);
+            Debug.Log("con.addingPos: "+con.addingPos);*/
             if(!callForNextPos && !con.addingPos){
+                //Debug.Log(numberOfbuses);
+                //Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                 for (int i = 0; i < numberOfbuses; i++)
                     {
                     GameObject bus = new GameObject("EmptyObject");
-                    bus.AddComponent<Movement>();
+                    bus.AddComponent<Movement2>();
                     Movement2 movement = bus.GetComponent<Movement2>();
                     if (i % 3 == 0)
                     {
@@ -72,7 +76,7 @@ public class BusController : MonoBehaviour
                     movement.setZ(startz[i]);
                     arrived.Add(false);
                     movement.busController = this;
-                    //movement.getStarted = true;
+                    movement.getStarted = true;
                     movement.setInitialPos(startx[i],startz[i],startangle[i]);
                     movement.getStarted=true;
                 }
@@ -120,11 +124,12 @@ public class BusController : MonoBehaviour
     public void setX(float x, int id)
     {
         if(started){
-            if(!arrived[id]){
-                GameObject bus = buses[id];
-                Movement movement = bus.GetComponent<Movement>();
-                movement.setX(x);
-            }
+            
+            GameObject bus = buses[id];
+            Movement2 movement = bus.GetComponent<Movement2>();
+            movement.setX(x);
+            
+            
         } else {
             startx.Add(x);
         }
@@ -132,11 +137,11 @@ public class BusController : MonoBehaviour
     public void setZ(float z, int id)
     {
         if(started){
-            if(!arrived[id]){
-                GameObject bus = buses[id];
-                Movement2 movement = bus.GetComponent<Movement2>();
-                movement.setZ(z);
-            }
+            
+            GameObject bus = buses[id];
+            Movement2 movement = bus.GetComponent<Movement2>();
+            movement.setZ(z);
+            
         } else{
             startz.Add(z);
         }
@@ -144,32 +149,20 @@ public class BusController : MonoBehaviour
     public void setAngle(string direction, int id)
     {
         if(started){
-            if(!arrived[id]){
-                GameObject bus = buses[id];
-                Movement2 movement = bus.GetComponent<Movement2>();
-                movement.setAngle(direction);
-                movement.callForNextPos = false;
-                movement.waitingForNextPos = false;
-                movement.getStarted = true;
-            }
+            GameObject bus = buses[id];
+            Movement2 movement = bus.GetComponent<Movement2>();
+            movement.setAngle(direction);
+            movement.callForNextPos = false;
+            movement.waitingForNextPos = false;
+            movement.getStarted = true;
         }
         else{
             startangle.Add(direction);
         }
     }
-    public void setNoC(int noC)
+    public void SetNoC(int noC)
     {
         numberOfbuses = noC;
-    }
-    public void setArrived(int id)
-    {
-        if(started){
-            Debug.Log("bus "+id+" has arrived");
-            GameObject bus = buses[id];
-            Movement2 movement = bus.GetComponent<Movement2>();
-            movement.setArrived();
-            arrived[id] = true;
-        }
     }
 
     public void trycalling(){
@@ -177,7 +170,7 @@ public class BusController : MonoBehaviour
             foreach (GameObject bus in buses)
             {
                 Movement2 movement = bus.GetComponent<Movement2>();
-                //Debug.Log("bus " + movement.id + " " + movement.callForNextPos);
+                Debug.Log("bus " + movement.id + " tried calling");
                 if (!movement.callForNextPos)
                 {
                     allbusessReady = false;
@@ -187,13 +180,14 @@ public class BusController : MonoBehaviour
 
             if (allbusessReady && !waitingForNextPos)
             {
-                //Debug.Log("Calling for next pos");
+                Debug.Log("Calling for next pos");
                 foreach (GameObject bus in buses)
                 {
                     Movement2 movement = bus.GetComponent<Movement2>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
+                Debug.Log("All buses ready");
             } else{
                 Debug.Log("Not all buses ready");
             }

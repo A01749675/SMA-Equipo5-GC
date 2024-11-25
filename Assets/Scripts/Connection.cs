@@ -12,6 +12,8 @@ public class Connection : MonoBehaviour
     AllData allData;
     [SerializeField]
     CarController carController;
+    [SerializeField]
+    BusController busController;
     
 
     public bool addingPos;
@@ -85,7 +87,10 @@ public class Connection : MonoBehaviour
                 //Debug.Log(allData.cars.Count);
                 List<Car> cars = allData.cars;
                 List<Stoplight> stoplights = allData.stoplights;
+                List<Bus> buses = allData.buses;
+                //Debug.Log(allData.buses.Count);
                 carController.setNoC(allData.cars.Count);
+                busController.SetNoC(allData.buses.Count);
                 foreach(Car car in cars)
                 {
                     //Debug.Log("Got the position to start-------------------------------------------");
@@ -104,8 +109,18 @@ public class Connection : MonoBehaviour
                         stopLightControl.setState(stoplight.id,stoplight.state);
                     }
                 }
+                foreach(Bus bus in buses){
+                    /*if(bus.id == 1){
+                        Debug.Log(bus.id+ " "+bus.x+" "+bus.z);
+                    }*/
+                    //Debug.Log(bus.id+ " "+bus.x+" "+bus.z);
+                    busController.setX(bus.x,bus.id-1);
+                    busController.setZ(bus.z,bus.id-1);
+                    busController.setAngle(bus.direction,bus.id-1);
+                }
                 addingPos = false;
                 carController.waitingForNextPos = false;
+                busController.waitingForNextPos = false;
             }
             
         }
@@ -150,11 +165,16 @@ public class Connection : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(carController.callForNextPos && !addingPos){
+        //&& busController.callForNextPos
+        //Debug.Log(carController.callForNextPos);
+        //Debug.Log(busController.callForNextPos);
+        if(carController.callForNextPos && busController.callForNextPos &&  !addingPos){
             StartCoroutine(RequestAllData());   
             carController.callForNextPos = false;
+            busController.callForNextPos = false;
             //Debug.Log(llamadas);
         }
+        //Debug.Log("ALGOOOOO");
     }
 
     public void CallNextPos(){
