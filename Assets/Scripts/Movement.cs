@@ -44,6 +44,7 @@ public class Movement : MonoBehaviour
     Matrix4x4 rotyr;
     int rotating_dir;
     bool startFinished;
+    public CarController carController;
 
     
     
@@ -86,7 +87,7 @@ public class Movement : MonoBehaviour
         pneg = VecOps.TranslateM(-pivot);
         flag = false;
         waitingForNextPos = false;
-        callForNextPos = true;
+        callForNextPos = false;
         i = 0;
         getStarted = false;
         once = false;
@@ -123,17 +124,24 @@ public class Movement : MonoBehaviour
             }
         }
         else{
-
+            //Debug.Log("Ya empezó");
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f) ){
+                //Debug.Log("En objetivo");
+                //Debug.Log("callForNextPos" + callForNextPos);
+                //Debug.Log("waitingForNextPos" + waitingForNextPos);
+                //Debug.Log("con.addingPos" + con.addingPos);
                 if (!callForNextPos  && !waitingForNextPos && !con.addingPos){
-                //////DebugLog("En objetivo");
-                flag = false;
-                callForNextPos = true;
-                i +=1;
+                    Debug.Log("Car id " + id + " tried to get a new position");
+                    flag = false;
+                    callForNextPos = true;
+                    carController.trycalling();
+                    i +=1;
+
                 //////DebugLog("Llame al servidor" + i);
                 }
 
             } else{
+                //Debug.Log("En movimiento");
                 if (AproximadamenteIgual(position.x, x, 0.1f)){
                     //////DebugLog("x igual");
                     if (AproximadamenteIgual(angle,-90) || AproximadamenteIgual(angle,90)  || AproximadamenteIgual(angle,270) || AproximadamenteIgual(angle,-270)){
@@ -498,7 +506,7 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
         yield return null;
     }
 
-   
+    
     carTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
     pivot = new Vector3 (0,0,0);
     position = new Vector3 (x_n, 0, z_n);
@@ -515,6 +523,10 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
     pbMesh.ToMesh();
     //////DebugLog(m);
     pbMesh.Refresh();
+    x=x_n;
+    z=z_n;
+    position = new Vector3 (x, 0, z);
+    getStarted = true;
 }
 public void setArrived(){
     //Debug.Log("Llegué");

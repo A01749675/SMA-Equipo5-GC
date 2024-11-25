@@ -75,18 +75,20 @@ public class CarController : MonoBehaviour
                     movement.setX(startx[i]);
                     movement.setZ(startz[i]);
                     arrived.Add(false);
-                    movement.getStarted = true;
+                    movement.carController = this;
+                    //movement.getStarted = true;
                     movement.setInitialPos(startx[i],startz[i],startangle[i]);
+                    movement.getStarted=true;
                 }
                 started = true;
             }
         }
-        else{
+        /*else{
             bool allCarsReady = true;
             foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
-                Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                //Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
                 if (!movement.callForNextPos)
                 {
                     allCarsReady = false;
@@ -96,14 +98,17 @@ public class CarController : MonoBehaviour
 
             if (allCarsReady && !waitingForNextPos)
             {
-                Debug.Log("Calling for next pos");
+                //Debug.Log("Calling for next pos");
                 foreach (GameObject car in cars)
                 {
                     Movement movement = car.GetComponent<Movement>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
-            } /*else {
+            } else{
+                Debug.Log("Not all cars ready");
+            }
+            /*else {
                 foreach (GameObject car in cars)
             {
                 Movement movement = car.GetComponent<Movement>();
@@ -112,8 +117,8 @@ public class CarController : MonoBehaviour
                 movement.getStarted = true;
             } 
 
-            }*/
-        }
+            }
+        }*/
     }
 
     public void setX(float x, int id)
@@ -171,12 +176,12 @@ public class CarController : MonoBehaviour
         }
     }
 
-    public void setCallForNextPos()
-    {
+    public void trycalling(){
         bool allCarsReady = true;
-        foreach (GameObject car in cars){
+            foreach (GameObject car in cars)
+            {
                 Movement movement = car.GetComponent<Movement>();
-                Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
+                //Debug.Log("Car " + movement.id + " " + movement.callForNextPos);
                 if (!movement.callForNextPos)
                 {
                     allCarsReady = false;
@@ -186,13 +191,15 @@ public class CarController : MonoBehaviour
 
             if (allCarsReady && !waitingForNextPos)
             {
-                Debug.Log("Calling for next pos");
+                //Debug.Log("Calling for next pos");
                 foreach (GameObject car in cars)
                 {
                     Movement movement = car.GetComponent<Movement>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
+            } else{
+                Debug.Log("Not all cars ready");
             }
     }
 }

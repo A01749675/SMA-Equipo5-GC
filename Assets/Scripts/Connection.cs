@@ -12,8 +12,7 @@ public class Connection : MonoBehaviour
     AllData allData;
     [SerializeField]
     CarController carController;
-    float time;
-    float timeToUpdate;
+    
 
     public bool addingPos;
     int llamadas;
@@ -143,7 +142,6 @@ public class Connection : MonoBehaviour
     void Start()
     {
         llamadas=0;
-        timeToUpdate = 1.0f;
         //move = GetComponent<Movement>();
         //StartCoroutine(RequestCarPositions());
         //StartCoroutine(RequestStoplightData());
