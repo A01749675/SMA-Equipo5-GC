@@ -362,6 +362,7 @@ class CityModel(mesa.Model):
             4: (19,21),
             5: (2,20),
         }
+        self.busses = []
         self.waze = Waze()
         
         self.cars = []
@@ -456,6 +457,7 @@ class CityModel(mesa.Model):
             position = self.random.choice(list(self.busStops.values()))
             cell = self.grid.get_cell_list_contents([position])    
             self.grid.place_agent(bus, self.busStops[i+1])
+            self.busses.append(bus)
             
     def addTwoDirStreet(self):
         """Añadir calles de doble dirección a la cuadrícula."""
@@ -499,10 +501,12 @@ class CityModel(mesa.Model):
         return result
     
     def getAllData(self):
-        result = {"cars":[],"stoplights":[]}
+        result = {"cars":[],"stoplights":[],"buses":[]}
         for car in self.cars:
             result["cars"].append({"id":car.carId,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir,"arrived":car.inDestination})
         for stop in self.stoplightsData:
             result["stoplights"].append({"id":stop.stoplightId,"state":stop.state})
+        for bus in self.busses:
+            result["buses"].append({"id":bus.bus,"x":bus.pos[0],"z":bus.pos[1]})
         
         return result
