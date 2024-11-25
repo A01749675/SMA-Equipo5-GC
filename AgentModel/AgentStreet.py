@@ -38,6 +38,7 @@ class Street(mesa.Agent):
                 "E":(1,0),
                 "W":(-1,0)
             }
+        walkable = False
     def currentDirection(self):
         """Método que regresa la dirección del agente.
 

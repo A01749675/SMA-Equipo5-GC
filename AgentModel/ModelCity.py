@@ -456,7 +456,7 @@ class CityModel(mesa.Model):
             self.schedule.add(bus)
             position = self.random.choice(list(self.busStops.values()))
             cell = self.grid.get_cell_list_contents([position])    
-            self.grid.place_agent(bus, self.busStops[i+1])
+            self.grid.place_agent(bus, self.busStops[i+1],i+1)
             self.buses.append(bus)
             
     def addTwoDirStreet(self):
@@ -507,6 +507,6 @@ class CityModel(mesa.Model):
         for stop in self.stoplightsData:
             result["stoplights"].append({"id":stop.stoplightId,"state":stop.state})
         for bus in self.buses:
-            result["buses"].append({"id":bus.bus,"x":bus.pos[0],"z":bus.pos[1],"direction":bus.currentDir})
+            result["buses"].append({"id":bus.id,"x":bus.pos[0],"z":bus.pos[1],"direction":bus.currentDir})
         
         return result

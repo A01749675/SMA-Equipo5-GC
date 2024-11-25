@@ -365,6 +365,15 @@ class SmartCar(mesa.Agent):
         """
         Follow the best path to reach the target destination. Handle obstacles dynamically and retry blocked positions.
         """
+        neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+        for neighbor in neighbors:
+            cell = self.model.grid.get_cell_list_contents([neighbor])
+            for c in cell:
+                if isinstance(c, Parking) and c.parkingId == self.targetParking:
+                    self.inDestination = True
+                    self.model.grid.move_agent(self, neighbor)
+                    return  
+                
         if not hasattr(self, 'blockedPositions'):
             self.blockedPositions = {}
 
@@ -383,8 +392,16 @@ class SmartCar(mesa.Agent):
             # Check the next position for obstacles
             nextCell = self.model.grid.get_cell_list_contents([nextPos])
             blocked = False
+            
 
             for c in nextCell:
+                
+                if isinstance(c, Parking):
+                    if c.parkingId == self.targetParking:
+                        self.inDestination = True
+                        self.model.grid.move_agent(self, nextPos)
+                        return
+                
                 if isinstance(c, (SmartCar, Building, Stoplight)) and not (isinstance(c, Stoplight) and c.state == "Green"):
                     blocked = True
                     break
@@ -395,10 +412,19 @@ class SmartCar(mesa.Agent):
                 self.blockedPositions[nextPos] = self.blockedPositions.get(nextPos, 0) + 1
 
                 # If a position has been retried too many times, consider it permanently blocked
-                if self.blockedPositions[nextPos] > 5:
+                if self.blockedPositions[nextPos] > 10:
                     print(f"Position {nextPos} is permanently blocked. Recomputing path...")
+                    
+                    neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+                    for neighbor in neighbors:
+                        cell = self.model.grid.get_cell_list_contents([neighbor])
+                        for c in cell:
+                            if isinstance(c, Parking) and c.parkingId == self.targetParking:
+                                self.inDestination = True
+                                self.model.grid.move_agent(self, neighbor)
+                                return  
                     self.foundRoute = False
-                    return
+                    
 
                 return
 

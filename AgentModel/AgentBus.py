@@ -48,7 +48,7 @@ busStops = {
 
 class AgentBus(mesa.Agent):
     
-    def __init__(self,unique_id,model,initialBus):
+    def __init__(self,unique_id,model,initialBus,id):
         """Constructor de la clase AgentBus
 
         Args:
@@ -59,6 +59,7 @@ class AgentBus(mesa.Agent):
         """
         super().__init__(unique_id,model)
         self.bus = initialBus
+        self.busId = id
         self.route = []
         self.routeIndex = 0
         self.currentDir = ""
