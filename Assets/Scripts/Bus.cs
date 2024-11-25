@@ -8,4 +8,5 @@ public class Bus
     public int id;
     public float x;
     public float z;
+    public string direction;
 }
