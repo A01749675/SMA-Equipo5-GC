@@ -23,6 +23,9 @@ class Persona(mesa.Agent):
         
         self.Bus = None
         self.justExited = False
+
+        self.crossing = False
+        self.streetDir = None
         
     def is_agent_bus(self, obj):
         from AgentBus import AgentBus  # Lazy import here
@@ -174,6 +177,14 @@ class Persona(mesa.Agent):
         """
         Método que simula el cruce de la persona en la simulación.
         """
+        if self.streetDir == "up":
+            self.model.grid.move_agent(self, (self.pos[0], self.pos[1] + 1))
+        elif self.streetDir == "down":
+            self.model.grid.move_agent(self, (self.pos[0], self.pos[1] - 1))
+        elif self.streetDir == "left":
+            self.model.grid.move_agent(self, (self.pos[0] - 1, self.pos[1]))
+        elif self.streetDir == "right":
+            self.model.grid.move_agent(self, (self.pos[0] + 1, self.pos[1]))
         pass
 
     def step(self):
@@ -186,6 +197,11 @@ class Persona(mesa.Agent):
                 self.waitingTime -= 1
                 if self.waitingTime == 0:
                     self.waiting = False
-            self.caminar()
+
+            if not self.crossing:
+                self.caminar()
+            else:
+                self.cruzarCalle()
+
         else:
             self.subscribeToBus()
