@@ -8,6 +8,7 @@ public class AllData
     public List<Car> cars;
     public List<Stoplight> stoplights;
     public List<Bus> buses;
+    public List<Pedestrian> pedestrians;
 
     public static AllData CreateFromJSON(string jsonString)
     {

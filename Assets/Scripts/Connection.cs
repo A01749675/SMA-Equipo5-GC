@@ -14,7 +14,8 @@ public class Connection : MonoBehaviour
     CarController carController;
     [SerializeField]
     BusController busController;
-    
+    [SerializeField]
+    PedController pedController;    
 
     public bool addingPos;
     int llamadas;
@@ -67,6 +68,8 @@ public class Connection : MonoBehaviour
         llamadas +=1;
         addingPos = true;
         carController.waitingForNextPos = true;
+        busController.waitingForNextPos = true;
+        pedController.waitingForNextPos = true;
         Debug.Log("Requesting all data");
         //addingPos = true;
         //move.waitingForNextPos = true;
@@ -88,9 +91,11 @@ public class Connection : MonoBehaviour
                 List<Car> cars = allData.cars;
                 List<Stoplight> stoplights = allData.stoplights;
                 List<Bus> buses = allData.buses;
+                List<Pedestrian> pedestrians = allData.pedestrians;
                 //Debug.Log(allData.buses.Count);
                 carController.setNoC(allData.cars.Count);
                 busController.SetNoC(allData.buses.Count);
+                pedController.setNoC(allData.pedestrians.Count);
                 foreach(Car car in cars)
                 {
                     //Debug.Log("Got the position to start-------------------------------------------");
@@ -118,9 +123,14 @@ public class Connection : MonoBehaviour
                     busController.setZ(bus.z,bus.id-1);
                     busController.setAngle(bus.direction,bus.id-1);
                 }
+                foreach(Pedestrian pedestrian in pedestrians){
+                    pedController.setX(pedestrian.x,pedestrian.id);
+                    pedController.setZ(pedestrian.z,pedestrian.id);
+                }
                 addingPos = false;
                 carController.waitingForNextPos = false;
                 busController.waitingForNextPos = false;
+                pedController.waitingForNextPos = false;
             }
             
         }
@@ -166,12 +176,14 @@ public class Connection : MonoBehaviour
     void Update()
     {
         //&& busController.callForNextPos
-        //Debug.Log(carController.callForNextPos);
-        //Debug.Log(busController.callForNextPos);
-        if(carController.callForNextPos && busController.callForNextPos &&  !addingPos){
+        Debug.Log("car " + carController.callForNextPos);
+        Debug.Log("bus" +busController.callForNextPos);
+        Debug.Log("ped" + pedController.callForNextPos);
+        if(carController.callForNextPos && busController.callForNextPos && pedController.callForNextPos &&  !addingPos){
             StartCoroutine(RequestAllData());   
             carController.callForNextPos = false;
             busController.callForNextPos = false;
+            pedController.callForNextPos = false;
             //Debug.Log(llamadas);
         }
         //Debug.Log("ALGOOOOO");

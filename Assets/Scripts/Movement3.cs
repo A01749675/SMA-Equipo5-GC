@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.ProBuilder;
 using UnityEngine.UIElements;
 
-public class Movement2 : MonoBehaviour
+public class Movement3 : MonoBehaviour
 {
     
     public float x;
@@ -14,7 +14,7 @@ public class Movement2 : MonoBehaviour
     ProBuilderMesh pbMesh;
     MeshRenderer pbRenderer;
     List<Vector3> vertices;
-    Matrix4x4 busTranslate;
+    Matrix4x4 pedTranslate;
     Vector3 position;
     Matrix4x4 roty;
     Matrix4x4 pneg;
@@ -26,8 +26,9 @@ public class Movement2 : MonoBehaviour
     float objectiveAngle;
     bool flag;
     Matrix4x4 scale;
-    public GameObject busPrefab;
-    GameObject bus;
+    public GameObject pedPrefab;
+    GameObject pedestrian;
+    GameObject ped;
     public Connection con;
     public int id;
 
@@ -38,14 +39,14 @@ public class Movement2 : MonoBehaviour
     public bool getStarted;
     bool flagrotating;
 
-    Matrix4x4 busTranslateR;
+    Matrix4x4 pedTranslateR;
     bool once;
     Vector3 temp;
     float rotating_angle;
     Matrix4x4 rotyr;
     int rotating_dir;
     bool startFinished;
-    public BusController busController;
+    public PedController pedController;
 
     
     
@@ -57,28 +58,29 @@ public class Movement2 : MonoBehaviour
     {
         startFinished = false;
         // Instancia el prefab del coche
-        if (busPrefab != null)
+        if (pedPrefab != null)
         {
-            bus = Instantiate(busPrefab);
+            pedestrian = Instantiate(pedPrefab);
+            ped = pedestrian.transform.GetChild(0).gameObject;
         }
         else
         {
-            //////DebugLogError("bus prefab is not assigned!");
+            //////DebugLogError("ped prefab is not assigned!");
             return;
         }
         x= 0;
         z = 0;
-        pbMesh = bus.GetComponent<ProBuilderMesh>();
-        pbRenderer = bus.GetComponent<MeshRenderer>();
+        pbMesh = ped.GetComponent<ProBuilderMesh>();
+        pbRenderer = ped.GetComponent<MeshRenderer>();
         vertices =new List<Vector3>(pbMesh.positions);
-        busTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
+        pedTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
         position = new Vector3 (x, 0, z);
         roty = VecOps.RotateYM(angle);
         rotyr = VecOps.RotateYM(0);
         //////DebugLog(angle);
         //////DebugLog(roty);
-        scale= VecOps.ScaleM(new Vector3 (0.1f,0.15f,0.15f));
-        m =  busTranslate *roty*scale;
+        scale= VecOps.ScaleM(new Vector3 (0.15f,0.15f,0.15f));
+        m =  pedTranslate *roty*scale;
         started = false;
         //////DebugLog(m);
         pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
@@ -103,11 +105,11 @@ public class Movement2 : MonoBehaviour
 
         if(!started){
             //Debug.Log("Not started" + id);
-            //Debug.Log("AAAAAAAAAAAAAAAAAAA");
+            //Debug.Log("getStarted" + getStarted);
             if(getStarted){
                 //Debug.Log("BBBBBBBBBBBBBBB");
                 ////DebugLog("Receriving positions");
-                /*busTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
+                /*pedTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
                 position = new Vector3 (x, 0, z);
                 ////DebugLog("Angulo = " + angle);
@@ -118,7 +120,7 @@ public class Movement2 : MonoBehaviour
                 ////DebugLog("The position is: "+position);
                 ppos = VecOps.TranslateM(pivot);
                 pneg = VecOps.TranslateM(-pivot);
-                m = scale*busTranslate *ppos * roty * pneg;
+                m = scale*pedTranslate *ppos * roty * pneg;
                 pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
                 pbMesh.ToMesh();
                 //////DebugLog(m);
@@ -127,25 +129,25 @@ public class Movement2 : MonoBehaviour
             }
         }
         else{
-            //(Debug.Log("Ya empezó");
+            Debug.Log("Ya empezó");
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f) ){
-                // Debug.Log("En objetivo " + id);
-                // Debug.Log("x1" + x);
-                // Debug.Log("callForNextPos" + callForNextPos);
-                // Debug.Log("waitingForNextPos" + waitingForNextPos);
-                // Debug.Log("con.addingPos" + con.addingPos);
-                // Debug.Log("x2" + x);
+                /* Debug.Log("En objetivo " + id);
+                Debug.Log("x1" + x);
+                Debug.Log("callForNextPos" + callForNextPos);
+                Debug.Log("waitingForNextPos" + waitingForNextPos);
+                Debug.Log("con.addingPos" + con.addingPos);
+                Debug.Log("x2" + x); */
                 if (!callForNextPos  && !waitingForNextPos && !con.addingPos){
                     //Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                    //Debug.Log("bus id " + id + " tried to get a new position");
+                    //Debug.Log("ped id " + id + " tried to get a new position");
                     flag = false;
                     callForNextPos = true;
-                    busController.trycalling();
+                    pedController.trycalling();
                     i +=1;
 
                 //////DebugLog("Llame al servidor" + i);
                 }
-                //Debug.Log("Autobus " + id + " en posición objetivo y esperando respuesta del servidor");
+                //Debug.Log("Autoped " + id + " en posición objetivo y esperando respuesta del servidor");
 
             } else{
                 //Debug.Log("En movimiento");
@@ -172,14 +174,14 @@ public class Movement2 : MonoBehaviour
                                     //Check
                                     //Debug.Log("Aqui");
                                     
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]+0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]+0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
                                     temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = -90;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]-0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]-0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = 90;
                                 }
@@ -187,15 +189,15 @@ public class Movement2 : MonoBehaviour
                                 if(z>position.z){
                                     //Check
                                     
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]+0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]+0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = 270;
                                 } else {
                                     //Check
                                     
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]-0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]-0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = 90;
                                 }
@@ -203,15 +205,15 @@ public class Movement2 : MonoBehaviour
                                 if (z>position.z){
                                     //Check
                                     
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]+0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));*/
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]+0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0f, 0,2f));*/
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     temp= new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = -90;
                                 } else {
                                     //Check // Se presento buuug
-                                    pivot= new Vector3 (busTranslate[0,3],position.y,busTranslate[2,3]-0.5f);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3],position.y,pedTranslate[2,3]-0.5f);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = -270;
                                 }
@@ -219,13 +221,16 @@ public class Movement2 : MonoBehaviour
                             flag = true;
                             flagrotating = true;
                         } else{
-                            /*if (angle > objectiveAngle){
+                            if (angle > objectiveAngle){
                                 rotate_left();
                                 //////DebugLog("LEEEEEEEEEFT 1");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
                                 //////DebugLog("RIIIIIIIIGHT 1");
-                            }*/
+                            }
+                            if (AproximadamenteIgual(angle,objectiveAngle,3)){
+                                angle = objectiveAngle;
+                            }
                             ////DebugLog("Rotar a " + objectiveAngle);
                             //roty=VecOps.RotateYM(objectiveAngle);
                             //angle = objectiveAngle;
@@ -251,21 +256,20 @@ public class Movement2 : MonoBehaviour
                         //////DebugLog("Voy a girar hacia x");
                         //////DebugLog(flag);
                         if (!flag){ 
-
                             if (AproximadamenteIgual(angle,-90)){
                                 if(x>position.x){
                                     //Check
-                                    pivot= new Vector3 (busTranslate[0,3]+0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]+0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(1f, 0,1f));
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, 0.5f));
                                     temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = 0;
                                     
                                 } else {
                                     //Check
                                     
-                                    pivot= new Vector3 (busTranslate[0,3]-0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]-0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = -180;
                                 }
@@ -273,15 +277,15 @@ public class Movement2 : MonoBehaviour
                                 if(x>position.x){
                                     //Check
                                 
-                                    pivot= new Vector3 (busTranslate[0,3]+0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]+0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = -360;
                                 } else {
                                     //Check
                                 
-                                    pivot= new Vector3 (busTranslate[0,3]-0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]-0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, -0.5f));
                                     temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = -180;
                                 }
@@ -289,30 +293,30 @@ public class Movement2 : MonoBehaviour
                                 if(x>position.x){
                                     // Check
                                     
-                                    pivot= new Vector3 (busTranslate[0,3]+0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]+0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     temp = new Vector3(0.5f, 0, -0.5f);
                                     objectiveAngle = 0;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (busTranslate[0,3]-0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -1f));
+                                    pivot= new Vector3 (pedTranslate[0,3]-0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(1f, 0, -1f));
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -1f));
                                     temp = new Vector3(-0.5f, 0, -0.5f);
                                     objectiveAngle = 180;
                                 }
                             } else if (AproximadamenteIgual(angle,270)){
                                 if(x>position.x){
                                     //Check
-                                    pivot= new Vector3 (busTranslate[0,3]+0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]+0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(0.5f, 0, -0.5f));
                                     temp = new Vector3(0.5f, 0, 0.5f);
                                     objectiveAngle = 360;
                                 } else {
                                     //Check
-                                    pivot= new Vector3 (busTranslate[0,3]-0.5f,position.y,busTranslate[2,3]);
-                                    //busTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
+                                    pivot= new Vector3 (pedTranslate[0,3]-0.5f,position.y,pedTranslate[2,3]);
+                                    //pedTranslate *= VecOps.TranslateM(new Vector3(-0.5f, 0, 0.5f));
                                     temp = new Vector3(-0.5f, 0, 0.5f);
                                     objectiveAngle = 180;
                                 }
@@ -323,16 +327,19 @@ public class Movement2 : MonoBehaviour
                             /*if (objectiveAngle != 0 && objectiveAngle != 180 && objectiveAngle != -180 && objectiveAngle != 360 && objectiveAngle != -360){
                                 flag = false;
                             }*/
-                            /*if (angle > objectiveAngle){ 
+                            if (angle > objectiveAngle){ 
                                 rotate_left();
                                 //////DebugLog("LEEEEEEEEEFT 2");
                             } else if(angle<objectiveAngle){
                                 rotate_right();
                                 //////DebugLog("RIIIIIIIIGHT 2");
-                            }*/
+                            }
                             ////DebugLog("Rotar a " + objectiveAngle);
                             //roty=VecOps.RotateYM(objectiveAngle);
                             //angle = objectiveAngle;
+                            if (AproximadamenteIgual(angle,objectiveAngle,3)){
+                                angle = objectiveAngle;
+                            }
                             
                         }
                     }
@@ -341,15 +348,12 @@ public class Movement2 : MonoBehaviour
             ppos = VecOps.TranslateM(pivot);
             pneg = VecOps.TranslateM(-pivot);
             
-            if (!flagrotating){
-            m =   busTranslate *roty*scale;
+            
+            m =   pedTranslate *roty*scale;
             pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
             pbMesh.ToMesh();
             pbMesh.Refresh();
-            } else{
-                rotating();
-            }
-            //m = scale*busTranslate *ppos * roty * pneg;
+            //m = scale*pedTranslate *ppos * roty * pneg;
 
 
             
@@ -361,25 +365,25 @@ public class Movement2 : MonoBehaviour
     void move_x(float speed)
     {
         position.x += speed;
-        busTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
+        pedTranslate *= VecOps.TranslateM(new Vector3(speed, 0, 0));
     }
 
     void move_z(float speed)
     {
         position.z += speed;
-        busTranslate *= VecOps.TranslateM(new Vector3(0, 0, speed));
+        pedTranslate *= VecOps.TranslateM(new Vector3(0, 0, speed));
     }
 
     void rotate_left()
     {
-        angle--;
-        roty *= VecOps.RotateYM(-1); // Rotación acumulativa
+        angle-=4;
+        roty *= VecOps.RotateYM(-4); // Rotación acumulativa
     }
 
     void rotate_right()
     {
-        angle++;
-        roty *= VecOps.RotateYM(1); // Rotación acumulativa
+        angle+=4;
+        roty *= VecOps.RotateYM(4); // Rotación acumulativa
     }
 
     bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
@@ -387,7 +391,7 @@ public class Movement2 : MonoBehaviour
         return Mathf.Abs(valor1 - valor2) < tolerancia;
     }
 
-    void rotate_leftr()
+    /*void rotate_leftr()
     {
         rotating_angle-=4;
         rotyr *= VecOps.RotateYM(-4); // Rotación acumulativa
@@ -401,9 +405,9 @@ public class Movement2 : MonoBehaviour
 
     void rotating(){
         if (!once){
-            ////Debug.Log("Guardando busTranslateR");
-            busTranslateR = busTranslate;
-            ////Debug.Log(busTranslateR);
+            ////Debug.Log("Guardando pedTranslateR");
+            pedTranslateR = pedTranslate;
+            ////Debug.Log(pedTranslateR);
             once = true;
             rotating_angle = 0;
             if (angle > objectiveAngle){
@@ -428,7 +432,7 @@ public class Movement2 : MonoBehaviour
         pneg = VecOps.TranslateM(-pivot);
         ppos = VecOps.TranslateM(pivot);
         ////Debug.Log(pivot);
-        m =  ppos * rotyr * pneg * busTranslateR* roty* scale;
+        m =  ppos * rotyr * pneg * pedTranslateR* roty* scale;
         ////Debug.Log(m[0,3]);
         //GameObject pivote = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //pivote.transform.position = pivot;
@@ -439,7 +443,7 @@ public class Movement2 : MonoBehaviour
         if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
             flagrotating = false;
             once = false;
-            busTranslate *= VecOps.TranslateM(temp); 
+            pedTranslate *= VecOps.TranslateM(temp); 
             if (rotating_dir == 1){
                 angle+=90;
                 roty = VecOps.RotateYM(angle);
@@ -449,29 +453,29 @@ public class Movement2 : MonoBehaviour
             }
         }
 
-    }
+    }*/
 
 public void setX(float x_n){
-    if (x == x_n){
-        x = x_n;
+    if((int)x == (int)x_n){
         return;
-    }
-    if(x > x_n){
-        x = x_n+1;
     } else{
-        x = x_n;
+        if(x > x_n){
+            x = x_n+0.1f;
+        } else{
+            x = x_n+0.9f;
+        }
     }
 }
 
 public void setZ(float z_n){
-    if (z == z_n){
-        z = z_n;
+    if((int)z == (int)z_n){
         return;
-    }
-    if(z > z_n){
-        z = z_n+1;
     } else{
-        z = z_n;
+        if(z > z_n){
+            z = z_n+0.1f;
+        } else{
+            z = z_n+0.9f;
+        }
     }
 }
 public void setAngle(string direction){
@@ -512,8 +516,8 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
         yield return null;
     }
 
-    //Debug.Log("Setting initial position for bus " + id + " to (" + x_n + ", " + z_n + ")");
-    busTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
+    //Debug.Log("Setting initial position for ped " + id + " to (" + x_n + ", " + z_n + ")");
+    pedTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
     pivot = new Vector3 (0,0,0);
     position = new Vector3 (x_n, 0, z_n);
     ////DebugLog("Angulo = " + angle);
@@ -524,7 +528,7 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
     ////DebugLog("The position is: "+position);
     ppos = VecOps.TranslateM(pivot);
     pneg = VecOps.TranslateM(-pivot);
-    m = busTranslate *ppos * roty * pneg* scale;
+    m = pedTranslate *ppos * roty * pneg* scale;
     pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
     pbMesh.ToMesh();
     pbMesh.Refresh();
@@ -536,7 +540,7 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
 }
 public void setArrived(){
     //Debug.Log("Llegué");
-    bus.SetActive(false);
+    ped.SetActive(false);
 
 }
 }
