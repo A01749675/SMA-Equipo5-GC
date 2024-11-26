@@ -131,7 +131,7 @@ public class Movement : MonoBehaviour
                 //Debug.Log("waitingForNextPos" + waitingForNextPos);
                 //Debug.Log("con.addingPos" + con.addingPos);
                 if (!callForNextPos  && !waitingForNextPos && !con.addingPos){
-                    Debug.Log("Car id " + id + " tried to get a new position");
+                    //Debug.Log("Car id " + id + " tried to get a new position");
                     flag = false;
                     callForNextPos = true;
                     carController.trycalling();

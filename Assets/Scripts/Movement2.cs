@@ -11,7 +11,8 @@ public class Movement2 : MonoBehaviour
     
     public float x;
     public float z;
-    MeshFilter pbMesh;
+    ProBuilderMesh pbMesh;
+    MeshRenderer pbRenderer;
     List<Vector3> vertices;
     Matrix4x4 busTranslate;
     Vector3 position;
@@ -67,20 +68,22 @@ public class Movement2 : MonoBehaviour
         }
         x= 0;
         z = 0;
-        pbMesh = bus.GetComponent<MeshFilter>();
-        vertices =new List<Vector3>(pbMesh.mesh.vertices);
+        pbMesh = bus.GetComponent<ProBuilderMesh>();
+        pbRenderer = bus.GetComponent<MeshRenderer>();
+        vertices =new List<Vector3>(pbMesh.positions);
         busTranslate = VecOps.TranslateM(new Vector3 (x, 0, z) );
         position = new Vector3 (x, 0, z);
         roty = VecOps.RotateYM(angle);
         rotyr = VecOps.RotateYM(0);
         //////DebugLog(angle);
         //////DebugLog(roty);
-        scale= VecOps.ScaleM(new Vector3 (1,1,1));
-        m =  scale*busTranslate *roty;
+        scale= VecOps.ScaleM(new Vector3 (0.1f,0.15f,0.15f));
+        m =  busTranslate *roty*scale;
         started = false;
         //////DebugLog(m);
-        pbMesh.mesh.vertices = VecOps.ApplyTransform(vertices, m).ToArray();
-        pbMesh.mesh.RecalculateNormals();
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
         pivot = new Vector3 (0,0,0);
         ppos = VecOps.TranslateM(pivot);
         pneg = VecOps.TranslateM(-pivot);
@@ -100,8 +103,9 @@ public class Movement2 : MonoBehaviour
 
         if(!started){
             //Debug.Log("Not started" + id);
-            //Debug.Log(getStarted);
+            //Debug.Log("AAAAAAAAAAAAAAAAAAA");
             if(getStarted){
+                //Debug.Log("BBBBBBBBBBBBBBB");
                 ////DebugLog("Receriving positions");
                 /*busTranslate = VecOps.TranslateM(new Vector3 (x+0.5f, 0, z+0.5f) );
                 pivot = new Vector3 (0,0,0);
@@ -123,13 +127,16 @@ public class Movement2 : MonoBehaviour
             }
         }
         else{
-            //Debug.Log("Ya empezó");
+            //(Debug.Log("Ya empezó");
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f) ){
-                //Debug.Log("En objetivo");
-                //Debug.Log("callForNextPos" + callForNextPos);
-                //Debug.Log("waitingForNextPos" + waitingForNextPos);
-                //Debug.Log("con.addingPos" + con.addingPos);
+                Debug.Log("En objetivo " + id);
+                Debug.Log("x1" + x);
+                Debug.Log("callForNextPos" + callForNextPos);
+                Debug.Log("waitingForNextPos" + waitingForNextPos);
+                Debug.Log("con.addingPos" + con.addingPos);
+                Debug.Log("x2" + x);
                 if (!callForNextPos  && !waitingForNextPos && !con.addingPos){
+                    Debug.Log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
                     Debug.Log("bus id " + id + " tried to get a new position");
                     flag = false;
                     callForNextPos = true;
@@ -138,6 +145,7 @@ public class Movement2 : MonoBehaviour
 
                 //////DebugLog("Llame al servidor" + i);
                 }
+                //Debug.Log("Autobus " + id + " en posición objetivo y esperando respuesta del servidor");
 
             } else{
                 //Debug.Log("En movimiento");
@@ -334,9 +342,10 @@ public class Movement2 : MonoBehaviour
             pneg = VecOps.TranslateM(-pivot);
             
             if (!flagrotating){
-            m = scale * busTranslate *roty;
-            pbMesh.mesh.vertices = VecOps.ApplyTransform(vertices, m).ToArray();
-            pbMesh.mesh.RecalculateNormals();
+            m =   busTranslate *roty*scale;
+            pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+            pbMesh.ToMesh();
+            pbMesh.Refresh();
             } else{
                 rotating();
             }
@@ -423,8 +432,9 @@ public class Movement2 : MonoBehaviour
         ////Debug.Log(m[0,3]);
         //GameObject pivote = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         //pivote.transform.position = pivot;
-        pbMesh.mesh.vertices = VecOps.ApplyTransform(vertices, m).ToArray();
-        pbMesh.mesh.RecalculateNormals();
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
 
         if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
             flagrotating = false;
@@ -502,20 +512,23 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
         yield return null;
     }
 
-    
+    //Debug.Log("Setting initial position for bus " + id + " to (" + x_n + ", " + z_n + ")");
     busTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
     pivot = new Vector3 (0,0,0);
     position = new Vector3 (x_n, 0, z_n);
     ////DebugLog("Angulo = " + angle);
     roty = VecOps.RotateYM(angle);
-    pbMesh.mesh.vertices = VecOps.ApplyTransform(vertices, m).ToArray();
-    pbMesh.mesh.RecalculateNormals();
+    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+    pbMesh.ToMesh();
+    pbMesh.Refresh();
     ////DebugLog("The position is: "+position);
     ppos = VecOps.TranslateM(pivot);
     pneg = VecOps.TranslateM(-pivot);
-    m = scale*busTranslate *ppos * roty * pneg;
-    pbMesh.mesh.vertices = VecOps.ApplyTransform(vertices, m).ToArray();
-    pbMesh.mesh.RecalculateNormals();
+    m = busTranslate *ppos * roty * pneg* scale;
+    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+    pbMesh.ToMesh();
+    pbMesh.Refresh();
+    pbRenderer.enabled = true;
     x=x_n;
     z=z_n;
     position = new Vector3 (x, 0, z);

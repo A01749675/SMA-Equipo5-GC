@@ -373,7 +373,7 @@ class CityModel(mesa.Model):
         self.addStoplights()
         self.addCar()
         self.addTwoDirStreet()
-        self.addPedestrians(10)
+        self.addPedestrians(1)
         self.addBusStop()
         self.addbuses()
         
@@ -476,7 +476,6 @@ class CityModel(mesa.Model):
                         peaton = False
 
             self.grid.place_agent(agent, pos)
-            print("Pedestrian placed: ", agent.unique_id)
     
     def step(self):
         """Avanzar un paso en la simulación."""

@@ -168,7 +168,7 @@ public class CarController : MonoBehaviour
     public void setArrived(int id)
     {
         if(started){
-            Debug.Log("Car "+id+" has arrived");
+            //Debug.Log("Car "+id+" has arrived");
             GameObject car = cars[id];
             Movement movement = car.GetComponent<Movement>();
             movement.setArrived();
@@ -199,7 +199,7 @@ public class CarController : MonoBehaviour
                 }
                 callForNextPos = true;
             } else{
-                Debug.Log("Not all cars ready");
+                //Debug.Log("Not all cars ready");
             }
     }
 }

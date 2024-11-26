@@ -59,7 +59,7 @@ class AgentBus(mesa.Agent):
         """
         super().__init__(unique_id,model)
         self.bus = initialBus
-        self.busId = id
+        self.id = id
         self.route = []
         self.routeIndex = 0
         self.currentDir = ""

@@ -1557,9 +1557,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 58179076}
-  - component: {fileID: 58179075}
   - component: {fileID: 58179077}
-  - component: {fileID: 58179078}
   m_Layer: 0
   m_Name: Prueba
   m_TagString: Untagged
@@ -1567,30 +1565,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &58179075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 58179074}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43da35cb57ced2947b492a46df89257f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  x: 2.5
-  z: 1.5
-  angle: 0
-  carPrefab: {fileID: 3029697748538578282, guid: 66f23deaeaaaf1143a7a50d8af974b60, type: 3}
-  con: {fileID: 58179077}
-  id: 0
-  callForNextPos: 0
-  waitingForNextPos: 0
-  started: 0
-  i: 0
-  getStarted: 0
-  carController: {fileID: 0}
 --- !u!4 &58179076
 Transform:
   m_ObjectHideFlags: 0
@@ -1619,6 +1593,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   carController: {fileID: 1684206628}
+  busController: {fileID: 742212396}
   addingPos: 0
   stopLightControls:
   - {fileID: 1562904495}
@@ -1636,30 +1611,6 @@ MonoBehaviour:
   - {fileID: 787846153}
   - {fileID: 2063481315}
   - {fileID: 1511383024}
---- !u!114 &58179078
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 58179074}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d1392dd3dfce5a4c88a49e306c6f8f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  x: 2.5
-  z: 1.5
-  angle: 0
-  busPrefab: {fileID: 0}
-  con: {fileID: 58179077}
-  id: 0
-  callForNextPos: 0
-  waitingForNextPos: 0
-  started: 0
-  i: 0
-  getStarted: 0
-  busController: {fileID: 0}
 --- !u!43 &65134831
 Mesh:
   m_ObjectHideFlags: 0

@@ -1,7 +1,10 @@
 import mesa
+
+from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentBuilding import Building
 from AgentParking import Parking
+from AgentBusStop import BusStop
 from AgentBusStop import BusStop
 
 class Persona(mesa.Agent):
@@ -43,33 +46,55 @@ class Persona(mesa.Agent):
                         self.waitingTime = 20
                         return
                     
-                neighbors = [(self.pos[0]+1,self.pos[1]),(self.pos[0]-1,self.pos[1]),(self.pos[0],self.pos[1]+1),(self.pos[0],self.pos[1]-1)]
-                possible_steps = []
-                
-                for neighbor in neighbors:
-                    if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
-                        continue
-                    cell = self.model.grid.get_cell_list_contents(neighbor)
-                    for c in cell:
-                        if isinstance(c,Persona):
-                            continue
-                        if isinstance(c,Parking):
-                            continue
-                        if self.is_agent_bus(c):
-                            continue
-                        if self.is_agent_car(c):
-                            continue
-                        # if isinstance(c,Street):
-                        #     if c.walkable:
-                        #         possible_steps.append(neighbor)
-                        #         continue
-                        if isinstance(c,Building):
-                            if c.walkable:
-                                possible_steps.append(neighbor)
-                                continue
-                        
-                nextPos = self.random.choice(possible_steps)
-                self.model.grid.move_agent(self,nextPos)
+                direccion = None
+                neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+                cell1 = self.model.grid.get_cell_list_contents([neighbors[0]])
+                cell2 = self.model.grid.get_cell_list_contents([neighbors[1]])
+                cell3 = self.model.grid.get_cell_list_contents([neighbors[2]])
+                cell4 = self.model.grid.get_cell_list_contents([neighbors[3]])
+                cellPos = self.model.grid.get_cell_list_contents([self.pos])
+
+                for c in cell3:
+                    if isinstance(c, Street) or isinstance(c, Stoplight):
+                        direccion = "der"
+
+                for c in cell2:
+                    if isinstance(c, Street) or isinstance(c, Stoplight):
+                        direccion = "izq"
+
+                for c in cell4:
+                    if isinstance(c, Street) or isinstance(c, Stoplight):
+                        direccion = "down"
+                        for c in cell2:
+                            if isinstance(c, Street) or isinstance(c, Stoplight):
+                                direccion = "izq"
+                                print("esquins inf der")
+
+                for c in cell1:
+                    if isinstance(c, Street) or isinstance(c, Stoplight):
+                        direccion = "up"
+                        print("up normal")
+                        for c in cell3:
+                            if isinstance(c, Stoplight) or isinstance(c, Street):
+                                direccion = "der"
+                                print("esquins sup izq")
+
+                if self.checarSemaforo(neighbors) != None:
+                    print("Semaforo")
+
+                for c in cellPos:
+                    if isinstance(c, BusStop):
+                        # direccion = None
+                        print("BusStop")
+
+                if direccion == "der":
+                    self.model.grid.move_agent(self, neighbors[3])
+                elif direccion == "izq":
+                    self.model.grid.move_agent(self, neighbors[0])
+                elif direccion == "up":
+                    self.model.grid.move_agent(self, neighbors[2])
+                elif direccion == "down":
+                    self.model.grid.move_agent(self, neighbors[1])
                 
             else:
                 
@@ -131,17 +156,19 @@ class Persona(mesa.Agent):
             self.inBus = True
         self.model.grid.move_agent(self,self.Bus.pos)
 
-    def girar(self):
+    def checarSemaforo(self, neighbors):
         """
-        Método que simula el giro de la persona en la simulación.
-        """
-        pass
+        Método que checa si hay un semáforo en la dirección de la persona.
 
-    def esquinaCheck(self):
+        Args:
+            neighbors (list): lista de vecinos de la persona
         """
-        Método que simula el cruce de la persona en la simulación.
-        """
-        pass
+        for n in neighbors:
+            cell = self.model.grid.get_cell_list_contents([n])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    return c
+        return None
 
     def cruzarCalle(self):
         """
