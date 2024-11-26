@@ -364,6 +364,7 @@ class CityModel(mesa.Model):
         }
         self.buses = []
         self.waze = Waze()
+        self.pedestrians = []
         
         self.cars = []
         self.stoplightsData = []
@@ -373,7 +374,7 @@ class CityModel(mesa.Model):
         self.addStoplights()
         self.addCar()
         self.addTwoDirStreet()
-        self.addPedestrians(1)
+        self.addPedestrians(5)
         self.addBusStop()
         self.addbuses()
         
@@ -476,6 +477,7 @@ class CityModel(mesa.Model):
                         peaton = False
 
             self.grid.place_agent(agent, pos)
+            self.pedestrians.append(agent)
     
     def step(self):
         """Avanzar un paso en la simulación."""
@@ -493,12 +495,14 @@ class CityModel(mesa.Model):
         return result
     
     def getAllData(self):
-        result = {"cars":[],"stoplights":[],"buses":[]}
+        result = {"cars":[],"stoplights":[],"buses":[],"pedestrians":[]}
         for car in self.cars:
             result["cars"].append({"id":car.carId,"x":car.pos[0],"z":car.pos[1],"direction":car.currentDir,"arrived":car.inDestination})
         for stop in self.stoplightsData:
             result["stoplights"].append({"id":stop.stoplightId,"state":stop.state})
         for bus in self.buses:
             result["buses"].append({"id":bus.id,"x":bus.pos[0],"z":bus.pos[1],"direction":bus.currentDir})
+        for people in self.pedestrians:
+            result["pedestrians"].append({"id":people.unique_id,"x":people.pos[0],"z":people.pos[1]})
         
         return result
