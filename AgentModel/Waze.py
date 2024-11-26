@@ -124,7 +124,7 @@ class Waze:
                         break
                 max_cycle -= 1
 
-            print(f"Best path from {start} to {end} is {best_path}")
+           # print(f"Best path from {start} to {end} is {best_path}")
             
             if best_path:
                 for path in best_path:
@@ -182,14 +182,13 @@ class Waze:
                         break
                 max_cycle -= 1
 
-            print(f"Best path from {start} to {end} is {best_path}")
+            #print(f"Best path from {start} to {end} is {best_path}")
             
             if best_path:
                 for path in best_path:
                     queue.append(path)
         except Exception as e:
-            print
-            print(f"Error: {e}")
+           #print(f"Error: {e}")
             return deque()
-        print(F"result: {result}")
+        #print(F"result: {result}")
         return queue

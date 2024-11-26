@@ -442,20 +442,13 @@ class CityModel(mesa.Model):
             self.schedule.add(car)
             self.cars.append(car)
 
-        #car = Car(self.next_id(), self, 0, (1,1),1)
-        #self.grid.place_agent(car, (1,10))
-        #self.schedule.add(car)
 
-        #car = Car(self.next_id(), self, 1, (1, 1), 1)
-        #self.grid.place_agent(car, (5, 5))
-        #self.schedule.add(car)
     def addbuses(self):
         """Añadir autobuses a la cuadrícula."""
         for i in range(5):
             bus = AgentBus(self.next_id(), self, i+1,i+1)
             self.schedule.add(bus)
             position = self.random.choice(list(self.busStops.values()))
-            cell = self.grid.get_cell_list_contents([position])    
             self.grid.place_agent(bus, self.busStops[i+1])
             self.buses.append(bus)
             

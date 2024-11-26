@@ -9,7 +9,7 @@
 #Fecha de creación: 10/11/2024
 
 import math
-
+import sys
 import mesa
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -225,6 +225,8 @@ class Car(mesa.Agent):
                     
                     if isinstance(c, Car):
                         continue
+                    if self.is_agent_bus(c):
+                        continue
                     
                     if isinstance(c, AgentStreetDir):
                         possibleSteps.append(neighbor)
@@ -272,7 +274,13 @@ class Car(mesa.Agent):
         self.model.grid.move_agent(self, nextPos)
         self.visits[nextPos] = self.visits.get(nextPos, 0) + 1
         self.getCurrentDirection()
-
+        
+    def is_agent_bus(self, obj):
+        AgentBus = sys.modules.get('AgentBus')
+        if AgentBus:
+            return isinstance(obj, AgentBus.AgentBus)
+        return False
+    
     def step(self):
         """
         Método que ejecuta las acciones de un agente Car.

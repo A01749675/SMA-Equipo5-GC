@@ -90,8 +90,11 @@ class AgentBus(mesa.Agent):
             for cellContent in cell:
                 if cellContent is self:
                     continue  
-
-                if isinstance(cellContent, (AgentBus, SmartCar, Persona, Building, Parking)):
+                
+                if not self.people and isinstance(cellContent,Persona):
+                    return
+                    
+                if isinstance(cellContent, (AgentBus, SmartCar, Building, Parking)):
                     return
                 if isinstance(cellContent, Stoplight) and cellContent.state != "Green":
                     return
@@ -153,6 +156,7 @@ class AgentBus(mesa.Agent):
                     
         if spotlightFound:
             self.travel()
+            print("I am moving")
             if spotLightPos is not None:
                 stopCell = self.model.grid.get_cell_list_contents([spotLightPos])
                 for agent in stopCell:
@@ -166,9 +170,11 @@ class AgentBus(mesa.Agent):
             if self.waitTime == 0:
                 self.waiting = False
                 self.waitTime = 20
+            print("I am waiting")
         else:
             print("Bus",self.bus)
             print("-------------------------------")
+            print(f"Bus {self.bus} is moving. I have {len(self.people)} people")
             self.checkStoplight()
         # for person in self.people:
         #     person.step()
