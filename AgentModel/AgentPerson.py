@@ -177,6 +177,14 @@ class Persona(mesa.Agent):
         """
         Método que simula el cruce de la persona en la simulación.
         """
+        if self.streetDir == "up":
+            self.model.grid.move_agent(self, (self.pos[0], self.pos[1] + 1))
+        elif self.streetDir == "down":
+            self.model.grid.move_agent(self, (self.pos[0], self.pos[1] - 1))
+        elif self.streetDir == "left":
+            self.model.grid.move_agent(self, (self.pos[0] - 1, self.pos[1]))
+        elif self.streetDir == "right":
+            self.model.grid.move_agent(self, (self.pos[0] + 1, self.pos[1]))
         pass
 
     def step(self):
