@@ -23,6 +23,9 @@ class Persona(mesa.Agent):
         
         self.Bus = None
         self.justExited = False
+
+        self.crossing = False
+        self.streetDir = None
         
     def is_agent_bus(self, obj):
         from AgentBus import AgentBus  # Lazy import here
@@ -186,6 +189,11 @@ class Persona(mesa.Agent):
                 self.waitingTime -= 1
                 if self.waitingTime == 0:
                     self.waiting = False
-            self.caminar()
+
+            if not self.crossing:
+                self.caminar()
+            else:
+                self.cruzarCalle()
+
         else:
             self.subscribeToBus()

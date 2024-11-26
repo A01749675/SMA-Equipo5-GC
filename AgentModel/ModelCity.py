@@ -462,7 +462,7 @@ class CityModel(mesa.Model):
     def addPedestrians(self, numPedestrians):
         for i in range (numPedestrians):
             peaton = True
-            agent = Persona(self.next_id(), self)
+            agent = Persona(i+1, self)
             self.schedule.add(agent)
             pos = self.random.choice(self.walkableBuildings)
 
@@ -474,7 +474,8 @@ class CityModel(mesa.Model):
                         pos = self.random.choice(self.walkableBuildings)
                     else:
                         peaton = False
-
+            # print agent placed id
+            print(agent.unique_id)
             self.grid.place_agent(agent, pos)
     
     def step(self):
