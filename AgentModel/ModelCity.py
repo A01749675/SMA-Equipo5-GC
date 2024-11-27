@@ -490,7 +490,7 @@ class CityModel(mesa.Model):
             targetParking = self.random.choice(list(self.parkings.keys()))
             
             parkingLot = self.parkings[startingParking]
-            destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)- self.parkings[targetParking][1])
+            destination = (self.parkings[targetParking][0]-1,(self.HEIGHT)-self.parkings[targetParking][1])
             
             car = SmartCar(self.next_id(), self, i,destination,targetParking,startingParking,self.waze)
             self.grid.place_agent(car, (parkingLot[0]-1, (self.HEIGHT)-parkingLot[1]))

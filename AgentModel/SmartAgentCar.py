@@ -341,7 +341,7 @@ class SmartCar(mesa.Agent):
                 else:
                     self.multipleDir = False
                     self.directions = []
-            
+                    
             if nextPos == self.target:
                 self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
