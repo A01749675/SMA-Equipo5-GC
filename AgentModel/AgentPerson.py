@@ -17,7 +17,7 @@ class Persona(mesa.Agent):
         self.unique_id = uniqueId
         self.inBus = inBus
         self.waiting = False
-        self.waitingTime = 0
+        self.waitingTime = 20
         
         self.Bus = None
         self.justExited = False
@@ -43,114 +43,90 @@ class Persona(mesa.Agent):
         """
         if not self.waiting:
             current_cell = self.model.grid.get_cell_list_contents(self.pos)
-            
-            if not self.justExited:
-                for c in current_cell:
-                    if isinstance(c,BusStop):
-                        self.waiting = True
-                        self.waitingTime = 20
-                        return
-                    
-                direccion = None
-                neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
-                cell1 = self.model.grid.get_cell_list_contents([neighbors[0]])
-                cell2 = self.model.grid.get_cell_list_contents([neighbors[1]])
-                cell3 = self.model.grid.get_cell_list_contents([neighbors[2]])
-                cell4 = self.model.grid.get_cell_list_contents([neighbors[3]])
-                cellPos = self.model.grid.get_cell_list_contents([self.pos])
+            print("Caminandoooo")
+#aaaaa
+            for c in current_cell:
+                if isinstance(c,BusStop) and not self.justExited:
+                    self.waiting = True
+                    return
 
-                for c in cell3:
-                    if isinstance(c, Street) or isinstance(c, Stoplight):
-                        direccion = "der"
+            direccion = None
+            neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+            cell1 = self.model.grid.get_cell_list_contents([neighbors[0]])
+            cell2 = self.model.grid.get_cell_list_contents([neighbors[1]])
+            cell3 = self.model.grid.get_cell_list_contents([neighbors[2]])
+            cell4 = self.model.grid.get_cell_list_contents([neighbors[3]])
+            cellPos = self.model.grid.get_cell_list_contents([self.pos])
 
-                for c in cell2:
-                    if isinstance(c, Street) or isinstance(c, Stoplight):
-                        direccion = "izq"
+            for c in cell3:
+                if isinstance(c, Street) or isinstance(c, Stoplight):
+                    direccion = "der"
 
-                for c in cell4:
-                    if isinstance(c, Street) or isinstance(c, Stoplight):
-                        direccion = "down"
-                        for c in cell2:
-                            if isinstance(c, Street) or isinstance(c, Stoplight):
-                                direccion = "izq"
-                                #print("esquins inf der")
+            for c in cell2:
+                if isinstance(c, Street) or isinstance(c, Stoplight):
+                    direccion = "izq"
 
-                for c in cell1:
-                    if isinstance(c, Street) or isinstance(c, Stoplight):
-                        direccion = "up"
-                        #print("up normal")
-                        for c in cell3:
-                            if isinstance(c, Stoplight) or isinstance(c, Street):
-                                direccion = "der"
-                                #print("esquins sup izq")
+            for c in cell4:
+                if isinstance(c, Street) or isinstance(c, Stoplight):
+                    direccion = "down"
+                    for c in cell2:
+                        if isinstance(c, Street) or isinstance(c, Stoplight):
+                            direccion = "izq"
+                            #print("esquins inf der")
 
-                calleCruzar = self.checarCalle(neighbors)
+            for c in cell1:
+                if isinstance(c, Street) or isinstance(c, Stoplight):
+                    direccion = "up"
+                    #print("up normal")
+                    for c in cell3:
+                        if isinstance(c, Stoplight) or isinstance(c, Street):
+                            direccion = "der"
+                            #print("esquins sup izq")
 
-                if calleCruzar != None and not self.waitingLightOrCar:
-                    print("Calle a cruzar")
-                    coin = self.random.choice([1, 2])
-                    if coin == 1 and not self.justCrossed:
-                        print("Calle a cruzar22222")
-                        pos = self.pos
-                        self.crossing = True
-                        if pos[0] > calleCruzar.pos[0]:
-                            self.streetDir = "left"
-                        elif pos[0] < calleCruzar.pos[0]:
-                            self.streetDir = "right"
-                        elif pos[1] > calleCruzar.pos[1]:
-                            self.streetDir = "down"
-                        elif pos[1] < calleCruzar.pos[1]:
-                            self.streetDir = "up"
+            calleCruzar = self.checarCalle(neighbors)
 
-                        if self.checarSemaforo(neighbors) or self.checarCarro(neighbors):
-                            self.waitingLightOrCar = True
-                            return
+            if calleCruzar != None and not self.waitingLightOrCar:
+                #print("Calle a cruzar")
+                coin = self.random.choice([1, 2])
+                if coin == 1 and not self.justCrossed:
+                    #print("Calle a cruzar22222")
+                    pos = self.pos
+                    self.crossing = True
+                    if pos[0] > calleCruzar.pos[0]:
+                        self.streetDir = "left"
+                    elif pos[0] < calleCruzar.pos[0]:
+                        self.streetDir = "right"
+                    elif pos[1] > calleCruzar.pos[1]:
+                        self.streetDir = "down"
+                    elif pos[1] < calleCruzar.pos[1]:
+                        self.streetDir = "up"
 
+                    if self.checarSemaforo(neighbors) or self.checarCarro(neighbors):
+                        self.waitingLightOrCar = True
                         return
 
-                if direccion == "der":
-                    self.model.grid.move_agent(self, neighbors[3])
-                elif direccion == "izq":
-                    self.model.grid.move_agent(self, neighbors[0])
-                elif direccion == "up":
-                    self.model.grid.move_agent(self, neighbors[2])
-                elif direccion == "down":
-                    self.model.grid.move_agent(self, neighbors[1])
-                
-            else:
-                
-                neighbors = [(self.pos[0]+1,self.pos[1]),(self.pos[0]-1,self.pos[1]),(self.pos[0],self.pos[1]+1),(self.pos[0],self.pos[1]-1)]
-                
-                for neighbor in neighbors:
-                    if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
-                        continue
-                    cell = self.model.grid.get_cell_list_contents(neighbor)
-                    for c in cell:
-                        if self.is_agent_bus(c):
-                            if not self.inBus:
-                                self.model.grid.move_agent(self,neighbor)
-                                self.Bus = c
-                                c.board(self)
-                                self.inBus = True
-        else:
-            neighbors = [(self.pos[0]+1,self.pos[1]),(self.pos[0]-1,self.pos[1]),(self.pos[0],self.pos[1]+1),(self.pos[0],self.pos[1]-1)]
-            possible_steps = []
-            for neighbor in neighbors:
-                if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
-                    continue
-                cell = self.model.grid.get_cell_list_contents(neighbor)
-                for c in cell:
-                    if isinstance(c,BusStop):
-                        continue
-                    if self.is_agent_bus(c):
-                        continue
-                    if self.is_agent_car(c):
-                        continue
-                    if isinstance(c,Building):
-                        if c.walkable:
-                            possible_steps.append(neighbor)
+                    return
+
+            if direccion == "der":
+                self.model.grid.move_agent(self, neighbors[3])
+            elif direccion == "izq":
+                self.model.grid.move_agent(self, neighbors[0])
+            elif direccion == "up":
+                self.model.grid.move_agent(self, neighbors[2])
+            elif direccion == "down":
+                self.model.grid.move_agent(self, neighbors[1])
+
             self.justExited = False
-            self.model.grid.move_agent(self,self.random.choice(possible_steps))
+                
+#aaaaaaa
+        else:
+            print("Esperando")
+            self.waitingTime -= 1
+            if self.waitingTime == 0 and self.waiting:
+                self.waiting = False
+                self.justExited = True
+                self.waitingTime = 20
+
 
     def subscribeToBus(self):
         """
@@ -240,7 +216,7 @@ class Persona(mesa.Agent):
             #print(cell)
             for c in cell:
                 if isinstance(c, SmartCar) or isinstance(c, AgentBus):
-                    p#rint("car up")
+                    #print("car up")
                     return True
             #print("no car up")
             return False
@@ -340,11 +316,6 @@ class Persona(mesa.Agent):
         Método que simula el paso de la persona en la simulación.
         """
         if not self.inBus:
-            
-            if self.waiting:
-                self.waitingTime -= 1
-                if self.waitingTime == 0:
-                    self.waiting = False
 
             if not self.crossing:
                 self.caminar()
@@ -353,18 +324,19 @@ class Persona(mesa.Agent):
                 neigborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
                 if self.checarCarro(neigborhood) and not self.waitingLightOrCar and not self.justCrossed:
                     self.waitingLightOrCar = True
-                    print("esperando carro")
+                    #print("esperando carro")
                 if not self.waitingLightOrCar:
-                    print("Cruzandooooooooo")
+                    #print("Cruzandooooooooo")
                     self.cruzarCalle()
                     self.justCrossed = True
 
                 if not self.checarSemaforo(neigborhood) and not self.checarCarro(neigborhood) and self.waitingLightOrCar:
                     self.waitingLightOrCar = False
-                    print("fin de la esperaaaa")
-                    #self.waitingLightOver = True
-                print("me trabeeeeeee o estoy cruzando bien")
-                print(self.waitingLightOrCar)
-                print(self.streetDir)
-        #else:
-            #self.subscribeToBus()
+                    #print("fin de la esperaaaa")
+
+                #print("me trabeeeeeee o estoy cruzando bien")
+                #print(self.waitingLightOrCar)
+                #print(self.streetDir)
+
+        # else: COMENTADO POR AHORA, UTIL EN BREVES
+           # self.subscribeToBus()
