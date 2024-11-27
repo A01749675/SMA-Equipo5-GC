@@ -3,8 +3,6 @@ import mesa
 from AgentStoplights import Stoplight
 from AgentStreet import Street
 from AgentBuilding import Building
-from AgentParking import Parking
-from AgentBusStop import BusStop
 from AgentBusStop import BusStop
 
 class Persona(mesa.Agent):
@@ -29,7 +27,7 @@ class Persona(mesa.Agent):
         self.onStreet = False
         self.justCrossed = False
 
-        self.waitingLight = False
+        self.waitingLightOrCar = False
         
     def is_agent_bus(self, obj):
         from AgentBus import AgentBus  # Lazy import here
@@ -88,7 +86,7 @@ class Persona(mesa.Agent):
 
                 calleCruzar = self.checarCalle(neighbors)
 
-                if calleCruzar != None and not self.waitingLight:
+                if calleCruzar != None and not self.waitingLightOrCar:
                     print("Calle a cruzar")
                     coin = self.random.choice([1, 2])
                     if coin == 1 and not self.justCrossed:
@@ -104,8 +102,8 @@ class Persona(mesa.Agent):
                         elif pos[1] < calleCruzar.pos[1]:
                             self.streetDir = "up"
 
-                        if self.checarSemaforo(neighbors):
-                            self.waitingLight = True
+                        if self.checarSemaforo(neighbors) or self.checarCarro(neighbors):
+                            self.waitingLightOrCar = True
                             return
 
                         return
@@ -227,6 +225,61 @@ class Persona(mesa.Agent):
                         return True
         return None
 
+    def checarCarro(self, neighbors):
+        """
+        Método que checa si hay un carro en la dirección de la persona.
+
+        Args:
+            neighbors (list): lista de vecinos de la persona
+        """
+        from SmartAgentCar import SmartCar #lazy import
+
+        if self.streetDir == "up":
+            cell = self.model.grid.get_cell_list_contents([neighbors[2]]) + self.model.grid.get_cell_list_contents([neighbors[2][0]+1,neighbors[2][1]]) + self.model.grid.get_cell_list_contents([neighbors[2][0]-1,neighbors[2][1]])
+            #print(cell)
+            for c in cell:
+                if isinstance(c, SmartCar):
+                    print("car up")
+                    return True
+            print("no car up")
+            return False
+        elif self.streetDir == "down":
+            cell = self.model.grid.get_cell_list_contents([neighbors[1]]) + self.model.grid.get_cell_list_contents([neighbors[1][0]+1,neighbors[1][1]]) + self.model.grid.get_cell_list_contents([neighbors[1][0]-1,neighbors[1][1]])
+            #print(cell)
+            for c in cell:
+                if isinstance(c, SmartCar):
+                    print("car down")
+                    return True
+            print("no car down")
+            return False
+        elif self.streetDir == "left":
+            cell = self.model.grid.get_cell_list_contents([neighbors[0]]) + self.model.grid.get_cell_list_contents([neighbors[0][0],neighbors[0][1]+1]) + self.model.grid.get_cell_list_contents([neighbors[0][0],neighbors[0][1]-1])
+            #print(cell)
+            for c in cell:
+                if isinstance(c, SmartCar):
+                    print("car left")
+                    return True
+            print("no car left")
+            return False
+        elif self.streetDir == "right":
+            cell = self.model.grid.get_cell_list_contents([neighbors[3]]) + self.model.grid.get_cell_list_contents([neighbors[3][0],neighbors[3][1]+1]) + self.model.grid.get_cell_list_contents([neighbors[3][0],neighbors[3][1]-1])
+            #print(cell)
+            for c in cell:
+                if isinstance(c, SmartCar):
+                    print("car right")
+                    return True
+            print("no car right")
+            return False
+
+        for n in neighbors:
+            cell = self.model.grid.get_cell_list_contents([n])
+            for c in cell:
+                if isinstance(c, SmartCar):
+                    print("carrrr")
+                    return True
+        print("no carrrrr")
+        return False
+
     def checarCalle(self, neighbors):
         """
         Método que checa si hay una calle en la dirección de la persona.
@@ -296,16 +349,21 @@ class Persona(mesa.Agent):
                 self.caminar()
                 self.justCrossed = False
             else:
-                if not self.waitingLight:
+                neigborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+                if self.checarCarro(neigborhood) and not self.waitingLightOrCar and not self.justCrossed:
+                    self.waitingLightOrCar = True
+                    print("esperando carro")
+                if not self.waitingLightOrCar:
                     print("Cruzandooooooooo")
                     self.cruzarCalle()
                     self.justCrossed = True
-                if not self.checarSemaforo(self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)) and self.waitingLight:
-                    self.waitingLight = False
+
+                if not self.checarSemaforo(neigborhood) and not self.checarCarro(neigborhood) and self.waitingLightOrCar:
+                    self.waitingLightOrCar = False
                     print("fin de la esperaaaa")
                     #self.waitingLightOver = True
-                print("me trabeeeeeee")
-                print(self.waitingLight)
+                print("me trabeeeeeee o estoy cruzando bien")
+                print(self.waitingLightOrCar)
                 print(self.streetDir)
         #else:
             #self.subscribeToBus()
