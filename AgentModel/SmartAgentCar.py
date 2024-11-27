@@ -257,7 +257,8 @@ class SmartCar(mesa.Agent):
                 cell = self.model.grid.get_cell_list_contents([neighbor])
                 
                 for c in cell:
-                    
+                    if c is self:
+                        return
                     if isinstance(c, Parking):
                         if c.parkingId == self.targetParking:
                             self.inDestination = True
@@ -328,7 +329,7 @@ class SmartCar(mesa.Agent):
                 if self.is_agent_bus(c):
                     return
                 if isinstance(c, Persona):
-                    continue
+                    return
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
                         return
@@ -336,13 +337,15 @@ class SmartCar(mesa.Agent):
                     return
                 if isinstance(c, AgentStreetDir):
                     self.multipleDir = True
-                    self.directions = c.direction  # Ensure this is correctly set
+                    self.directions = c.direction
                 else:
                     self.multipleDir = False
                     self.directions = []
             
             if nextPos == self.target:
                 self.inDestination = True
+                self.model.grid.move_agent(self, nextPos)
+                return
                 
             self.prevPos = self.pos        
             self.model.grid.move_agent(self, nextPos)
