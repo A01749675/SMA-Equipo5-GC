@@ -47,6 +47,7 @@ public class Movement3 : MonoBehaviour
     int rotating_dir;
     bool startFinished;
     public PedController pedController;
+    bool crossing;
 
     
     
@@ -96,6 +97,7 @@ public class Movement3 : MonoBehaviour
         getStarted = false;
         once = false;
         startFinished=true;
+        crossing = false;
         
     }
 
@@ -455,93 +457,121 @@ public class Movement3 : MonoBehaviour
 
     }*/
 
-public void setX(float x_n){
-    if((int)x == (int)x_n){
-        return;
-    } else{
-        if(x > x_n){
-            x = x_n+0.1f;
+    public void setX(float x_n){
+        if((int)x == (int)x_n){
+            return;
         } else{
-            x = x_n+0.9f;
+            if(!crossing){
+                if(x > x_n){
+                    Debug.Log("Bajando en x a " + (x_n+0.1f));
+                    x = x_n+0.05f;
+                } else{
+                    Debug.Log("Bajando en x a" + (x_n+0.9f));
+                    x = x_n+0.95f;
+                }
+            } else{
+                if(x > x_n){
+                    Debug.Log("Bajando en x a " + (x_n+0.9f));
+                    x = x_n+0.95f;
+                } else{
+                    Debug.Log("Bajando en x a" + (x_n+0.1f));
+                    x = x_n+0.05f;
+                }
+            }
         }
     }
-}
 
-public void setZ(float z_n){
-    if((int)z == (int)z_n){
-        return;
-    } else{
-        if(z > z_n){
-            z = z_n+0.1f;
+    public void setZ(float z_n){
+        if((int)z == (int)z_n){
+            return;
         } else{
-            z = z_n+0.9f;
+            if (!crossing){
+                if(z > z_n){
+                    z = z_n+0.05f;
+                } else{
+                    z = z_n+0.95f;
+                }
+            } else {
+                if(z > z_n){
+                    z = z_n+0.95f;
+                } else{
+                    z = z_n+0.05f;
+                }
+            }
         }
     }
-}
-public void setAngle(string direction){
-    if(!started){
-        ////DebugLog("Seteando angulo");
-        ////DebugLog(direction);
-        
-        switch (direction)
-        {
-            case "N":
-                angle = 270;
-                break;
-            case "E":
-                angle = 0;
-                break;
-            case "S":
-                angle = 90;
-                break;
-            case "W":
-                angle = 180;
-                break;
-            default:
-                ////DebugLogWarning("Dirección no reconocida: " + direction);
-                break;
+    public void setCrossing(bool crossing){
+        //Debug.Log("Cambiando a cruzar");
+        //Debug.Log(crossing);
+        this.crossing = crossing;
+    }
+    public void setAngle(string direction){
+        if(!started){
+            ////DebugLog("Seteando angulo");
+            ////DebugLog(direction);
+            
+            switch (direction)
+            {
+                case "N":
+                    angle = 270;
+                    break;
+                case "E":
+                    angle = 0;
+                    break;
+                case "S":
+                    angle = 90;
+                    break;
+                case "W":
+                    angle = 180;
+                    break;
+                default:
+                    ////DebugLogWarning("Dirección no reconocida: " + direction);
+                    break;
+            }
         }
     }
-}
-public void setInitialPos(float x_n, float z_n, string direction)
-{
-    StartCoroutine(SetInitialPosCoroutine(x_n, z_n, direction));
-}
-
-private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string direction)
-{
-    // Espera hasta que Start haya terminado
-    while (!startFinished)
+    public void setInitialPos(float x_n, float z_n, string direction)
     {
-        yield return null;
+        StartCoroutine(SetInitialPosCoroutine(x_n, z_n, direction));
     }
 
-    //Debug.Log("Setting initial position for ped " + id + " to (" + x_n + ", " + z_n + ")");
-    pedTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
-    pivot = new Vector3 (0,0,0);
-    position = new Vector3 (x_n, 0, z_n);
-    ////DebugLog("Angulo = " + angle);
-    roty = VecOps.RotateYM(angle);
-    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
-    pbMesh.ToMesh();
-    pbMesh.Refresh();
-    ////DebugLog("The position is: "+position);
-    ppos = VecOps.TranslateM(pivot);
-    pneg = VecOps.TranslateM(-pivot);
-    m = pedTranslate *ppos * roty * pneg* scale;
-    pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
-    pbMesh.ToMesh();
-    pbMesh.Refresh();
-    pbRenderer.enabled = true;
-    x=x_n;
-    z=z_n;
-    position = new Vector3 (x, 0, z);
-    getStarted = true;
-}
-public void setArrived(){
-    //Debug.Log("Llegué");
-    ped.SetActive(false);
+    private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string direction)
+    {
+        // Espera hasta que Start haya terminado
+        while (!startFinished)
+        {
+            yield return null;
+        }
 
-}
+        //Debug.Log("Setting initial position for ped " + id + " to (" + x_n + ", " + z_n + ")");
+        pedTranslate = VecOps.TranslateM(new Vector3 (x_n+0.5f, 0, z_n+0.5f) );
+        pivot = new Vector3 (0,0,0);
+        position = new Vector3 (x_n, 0, z_n);
+        ////DebugLog("Angulo = " + angle);
+        roty = VecOps.RotateYM(angle);
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
+        ////DebugLog("The position is: "+position);
+        ppos = VecOps.TranslateM(pivot);
+        pneg = VecOps.TranslateM(-pivot);
+        m = pedTranslate *ppos * roty * pneg* scale;
+        pbMesh.positions = VecOps.ApplyTransform(vertices, m).ToArray();
+        pbMesh.ToMesh();
+        pbMesh.Refresh();
+        pbRenderer.enabled = true;
+        x=x_n;
+        z=z_n;
+        position = new Vector3 (x, 0, z);
+        getStarted = true;
+    }
+    public void setArrived(){
+        //Debug.Log("Llegué");
+        ped.SetActive(false);
+
+    }
+    public void setInBus(bool inBus){
+        ped.SetActive(!inBus);
+    }
 }
 

@@ -126,6 +126,8 @@ public class Connection : MonoBehaviour
                 foreach(Pedestrian pedestrian in pedestrians){
                     pedController.setX(pedestrian.x,pedestrian.id);
                     pedController.setZ(pedestrian.z,pedestrian.id);
+                    pedController.setCrossing(pedestrian.crossing,pedestrian.id);
+                    pedController.setInBus(pedestrian.inBus,pedestrian.id);
                 }
                 addingPos = false;
                 carController.waitingForNextPos = false;

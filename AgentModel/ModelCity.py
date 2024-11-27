@@ -415,7 +415,7 @@ class CityModel(mesa.Model):
         self.addStoplights()
         self.addCar()
         self.addTwoDirStreet()
-        self.addPedestrians(1)
+        self.addPedestrians(5)
         self.addBusStop()
         self.addbuses()
         

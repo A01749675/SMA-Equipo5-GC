@@ -45,6 +45,7 @@ public class Movement : MonoBehaviour
     int rotating_dir;
     bool startFinished;
     public CarController carController;
+    bool arrived;
 
     
     
@@ -92,6 +93,7 @@ public class Movement : MonoBehaviour
         getStarted = false;
         once = false;
         startFinished=true;
+        arrived = false;
         
     }
 
@@ -139,6 +141,12 @@ public class Movement : MonoBehaviour
 
                 //////DebugLog("Llame al servidor" + i);
                 }
+                if (arrived){
+                    //Debug.Log("Llegué");
+                    
+                    car.SetActive(false);
+                    //carController.setArrived();
+                }
 
             } else{
                 //Debug.Log("En movimiento");
@@ -148,10 +156,10 @@ public class Movement : MonoBehaviour
                         //////DebugLog("Avanzaré a z");
                         position.z=m[2,3];
                             if(position.z < z){
-                                move_z(0.1f);
+                                move_z(0.05f);
                                 //////DebugLog("Arriba");
                             } else{
-                                move_z(-0.1f);
+                                move_z(-0.05f);
                                 //////DebugLog("Abajo");
                             }
                             flag = false;
@@ -230,10 +238,10 @@ public class Movement : MonoBehaviour
                     position.x=m[0,3];
                     //////DebugLog("Estoy apuntando hacia x");
                         if(position.x < x){
-                            move_x(0.1f);
+                            move_x(0.05f);
                             //////DebugLog("Derecha");
                         } else{
-                            move_x(-0.1f);
+                            move_x(-0.05f);
                             //////DebugLog("Izquierda");
                         }
                         if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
@@ -383,14 +391,14 @@ public class Movement : MonoBehaviour
 
     void rotate_leftr()
     {
-        rotating_angle-=4;
-        rotyr *= VecOps.RotateYM(-4); // Rotación acumulativa
+        rotating_angle-=5;
+        rotyr *= VecOps.RotateYM(-5); // Rotación acumulativa
     }
 
     void rotate_rightr()
     {
-        rotating_angle+=4;
-        rotyr *= VecOps.RotateYM(4); // Rotación acumulativa
+        rotating_angle+=5;
+        rotyr *= VecOps.RotateYM(5); // Rotación acumulativa
     }
 
     void rotating(){
@@ -430,7 +438,7 @@ public class Movement : MonoBehaviour
         pbMesh.ToMesh();
         pbMesh.Refresh();
 
-        if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
+        if (AproximadamenteIgual(rotating_angle, 90,4) || AproximadamenteIgual(rotating_angle, -90, 4) || AproximadamenteIgual(rotating_angle, 0, 4) || AproximadamenteIgual(rotating_angle,180,4) || AproximadamenteIgual(rotating_angle, -180,4) || AproximadamenteIgual(rotating_angle, 270,4) || AproximadamenteIgual(rotating_angle,-270,4) || AproximadamenteIgual(rotating_angle,360,4) || AproximadamenteIgual(rotating_angle, -360, 4)) {
             flagrotating = false;
             once = false;
             carTranslate *= VecOps.TranslateM(temp); 
@@ -530,7 +538,8 @@ private IEnumerator SetInitialPosCoroutine(float x_n, float z_n, string directio
 }
 public void setArrived(){
     //Debug.Log("Llegué");
-    car.SetActive(false);
+    //car.SetActive(false);
+    arrived = true;
 
 }
 }

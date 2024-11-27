@@ -127,7 +127,7 @@ public class PedController : MonoBehaviour
     {
         if(started){
             
-            GameObject ped = peds[0];
+            GameObject ped = peds[id-1];
             Movement3 movement = ped.GetComponent<Movement3>();
             movement.setX(x);
             
@@ -140,7 +140,7 @@ public class PedController : MonoBehaviour
     {
         if(started){
            
-                GameObject ped = peds[0];
+                GameObject ped = peds[id-1];
                 Movement3 movement = ped.GetComponent<Movement3>();
                 movement.setZ(z);
                 movement.callForNextPos = false;
@@ -154,7 +154,7 @@ public class PedController : MonoBehaviour
     {
         if(started){
             if(!arrived[0]){
-                GameObject ped = peds[0];
+                GameObject ped = peds[id-1];
                 Movement3 movement = ped.GetComponent<Movement3>();
                 movement.setAngle(direction);
                 movement.callForNextPos = false;
@@ -174,7 +174,7 @@ public class PedController : MonoBehaviour
     {
         if(started){
             //Debug.Log("ped "+id+" has arrived");
-            GameObject ped = peds[0];
+            GameObject ped = peds[id-1];
             Movement3 movement = ped.GetComponent<Movement3>();
             movement.setArrived();
             arrived[0] = true;
@@ -206,5 +206,24 @@ public class PedController : MonoBehaviour
             } else{
                 Debug.Log("Not all peds ready");
             }
+    }
+
+    public void setCrossing(bool crossing, int id)
+    {
+        if(started){
+            GameObject ped = peds[id-1];
+            Movement3 movement = ped.GetComponent<Movement3>();
+            movement.setCrossing(crossing);
+        }
+
+    }
+
+    public void setInBus(bool inBus, int id)
+    {
+        if(started){
+            GameObject ped = peds[id-1];
+            Movement3 movement = ped.GetComponent<Movement3>();
+            movement.setInBus(inBus);
+        }
     }
 }

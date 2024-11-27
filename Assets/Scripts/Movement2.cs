@@ -155,10 +155,10 @@ public class Movement2 : MonoBehaviour
                         //////DebugLog("Avanzaré a z");
                         position.z=m[2,3];
                             if(position.z < z){
-                                move_z(0.1f);
+                                move_z(0.0375f);
                                 //////DebugLog("Arriba");
                             } else{
-                                move_z(-0.1f);
+                                move_z(-0.0375f);
                                 //////DebugLog("Abajo");
                             }
                             flag = false;
@@ -237,10 +237,10 @@ public class Movement2 : MonoBehaviour
                     position.x=m[0,3];
                     //////DebugLog("Estoy apuntando hacia x");
                         if(position.x < x){
-                            move_x(0.1f);
+                            move_x(0.0375f);
                             //////DebugLog("Derecha");
                         } else{
-                            move_x(-0.1f);
+                            move_x(-0.0375f);
                             //////DebugLog("Izquierda");
                         }
                         if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
@@ -389,14 +389,14 @@ public class Movement2 : MonoBehaviour
 
     void rotate_leftr()
     {
-        rotating_angle-=4;
-        rotyr *= VecOps.RotateYM(-4); // Rotación acumulativa
+        rotating_angle-=5;
+        rotyr *= VecOps.RotateYM(-5); // Rotación acumulativa
     }
 
     void rotate_rightr()
     {
-        rotating_angle+=4;
-        rotyr *= VecOps.RotateYM(4); // Rotación acumulativa
+        rotating_angle+=5;
+        rotyr *= VecOps.RotateYM(5); // Rotación acumulativa
     }
 
     void rotating(){
@@ -436,7 +436,7 @@ public class Movement2 : MonoBehaviour
         pbMesh.ToMesh();
         pbMesh.Refresh();
 
-        if (AproximadamenteIgual(rotating_angle, 90,3) || AproximadamenteIgual(rotating_angle, -90, 3) || AproximadamenteIgual(rotating_angle, 0, 3) || AproximadamenteIgual(rotating_angle,180,3) || AproximadamenteIgual(rotating_angle, -180,3) || AproximadamenteIgual(rotating_angle, 270,3) || AproximadamenteIgual(rotating_angle,-270,3) || AproximadamenteIgual(rotating_angle,360,3) || AproximadamenteIgual(rotating_angle, -360, 3)) {
+        if (AproximadamenteIgual(rotating_angle, 90,4) || AproximadamenteIgual(rotating_angle, -90, 4) || AproximadamenteIgual(rotating_angle, 0, 4) || AproximadamenteIgual(rotating_angle,180,4) || AproximadamenteIgual(rotating_angle, -180,4) || AproximadamenteIgual(rotating_angle, 270,4) || AproximadamenteIgual(rotating_angle,-270,4) || AproximadamenteIgual(rotating_angle,360,4) || AproximadamenteIgual(rotating_angle, -360, 4)) {
             flagrotating = false;
             once = false;
             busTranslate *= VecOps.TranslateM(temp); 
