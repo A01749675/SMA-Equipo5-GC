@@ -28,6 +28,8 @@ class Persona(mesa.Agent):
         self.streetDir = None
         self.onStreet = False
         self.justCrossed = False
+
+        self.waitingLight = False
         
     def is_agent_bus(self, obj):
         from AgentBus import AgentBus  # Lazy import here
@@ -86,7 +88,7 @@ class Persona(mesa.Agent):
 
                 calleCruzar = self.checarCalle(neighbors)
 
-                if calleCruzar != None:
+                if calleCruzar != None and not self.waitingLight:
                     print("Calle a cruzar")
                     coin = self.random.choice([1, 2])
                     if coin == 1 and not self.justCrossed:
@@ -101,6 +103,11 @@ class Persona(mesa.Agent):
                             self.streetDir = "down"
                         elif pos[1] < calleCruzar.pos[1]:
                             self.streetDir = "up"
+
+                        if self.checarSemaforo(neighbors):
+                            self.waitingLight = True
+                            return
+
                         return
 
                 if direccion == "der":
@@ -179,11 +186,45 @@ class Persona(mesa.Agent):
         Args:
             neighbors (list): lista de vecinos de la persona
         """
+        if self.streetDir == "up":
+            cell = self.model.grid.get_cell_list_contents([neighbors[2]])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    if c.state == "Green":
+                        return True
+                    else:
+                        return False
+        elif self.streetDir == "down":
+            cell = self.model.grid.get_cell_list_contents([neighbors[1]])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    if c.state == "Green":
+                        return True
+                    else:
+                        return False
+        elif self.streetDir == "left":
+            cell = self.model.grid.get_cell_list_contents([neighbors[0]])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    if c.state == "Green":
+                        return True
+                    else:
+                        return False
+        elif self.streetDir == "right":
+            cell = self.model.grid.get_cell_list_contents([neighbors[3]])
+            for c in cell:
+                if isinstance(c, Stoplight):
+                    if c.state == "Green":
+                        return True
+                    else:
+                        return False
+
         for n in neighbors:
             cell = self.model.grid.get_cell_list_contents([n])
             for c in cell:
                 if isinstance(c, Stoplight):
-                    return c
+                    if c.state == "Green":
+                        return True
         return None
 
     def checarCalle(self, neighbors):
@@ -255,8 +296,16 @@ class Persona(mesa.Agent):
                 self.caminar()
                 self.justCrossed = False
             else:
-                self.cruzarCalle()
-                self.justCrossed = True
-
+                if not self.waitingLight:
+                    print("Cruzandooooooooo")
+                    self.cruzarCalle()
+                    self.justCrossed = True
+                if not self.checarSemaforo(self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)) and self.waitingLight:
+                    self.waitingLight = False
+                    print("fin de la esperaaaa")
+                    #self.waitingLightOver = True
+                print("me trabeeeeeee")
+                print(self.waitingLight)
+                print(self.streetDir)
         #else:
             #self.subscribeToBus()
