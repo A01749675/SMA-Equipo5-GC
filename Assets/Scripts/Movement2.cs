@@ -155,10 +155,10 @@ public class Movement2 : MonoBehaviour
                         //////DebugLog("Avanzaré a z");
                         position.z=m[2,3];
                             if(position.z < z){
-                                move_z(0.0375f);
+                                move_z(0.05f);
                                 //////DebugLog("Arriba");
                             } else{
-                                move_z(-0.0375f);
+                                move_z(-0.05f);
                                 //////DebugLog("Abajo");
                             }
                             flag = false;
@@ -237,10 +237,10 @@ public class Movement2 : MonoBehaviour
                     position.x=m[0,3];
                     //////DebugLog("Estoy apuntando hacia x");
                         if(position.x < x){
-                            move_x(0.0375f);
+                            move_x(0.05f);
                             //////DebugLog("Derecha");
                         } else{
-                            move_x(-0.0375f);
+                            move_x(-0.05f);
                             //////DebugLog("Izquierda");
                         }
                         if (AproximadamenteIgual(angle,360) || AproximadamenteIgual(angle,-360)){
