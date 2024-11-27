@@ -15,12 +15,14 @@ class Persona(mesa.Agent):
     def __init__(self, uniqueId, model, inBus = False):
         super().__init__(uniqueId,model)
         self.unique_id = uniqueId
-        self.inBus = inBus
+
         self.waiting = False
         self.waitingTime = 20
-        
+
+        self.inBus = inBus
         self.Bus = None
         self.justExited = False
+        self.justGotIn = False
 
         self.crossing = False
         self.streetDir = None
@@ -29,7 +31,7 @@ class Persona(mesa.Agent):
 
         self.waitingLightOrCar = False
         
-    def is_agent_bus(self, obj):
+    def is_agent_bus(self, obj, neighbors):
         from AgentBus import AgentBus  # Lazy import here
         return isinstance(obj, AgentBus)
     
@@ -41,12 +43,13 @@ class Persona(mesa.Agent):
         """
         Método que simula el movimiento de la persona en la simulación.
         """
+
         if not self.waiting:
             current_cell = self.model.grid.get_cell_list_contents(self.pos)
             print("Caminandoooo")
-#aaaaa
+
             for c in current_cell:
-                if isinstance(c,BusStop) and not self.justExited:
+                if isinstance(c,BusStop):
                     self.waiting = True
                     return
 
@@ -117,10 +120,22 @@ class Persona(mesa.Agent):
                 self.model.grid.move_agent(self, neighbors[1])
 
             self.justExited = False
-                
-#aaaaaaa
+
         else:
             print("Esperando")
+            neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+            cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
+            for c in cell:
+                if self.is_agent_bus(c, neighbors) and not self.justExited:
+                    print("Busssss Busssss Busssss")
+                    self.waiting = False
+                    self.waitingTime = 20
+
+                    self.inBus = True
+                    self.Bus = c
+                    c.people.append(self)
+                    self.justGotIn = True
+
             self.waitingTime -= 1
             if self.waitingTime == 0 and self.waiting:
                 self.waiting = False
@@ -128,29 +143,10 @@ class Persona(mesa.Agent):
                 self.waitingTime = 20
 
 
-    def subscribeToBus(self):
+    def subscribedToBus(self):
         """
         Método que simula la suscripción de la persona al bus en la simulación.
         """
-        if self.Bus.waiting:
-            neighbors = [(self.pos[0]+1,self.pos[1]),(self.pos[0]-1,self.pos[1]),(self.pos[0],self.pos[1]+1),(self.pos[0],self.pos[1]-1)]
-            for neighbor in neighbors:
-                if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
-                    continue
-                cell = self.model.grid.get_cell_list_contents(neighbor)
-                for cellContent in cell:
-                    if isinstance(cellContent,BusStop):
-                        choices = [True,False]
-                        choice = self.random.choice(choices)
-                        if choice:
-                            self.inBus = False
-                            self.Bus = None
-                            self.model.grid.move_agent(self,neighbor)
-                            print("I am out of the bus")
-                            self.justExited = True
-                            return 
-            self.Bus.board(self)
-            self.inBus = True
         self.model.grid.move_agent(self,self.Bus.pos)
 
     def checarSemaforo(self, neighbors):
@@ -338,5 +334,6 @@ class Persona(mesa.Agent):
                 #print(self.waitingLightOrCar)
                 #print(self.streetDir)
 
-        # else: COMENTADO POR AHORA, UTIL EN BREVES
-           # self.subscribeToBus()
+        else:
+            print("Subscrito al bus")
+            self.subscribedToBus()

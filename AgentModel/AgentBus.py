@@ -165,16 +165,22 @@ class AgentBus(mesa.Agent):
 
     def step(self):
         if self.waiting:
+            for person in self.people:
+                if not person.justGotIn:
+                    print(str(person.unique_id)+" Me bajo")
+                    person.justGotIn = True
             self.route=[]
             self.waitTime -= 1
             if self.waitTime == 0:
                 self.waiting = False
                 self.waitTime = 20
-            # print("I am waiting")
+            print("I am waiting")
         else:
             # print("Bus",self.bus)
             # print("-------------------------------")
-            # print(f"Bus {self.bus} is moving. I have {len(self.people)} people")
+            print(f"Bus {self.bus} is moving. I have {len(self.people)} people")
+            for person in self.people:
+                person.justGotIn = False
             self.checkStoplight()
         # for person in self.people:
         #     person.step()
