@@ -408,7 +408,7 @@ class CityModel(mesa.Model):
             2:(22,3),
             3:(22,13),
             4:(19,22),
-            5:(1,20)
+            5:(0,20)
         }
         self.buses = []
         self.waze = Waze()
