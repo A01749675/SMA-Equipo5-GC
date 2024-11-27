@@ -233,51 +233,52 @@ class Persona(mesa.Agent):
             neighbors (list): lista de vecinos de la persona
         """
         from SmartAgentCar import SmartCar #lazy import
+        from AgentBus import AgentBus #lazy import
 
         if self.streetDir == "up":
             cell = self.model.grid.get_cell_list_contents([neighbors[2]]) + self.model.grid.get_cell_list_contents([neighbors[2][0]+1,neighbors[2][1]]) + self.model.grid.get_cell_list_contents([neighbors[2][0]-1,neighbors[2][1]])
             #print(cell)
             for c in cell:
-                if isinstance(c, SmartCar):
-                    print("car up")
+                if isinstance(c, SmartCar) or isinstance(c, AgentBus):
+                    p#rint("car up")
                     return True
-            print("no car up")
+            #print("no car up")
             return False
         elif self.streetDir == "down":
             cell = self.model.grid.get_cell_list_contents([neighbors[1]]) + self.model.grid.get_cell_list_contents([neighbors[1][0]+1,neighbors[1][1]]) + self.model.grid.get_cell_list_contents([neighbors[1][0]-1,neighbors[1][1]])
             #print(cell)
             for c in cell:
-                if isinstance(c, SmartCar):
-                    print("car down")
+                if isinstance(c, SmartCar) or isinstance(c, AgentBus):
+                    #print("car down")
                     return True
-            print("no car down")
+            #print("no car down")
             return False
         elif self.streetDir == "left":
             cell = self.model.grid.get_cell_list_contents([neighbors[0]]) + self.model.grid.get_cell_list_contents([neighbors[0][0],neighbors[0][1]+1]) + self.model.grid.get_cell_list_contents([neighbors[0][0],neighbors[0][1]-1])
             #print(cell)
             for c in cell:
-                if isinstance(c, SmartCar):
-                    print("car left")
+                if isinstance(c, SmartCar) or isinstance(c, AgentBus):
+                    #print("car left")
                     return True
-            print("no car left")
+            #print("no car left")
             return False
         elif self.streetDir == "right":
             cell = self.model.grid.get_cell_list_contents([neighbors[3]]) + self.model.grid.get_cell_list_contents([neighbors[3][0],neighbors[3][1]+1]) + self.model.grid.get_cell_list_contents([neighbors[3][0],neighbors[3][1]-1])
             #print(cell)
             for c in cell:
-                if isinstance(c, SmartCar):
-                    print("car right")
+                if isinstance(c, SmartCar) or isinstance(c, AgentBus):
+                   # print("car right")
                     return True
-            print("no car right")
+            #print("no car right")
             return False
 
         for n in neighbors:
             cell = self.model.grid.get_cell_list_contents([n])
             for c in cell:
-                if isinstance(c, SmartCar):
-                    print("carrrr")
+                if isinstance(c, SmartCar) or isinstance(c, AgentBus):
+                    #print("carrrr")
                     return True
-        print("no carrrrr")
+        #print("no carrrrr")
         return False
 
     def checarCalle(self, neighbors):
