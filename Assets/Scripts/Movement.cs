@@ -46,6 +46,7 @@ public class Movement : MonoBehaviour
     bool startFinished;
     public CarController carController;
     bool arrived;
+    float actual_x;
 
     
     
@@ -94,6 +95,7 @@ public class Movement : MonoBehaviour
         once = false;
         startFinished=true;
         arrived = false;
+        actual_x = 0;
         
     }
 
@@ -454,24 +456,25 @@ public class Movement : MonoBehaviour
     }
 
 public void setX(float x_n){
-    if (x == x_n){
+    /*if (x == x_n){
         x = x_n;
-        return;
-    }
+        //return;
+    }*/
     if(x > x_n){
-        x = x_n+1;
+        x = x_n+0.9f;
     } else{
         x = x_n;
     }
+    actual_x = x_n;
 }
 
 public void setZ(float z_n){
-    if (z == z_n){
+    /*if (z == z_n){
         z = z_n;
         return;
-    }
+    }*/
     if(z > z_n){
-        z = z_n+1;
+        z = z_n+0.9f;
     } else{
         z = z_n;
     }
