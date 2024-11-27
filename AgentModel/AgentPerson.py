@@ -27,6 +27,7 @@ class Persona(mesa.Agent):
         self.crossing = False
         self.streetDir = None
         self.onStreet = False
+        self.justCrossed = False
         
     def is_agent_bus(self, obj):
         from AgentBus import AgentBus  # Lazy import here
@@ -88,7 +89,7 @@ class Persona(mesa.Agent):
                 if calleCruzar != None:
                     print("Calle a cruzar")
                     coin = self.random.choice([1, 2])
-                    if coin == 1:
+                    if coin == 1 and not self.justCrossed:
                         print("Calle a cruzar22222")
                         pos = self.pos
                         self.crossing = True
@@ -252,8 +253,10 @@ class Persona(mesa.Agent):
 
             if not self.crossing:
                 self.caminar()
+                self.justCrossed = False
             else:
                 self.cruzarCalle()
+                self.justCrossed = True
 
         #else:
             #self.subscribeToBus()
