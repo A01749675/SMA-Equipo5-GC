@@ -170,7 +170,7 @@ public class BusController : MonoBehaviour
             foreach (GameObject bus in buses)
             {
                 Movement2 movement = bus.GetComponent<Movement2>();
-                Debug.Log("bus " + movement.id + " tried calling");
+                //Debug.Log("bus " + movement.id + " tried calling");
                 if (!movement.callForNextPos)
                 {
                     allbusessReady = false;
@@ -180,16 +180,16 @@ public class BusController : MonoBehaviour
 
             if (allbusessReady && !waitingForNextPos)
             {
-                Debug.Log("Calling for next pos");
+                //Debug.Log("Calling for next pos");
                 foreach (GameObject bus in buses)
                 {
                     Movement2 movement = bus.GetComponent<Movement2>();
                     movement.waitingForNextPos = true;
                 }
                 callForNextPos = true;
-                Debug.Log("All buses ready");
+                //Debug.Log("All buses ready");
             } else{
-                Debug.Log("Not all buses ready");
+                //Debug.Log("Not all buses ready");
             }
     }
 }
