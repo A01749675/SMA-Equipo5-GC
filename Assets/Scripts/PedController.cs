@@ -196,7 +196,7 @@ public class PedController : MonoBehaviour
 
             if (allpedsReady && !waitingForNextPos)
             {
-                Debug.Log("Calling for next pos");
+                //Debug.Log("Calling for next pos");
                 foreach (GameObject ped in peds)
                 {
                     Movement3 movement = ped.GetComponent<Movement3>();
@@ -204,7 +204,7 @@ public class PedController : MonoBehaviour
                 }
                 callForNextPos = true;
             } else{
-                Debug.Log("Not all peds ready");
+                //Debug.Log("Not all peds ready");
             }
     }
 

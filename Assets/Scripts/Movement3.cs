@@ -131,7 +131,7 @@ public class Movement3 : MonoBehaviour
             }
         }
         else{
-            Debug.Log("Ya empezó");
+            //Debug.Log("Ya empezó");
             if(AproximadamenteIgual(x,position.x,0.1f) & AproximadamenteIgual(z,position.z,0.1f) ){
                 /* Debug.Log("En objetivo " + id);
                 Debug.Log("x1" + x);
@@ -463,18 +463,18 @@ public class Movement3 : MonoBehaviour
         } else{
             if(!crossing){
                 if(x > x_n){
-                    Debug.Log("Bajando en x a " + (x_n+0.1f));
+                    //Debug.Log("Bajando en x a " + (x_n+0.1f));
                     x = x_n+0.05f;
                 } else{
-                    Debug.Log("Bajando en x a" + (x_n+0.9f));
+                    //Debug.Log("Bajando en x a" + (x_n+0.9f));
                     x = x_n+0.95f;
                 }
             } else{
                 if(x > x_n){
-                    Debug.Log("Bajando en x a " + (x_n+0.9f));
+                    //Debug.Log("Bajando en x a " + (x_n+0.9f));
                     x = x_n+0.95f;
                 } else{
-                    Debug.Log("Bajando en x a" + (x_n+0.1f));
+                    //Debug.Log("Bajando en x a" + (x_n+0.1f));
                     x = x_n+0.05f;
                 }
             }

@@ -70,7 +70,7 @@ public class Connection : MonoBehaviour
         carController.waitingForNextPos = true;
         busController.waitingForNextPos = true;
         pedController.waitingForNextPos = true;
-        Debug.Log("Requesting all data");
+        //Debug.Log("Requesting all data");
         //addingPos = true;
         //move.waitingForNextPos = true;
         WWWForm form = new WWWForm();
@@ -178,9 +178,9 @@ public class Connection : MonoBehaviour
     void Update()
     {
         //&& busController.callForNextPos
-        Debug.Log("car " + carController.callForNextPos);
+        /* Debug.Log("car " + carController.callForNextPos);
         Debug.Log("bus" +busController.callForNextPos);
-        Debug.Log("ped" + pedController.callForNextPos);
+        Debug.Log("ped" + pedController.callForNextPos); */
         if(carController.callForNextPos && busController.callForNextPos && pedController.callForNextPos &&  !addingPos){
             StartCoroutine(RequestAllData());   
             carController.callForNextPos = false;
