@@ -551,6 +551,6 @@ class CityModel(mesa.Model):
         for bus in self.buses:
             result["buses"].append({"id":bus.id,"x":bus.pos[0],"z":bus.pos[1],"direction":bus.currentDir})
         for people in self.pedestrians:
-            result["pedestrians"].append({"id":people.unique_id,"x":people.pos[0],"z":people.pos[1]})
+            result["pedestrians"].append({"id":people.unique_id,"x":people.pos[0],"z":people.pos[1],"crossing":people.crossing})
         
         return result
