@@ -289,7 +289,7 @@ class SmartCar(mesa.Agent):
                     if isinstance(c, SmartCar):
                         continue
                     if isinstance(c, Persona):
-                        continue
+                        return
                     if self.is_agent_bus(c):
                         continue
                     
