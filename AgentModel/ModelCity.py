@@ -403,6 +403,13 @@ class CityModel(mesa.Model):
             4: (19,21),
             5: (2,20),
         }
+        self.busStopFirst = {
+            1:(8,8),
+            2:(22,3),
+            3:(22,13),
+            4:(19,22),
+            5:(1,20)
+        }
         self.buses = []
         self.waze = Waze()
         self.pedestrians = []
@@ -496,8 +503,7 @@ class CityModel(mesa.Model):
         for i in range(5):
             bus = AgentBus(self.next_id(), self, i+1,i+1)
             self.schedule.add(bus)
-            position = self.random.choice(list(self.busStops.values()))
-            self.grid.place_agent(bus, self.busStops[i+1])
+            self.grid.place_agent(bus, self.busStopFirst[i+1])
             self.buses.append(bus)
             
     def addTwoDirStreet(self):
