@@ -82,8 +82,8 @@ class Persona(mesa.Agent):
                                 direccion = "der"
                                 print("esquins sup izq")
 
-                if self.checarSemaforo(neighbors) != None:
-                    print("Semaforo")
+                if self.checarCalle(neighbors) != None:
+                    print("Calle cruzable")
 
                 for c in cellPos:
                     if isinstance(c, BusStop):
@@ -170,6 +170,20 @@ class Persona(mesa.Agent):
             cell = self.model.grid.get_cell_list_contents([n])
             for c in cell:
                 if isinstance(c, Stoplight):
+                    return c
+        return None
+
+    def checarCalle(self, neighbors):
+        """
+        Método que checa si hay una calle en la dirección de la persona.
+
+        Args:
+            neighbors (list): lista de vecinos de la persona
+        """
+        for n in neighbors:
+            cell = self.model.grid.get_cell_list_contents([n])
+            for c in cell:
+                if isinstance(c, Street):
                     return c
         return None
 

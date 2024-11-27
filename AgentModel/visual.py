@@ -66,6 +66,9 @@ def agentPortrayal(agent):
         portrayal["Shape"] = "arrowHead"
         portrayal["Color"] = "black"
         portrayal["scale"] = 0.5  # Adjust the scale as needed
+        if agent.walkable:
+            portrayal["text"] = "w"
+            portrayal["text_color"] = "red"
         agentDirection = ""
         for dir, value in agent.availableDirections.items():
             if value:

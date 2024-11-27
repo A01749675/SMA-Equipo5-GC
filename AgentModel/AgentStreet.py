@@ -22,7 +22,7 @@ class Street(mesa.Agent):
         directions (dict): diccionario con las direcciones en las que se puede mover el agente
         
     """
-    def __init__(self,uniqueId,model, street, directions):
+    def __init__(self,uniqueId,model, street, directions, walkable = False):
         super().__init__(uniqueId,model)
         self.street = street
         self.availableDirections = {
@@ -38,7 +38,7 @@ class Street(mesa.Agent):
                 "E":(1,0),
                 "W":(-1,0)
             }
-        walkable = False
+        self.walkable = walkable
     def currentDirection(self):
         """Método que regresa la dirección del agente.
 

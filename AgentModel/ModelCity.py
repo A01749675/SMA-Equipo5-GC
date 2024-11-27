@@ -315,6 +315,47 @@ class CityModel(mesa.Model):
             22: ((14,16), (15,16)),
             23: ((16,14), (16,15)),
         }
+
+        self.walkableStreets = [
+            (2, 4),
+            (2, 5),
+            (6, 2),
+            (7, 2),
+            (11, 4),
+            (11, 5),
+            (6, 7),
+            (7, 7),
+            (12, 7),
+            (13, 7),
+            (14, 7),
+            (15, 7),
+            (18, 7),
+            (19, 7),
+            (18, 2),
+            (19, 2),
+            (16, 8),
+            (16, 9),
+            (16, 10),
+            (16, 11),
+            (16, 16),
+            (16, 17),
+            (21, 16),
+            (21, 17),
+            (12, 12),
+            (13, 12),
+            (14, 12),
+            (15, 12),
+            (6, 16),
+            (7, 16),
+            (6, 21),
+            (7, 21),
+            (8, 17),
+            (8, 18),
+            (11, 8),
+            (11, 9),
+            (11, 10),
+            (11, 11)
+            ]
         
         self.streetDirections = {
             1: {"N": False, "S": True, "E": False, "W": False},
@@ -427,6 +468,12 @@ class CityModel(mesa.Model):
                 for y in range(ymin, ymax+1):
                     agent = Street(self.next_id(), self, street, self.streetDirections[street])
                     self.grid.place_agent(agent, (x-1, (self.HEIGHT)-y))
+
+        for street in self.walkableStreets:
+            cell = self.grid.get_cell_list_contents([street])
+            for c in cell:
+                if isinstance(c, Street):
+                    c.walkable = True
     
     def addCar(self):
         """Añadir carros a la cuadrícula."""
