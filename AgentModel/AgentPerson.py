@@ -41,11 +41,13 @@ class Persona(mesa.Agent):
         Método que simula la salida de la persona del bus en la simulación.
         """
         self.model.grid.move_agent(self,self.Bus.pos)
+        print("Saliendo del bus"+str(self.pos))
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
         for c in cell:
             if isinstance(c, BusStop):
                 self.model.grid.move_agent(self, c.pos)
+                print("Llegue a la parada"+str(c.pos))
                 break
         self.inBus = False
         self.Bus.people.remove(self)
@@ -60,7 +62,7 @@ class Persona(mesa.Agent):
         Método que simula el movimiento de la persona en la simulación.
         """
 
-        if not self.waiting or self.justExited:
+        if not self.waiting:
             current_cell = self.model.grid.get_cell_list_contents(self.pos)
             print("Caminandoooo")
 
@@ -128,12 +130,16 @@ class Persona(mesa.Agent):
 
             if direccion == "der":
                 self.model.grid.move_agent(self, neighbors[3])
+                print("Derecha"+str(neighbors[3]))
             elif direccion == "izq":
                 self.model.grid.move_agent(self, neighbors[0])
+                print("Izquierda"+str(neighbors[0]))
             elif direccion == "up":
                 self.model.grid.move_agent(self, neighbors[2])
+                print("Arriba"+str(neighbors[2]))
             elif direccion == "down":
                 self.model.grid.move_agent(self, neighbors[1])
+                print("Abajo"+str(neighbors[1]))
 
         elif self.waiting and not self.justExited:
             print("Esperando")
@@ -325,17 +331,13 @@ class Persona(mesa.Agent):
         """
         Método que simula el paso de la persona en la simulación.
         """
-        print("Steppp"+str(self.justExited))
-        if self.justExited:
-            self.exitCount -= 1
-            if self.exitCount == 0:
-                self.justExited = False
-                self.exitCount = 2
 
         if not self.inBus:
 
-            if not self.crossing or self.justExited:
-                self.caminar()
+            if not self.crossing:
+                if self.exitCount != 2 or not self.justExited:
+                    print("Caminandoooooooooooooooooooooooo"+str(self.exitCount)+str(self.justExited))
+                    self.caminar()
                 self.justCrossed = False
             else:
                 neigborhood = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
@@ -354,6 +356,13 @@ class Persona(mesa.Agent):
                 #print("me trabeeeeeee o estoy cruzando bien")
                 #print(self.waitingLightOrCar)
                 #print(self.streetDir)
+
+            print("Steppp" + str(self.justExited))
+            if self.justExited:
+                self.exitCount -= 1
+                if self.exitCount == 0:
+                    self.justExited = False
+                    self.exitCount = 2
 
         else:
             if not self.justExited:
