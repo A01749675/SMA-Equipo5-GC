@@ -35,9 +35,24 @@ class Persona(mesa.Agent):
         from AgentBus import AgentBus  # Lazy import here
         return isinstance(obj, AgentBus)
     
-    def is_agent_car(self, obj):
-        from SmartAgentCar import SmartCar  # Lazy import here
-        return isinstance(obj, SmartCar)
+    def getOutBus(self):
+        """
+        Método que simula la salida de la persona del bus en la simulación.
+        """
+        neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+        cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
+        for c in cell:
+            if isinstance(c, Building):
+                if c.walkable:
+                    self.model.grid.move_agent(self, c.pos)
+                    break
+        self.inBus = False
+        self.Bus.people.remove(self)
+        self.Bus = None
+        self.justGotIn = False
+        self.waiting = False
+        self.waitingTime = 20
+        self.justExited = True
     
     def caminar(self):
         """
@@ -275,7 +290,7 @@ class Persona(mesa.Agent):
         """
         Método que simula el cruce de la persona en la simulación.
         """
-        print("Cruzando "+str(self.streetDir))
+        #print("Cruzando "+str(self.streetDir))
         cell = self.model.grid.get_cell_list_contents(self.pos)
         for c in cell:
             if isinstance(c, Street):
@@ -292,18 +307,18 @@ class Persona(mesa.Agent):
                     self.streetDir = None
                     self.onStreet = False
                     return
-        print("Cruzando2222 "+str(self.streetDir))
+        #print("Cruzando2222 "+str(self.streetDir))
         if self.streetDir == "up":
-            print("Up")
+            #print("Up")
             self.model.grid.move_agent(self, (self.pos[0], self.pos[1] + 1))
         elif self.streetDir == "down":
-            print("Down")
+            #print("Down")
             self.model.grid.move_agent(self, (self.pos[0], self.pos[1] - 1))
         elif self.streetDir == "left":
-            print("Left")
+            #print("Left")
             self.model.grid.move_agent(self, (self.pos[0] - 1, self.pos[1]))
         elif self.streetDir == "right":
-            print("Right")
+            #print("Right")
             self.model.grid.move_agent(self, (self.pos[0] + 1, self.pos[1]))
         pass
 
@@ -313,7 +328,8 @@ class Persona(mesa.Agent):
         """
         if not self.inBus:
 
-            if not self.crossing:
+            if not self.crossing or self.justExited:
+                self.justExited = False
                 self.caminar()
                 self.justCrossed = False
             else:
@@ -335,5 +351,8 @@ class Persona(mesa.Agent):
                 #print(self.streetDir)
 
         else:
-            print("Subscrito al bus")
-            self.subscribedToBus()
+            if not self.justExited:
+                print("Subscrito al bus")
+                print(self.Bus)
+                print(self.inBus)
+                self.subscribedToBus()
