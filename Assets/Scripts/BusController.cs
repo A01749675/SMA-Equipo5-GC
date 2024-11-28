@@ -149,6 +149,7 @@ public class BusController : MonoBehaviour
     public void setAngle(string direction, int id)
     {
         if(started){
+            //Debug.Log("Set angle "+direction + " id" + id);
             GameObject bus = buses[id];
             Movement2 movement = bus.GetComponent<Movement2>();
             movement.setAngle(direction);
@@ -157,6 +158,7 @@ public class BusController : MonoBehaviour
             movement.getStarted = true;
         }
         else{
+            Debug.Log("Set angle "+direction + " id" + id);
             startangle.Add(direction);
         }
     }
