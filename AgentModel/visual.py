@@ -143,7 +143,7 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 10}
+    {"numAgents": 15}
 )
 
 server.port = 3900
