@@ -6,19 +6,9 @@ from ModelCity import CityModel
 PORT = 8000
 app = Flask(__name__,static_url_path='')
 
-model = CityModel(10)
+model = CityModel(5)
 
-@app.route('/carData',methods=['GET','POST'])
-def getCarData():
-    model.step()
-    print(model.getCarData())
-    return jsonify(model.getCarData())
-@app.route('/stoplightData',methods=['GET','POST'])
-def getStoplight():
-    model.step()
-    return jsonify(model.getStopLight())
-
-@app.route('/allData',methods=['GET','POST'])
+@app.route('/allData',methods=['GET'])
 def getAllData():
     model.step()
     return jsonify(model.getAllData())

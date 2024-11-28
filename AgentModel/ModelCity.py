@@ -422,7 +422,7 @@ class CityModel(mesa.Model):
         self.addStoplights()
         self.addCar()
         self.addTwoDirStreet()
-        self.addPedestrians(1)
+        self.addPedestrians()
         self.addBusStop()
         self.addbuses()
         
@@ -500,7 +500,7 @@ class CityModel(mesa.Model):
 
     def addbuses(self):
         """Añadir autobuses a la cuadrícula."""
-        for i in range(5):
+        for i in range(self.numAgents):
             bus = AgentBus(self.next_id(), self, i+1,i+1)
             self.schedule.add(bus)
             self.grid.place_agent(bus, self.busStopFirst[i+1])
@@ -513,8 +513,8 @@ class CityModel(mesa.Model):
             agent = AgentStreetDir(self.next_id(),self,street,self.twoDirSteetsDirections[street])
             self.grid.place_agent(agent,(x-1,self.HEIGHT-y))
 
-    def addPedestrians(self, numPedestrians):
-        for i in range (numPedestrians):
+    def addPedestrians(self,):
+        for i in range (self.numAgents):
             peaton = True
             agent = Persona(i+1, self)
             self.schedule.add(agent)
