@@ -514,7 +514,7 @@ class CityModel(mesa.Model):
             self.grid.place_agent(agent,(x-1,self.HEIGHT-y))
 
     def addPedestrians(self,):
-        for i in range (self.numAgents-4):
+        for i in range (self.numAgents):
             peaton = True
             agent = Persona(i+1, self)
             self.schedule.add(agent)
