@@ -69,7 +69,7 @@ class AgentBus(mesa.Agent):
         self.id = id
         self.route = []
         self.routeIndex = 0
-        self.currentDir = self.busStartDirs[initialBus]
+        self.currentDir = busStartDirs[initialBus]
         self.waitTime = 20
         self.waiting = False
         self.people = []
