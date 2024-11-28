@@ -36,6 +36,13 @@ busRoutes = {
     "5-1":[(1,20),(1,19),(1,18),(1,17),(1,16),(1,15),(1,14),(1,13),(1,12),(1,11),(1,10),(1,9),(1,8),(2,8),(3,8),(4,8),(5,8),(6,8),(7,8),(8,8)],
     
 }
+busStartDirs = {
+    1:"E",
+    2:"N",
+    3:"N",
+    4:"W",
+    5:"S",
+}
 
 
 busStops = {
@@ -62,7 +69,7 @@ class AgentBus(mesa.Agent):
         self.id = id
         self.route = []
         self.routeIndex = 0
-        self.currentDir = ""
+        self.currentDir = self.busStartDirs[initialBus]
         self.waitTime = 20
         self.waiting = False
         self.people = []
