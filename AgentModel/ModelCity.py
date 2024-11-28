@@ -485,7 +485,7 @@ class CityModel(mesa.Model):
     
     def addCar(self):
         """Añadir carros a la cuadrícula."""
-        for i in range(self.numAgents):
+        for i in range(self.numAgents-5):
             startingParking = self.random.choice(list(self.parkings.keys()))
             targetParking = self.random.choice(list(self.parkings.keys()))
             
@@ -514,7 +514,7 @@ class CityModel(mesa.Model):
             self.grid.place_agent(agent,(x-1,self.HEIGHT-y))
 
     def addPedestrians(self,):
-        for i in range (self.numAgents):
+        for i in range (self.numAgents-4):
             peaton = True
             agent = Persona(i+1, self)
             self.schedule.add(agent)
