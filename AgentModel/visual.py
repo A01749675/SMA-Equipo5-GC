@@ -143,7 +143,6 @@ server = mesa.visualization.ModularServer(
     CityModel,
     [grid],
     "City",
-    {"numAgents": 20}
     {"numAgents": 5}
 )
 
