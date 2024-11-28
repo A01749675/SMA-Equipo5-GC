@@ -118,5 +118,9 @@ public class VecOps
         }
         return false;
     }
+    
+    public static float Magnitude(Vector3 a){
+        return Mathf.Sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+    }
 
 }
