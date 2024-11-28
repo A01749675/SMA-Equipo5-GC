@@ -17,7 +17,7 @@ class Persona(mesa.Agent):
         self.unique_id = uniqueId
 
         self.waiting = False
-        self.waitingTime = 20
+        self.waitingTime = 15
 
         self.inBus = inBus
         self.Bus = None
@@ -52,7 +52,7 @@ class Persona(mesa.Agent):
         self.Bus = None
         self.justGotIn = False
         self.waiting = False
-        self.waitingTime = 20
+        self.waitingTime = 15
         self.justExited = True
     
     def caminar(self):
@@ -154,7 +154,7 @@ class Persona(mesa.Agent):
             if self.waitingTime == 0 and self.waiting:
                 self.waiting = False
                 self.justExited = True
-                self.waitingTime = 20
+                self.waitingTime = 15
 
 
     def subscribedToBus(self):
