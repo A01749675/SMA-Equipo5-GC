@@ -77,7 +77,7 @@ public class Movement2 : MonoBehaviour
         rotyr = VecOps.RotateYM(0);
         //////DebugLog(angle);
         //////DebugLog(roty);
-        scale= VecOps.ScaleM(new Vector3 (0.1f,0.15f,0.15f));
+        scale= VecOps.ScaleM(new Vector3 (0.08f,0.15f,0.15f));
         m =  busTranslate *roty*scale;
         started = false;
         //////DebugLog(m);

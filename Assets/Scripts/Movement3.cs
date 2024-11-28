@@ -232,7 +232,7 @@ public class Movement3 : MonoBehaviour
                                 rotate_right();
                                 //////DebugLog("RIIIIIIIIGHT 1");
                             }
-                            if (AproximadamenteIgual(angle,objectiveAngle,3)){
+                            if (AproximadamenteIgual(angle,objectiveAngle,6)){
                                 angle = objectiveAngle;
                             }
                             ////DebugLog("Rotar a " + objectiveAngle);
@@ -341,7 +341,7 @@ public class Movement3 : MonoBehaviour
                             ////DebugLog("Rotar a " + objectiveAngle);
                             //roty=VecOps.RotateYM(objectiveAngle);
                             //angle = objectiveAngle;
-                            if (AproximadamenteIgual(angle,objectiveAngle,3)){
+                            if (AproximadamenteIgual(angle,objectiveAngle,6)){
                                 angle = objectiveAngle;
                             }
                             
@@ -380,14 +380,14 @@ public class Movement3 : MonoBehaviour
 
     void rotate_left()
     {
-        angle-=4;
-        roty *= VecOps.RotateYM(-4); // Rotación acumulativa
+        angle-=7;
+        roty *= VecOps.RotateYM(-7); // Rotación acumulativa
     }
 
     void rotate_right()
     {
-        angle+=4;
-        roty *= VecOps.RotateYM(4); // Rotación acumulativa
+        angle+=7;
+        roty *= VecOps.RotateYM(7); // Rotación acumulativa
     }
 
     bool AproximadamenteIgual(float valor1, float valor2, float tolerancia = 0.001f)
