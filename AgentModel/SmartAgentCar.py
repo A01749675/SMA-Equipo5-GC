@@ -131,6 +131,10 @@ class SmartCar(mesa.Agent):
         if self.justStarted:
             self.exitParkingLot()
             
+        if self.pos == self.target:
+            self.inDestination = True
+            return
+            
         # Range of positions where there could be a stoplight
         cellsAhead = 3
         if self.currentDir == "N":
@@ -261,7 +265,7 @@ class SmartCar(mesa.Agent):
                         return
                     if isinstance(c, Parking):
                         if c.parkingId == self.targetParking:
-                            self.inDestination = True
+                            #self.inDestination = True
                             route = str(self.previousParking) + "-" + str(c.parkingId)
                             self.waze.addDirection(route, [p for p in self.path if p is not None]+[neighbor])
                             self.waze.addParkingNeighbors(self.previousParking, c.parkingId, [p for p in self.path if p is not None] + [neighbor])
@@ -393,7 +397,7 @@ class SmartCar(mesa.Agent):
 
             # If the target position is reached
             if nextPos == self.target:
-                self.inDestination = True
+                #self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
                 return
 
@@ -428,7 +432,7 @@ class SmartCar(mesa.Agent):
                         cell = self.model.grid.get_cell_list_contents([neighbor])
                         for c in cell:
                             if isinstance(c, Parking) and c.parkingId == self.targetParking:
-                                self.inDestination = True
+                                #self.inDestination = True
                                 self.model.grid.move_agent(self, neighbor)
                                 return  
                     self.foundRoute = False
@@ -449,7 +453,7 @@ class SmartCar(mesa.Agent):
                 cell = self.model.grid.get_cell_list_contents([neighbor])
                 for c in cell:
                     if isinstance(c, Parking) and c.parkingId == self.targetParking:
-                        self.inDestination = True
+                        #self.inDestination = True
                         self.model.grid.move_agent(self, neighbor)
                         return
             if not self.inDestination:
@@ -474,3 +478,5 @@ class SmartCar(mesa.Agent):
             # print(self.previousParking)
             # print(self.waze.graphDirections)
             # print(self.waze.parkingGraph)
+        else:
+            print("Agent has reached destination")
