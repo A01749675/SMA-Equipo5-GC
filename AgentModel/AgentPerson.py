@@ -136,7 +136,7 @@ class Persona(mesa.Agent):
 
             self.justExited = False
 
-        else:
+        elif self.waiting:
             print("Esperando")
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
             cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
