@@ -352,7 +352,7 @@ class SmartCar(mesa.Agent):
                     self.directions = []
                     
             if nextPos == self.target:
-                self.inDestination = True
+                #self.inDestination = True
                 self.model.grid.move_agent(self, nextPos)
                 return
                 
@@ -382,7 +382,7 @@ class SmartCar(mesa.Agent):
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
                 if isinstance(c, Parking) and c.parkingId == self.targetParking:
-                    self.inDestination = True
+                    #self.inDestination = True
                     self.model.grid.move_agent(self, neighbor)
                     return  
                 
@@ -410,7 +410,7 @@ class SmartCar(mesa.Agent):
                 
                 if isinstance(c, Parking):
                     if c.parkingId == self.targetParking:
-                        self.inDestination = True
+                        #self.inDestination = True
                         self.model.grid.move_agent(self, nextPos)
                         return
                 
