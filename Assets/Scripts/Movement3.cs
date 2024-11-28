@@ -48,6 +48,7 @@ public class Movement3 : MonoBehaviour
     bool startFinished;
     public PedController pedController;
     bool crossing;
+    bool InBus;
 
     
     
@@ -98,6 +99,7 @@ public class Movement3 : MonoBehaviour
         once = false;
         startFinished=true;
         crossing = false;
+        InBus = false;
         
     }
 
@@ -571,7 +573,11 @@ public class Movement3 : MonoBehaviour
 
     }
     public void setInBus(bool inBus){
+        if(inBus != InBus){
+            crossing = true;
+        }
         ped.SetActive(!inBus);
+        this.InBus = inBus;
     }
 }
 
