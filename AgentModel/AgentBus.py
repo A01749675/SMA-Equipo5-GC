@@ -176,7 +176,6 @@ class AgentBus(mesa.Agent):
                 if not person.justGotIn:
                     print(str(person.unique_id)+" Me bajo")
                     person.subscribedToBus()
-                    person.justGotIn = True
                     person.getOutBus()
             self.route=[]
             self.waitTime -= 1

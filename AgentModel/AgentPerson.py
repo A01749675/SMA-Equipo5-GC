@@ -23,6 +23,7 @@ class Persona(mesa.Agent):
         self.Bus = None
         self.justExited = False
         self.justGotIn = False
+        self.exitCount = 2
 
         self.crossing = False
         self.streetDir = None
@@ -39,13 +40,13 @@ class Persona(mesa.Agent):
         """
         Método que simula la salida de la persona del bus en la simulación.
         """
+        self.model.grid.move_agent(self,self.Bus.pos)
         neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
         cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
         for c in cell:
-            if isinstance(c, Building):
-                if c.walkable:
-                    self.model.grid.move_agent(self, c.pos)
-                    break
+            if isinstance(c, BusStop):
+                self.model.grid.move_agent(self, c.pos)
+                break
         self.inBus = False
         self.Bus.people.remove(self)
         self.Bus = None
@@ -59,12 +60,12 @@ class Persona(mesa.Agent):
         Método que simula el movimiento de la persona en la simulación.
         """
 
-        if not self.waiting:
+        if not self.waiting or self.justExited:
             current_cell = self.model.grid.get_cell_list_contents(self.pos)
             print("Caminandoooo")
 
             for c in current_cell:
-                if isinstance(c,BusStop):
+                if isinstance(c,BusStop) and not self.justExited:
                     self.waiting = True
                     return
 
@@ -134,9 +135,7 @@ class Persona(mesa.Agent):
             elif direccion == "down":
                 self.model.grid.move_agent(self, neighbors[1])
 
-            self.justExited = False
-
-        elif self.waiting:
+        elif self.waiting and not self.justExited:
             print("Esperando")
             neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
             cell = self.model.grid.get_cell_list_contents(neighbors[0]) + self.model.grid.get_cell_list_contents(neighbors[1]) + self.model.grid.get_cell_list_contents(neighbors[2]) + self.model.grid.get_cell_list_contents(neighbors[3])
@@ -326,10 +325,16 @@ class Persona(mesa.Agent):
         """
         Método que simula el paso de la persona en la simulación.
         """
+        print("Steppp"+str(self.justExited))
+        if self.justExited:
+            self.exitCount -= 1
+            if self.exitCount == 0:
+                self.justExited = False
+                self.exitCount = 2
+
         if not self.inBus:
 
             if not self.crossing or self.justExited:
-                self.justExited = False
                 self.caminar()
                 self.justCrossed = False
             else:
