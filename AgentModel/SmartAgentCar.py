@@ -132,6 +132,7 @@ class SmartCar(mesa.Agent):
             self.exitParkingLot()
             
         if self.pos == self.target:
+            
             self.inDestination = True
             return
             
@@ -377,8 +378,13 @@ class SmartCar(mesa.Agent):
         """
         Follow the best path to reach the target destination. Handle obstacles dynamically and retry blocked positions.
         """
-        neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+        neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
+                     (self.pos[0] - 1, self.pos[1]),  # Left
+                     (self.pos[0], self.pos[1] + 1),  # Up
+                     (self.pos[0], self.pos[1] - 1)]  # Down
         for neighbor in neighbors:
+            if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
+                continue
             cell = self.model.grid.get_cell_list_contents([neighbor])
             for c in cell:
                 if isinstance(c, Parking) and c.parkingId == self.targetParking:
@@ -427,8 +433,14 @@ class SmartCar(mesa.Agent):
                 if self.blockedPositions[nextPos] > 10:
                     print(f"Position {nextPos} is permanently blocked. Recomputing path...")
                     
-                    neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+                    neighbors =[(self.pos[0] + 1, self.pos[1]),  # Right
+                                    (self.pos[0] - 1, self.pos[1]),  # Left
+                                    (self.pos[0], self.pos[1] + 1),  # Up
+                                    (self.pos[0], self.pos[1] - 1)]  # Down
+                    
                     for neighbor in neighbors:
+                        if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
+                            continue
                         cell = self.model.grid.get_cell_list_contents([neighbor])
                         for c in cell:
                             if isinstance(c, Parking) and c.parkingId == self.targetParking:
@@ -448,8 +460,14 @@ class SmartCar(mesa.Agent):
 
         # If no path remains, check neighbors heuristically
         if not self.bestPath and not self.inDestination:
-            neighbors = self.model.grid.get_neighborhood(self.pos, moore=False, include_center=False)
+            neighbors = [(self.pos[0] + 1, self.pos[1]),  # Right
+                            (self.pos[0] - 1, self.pos[1]),  # Left
+                            (self.pos[0], self.pos[1] + 1),  # Up
+                            (self.pos[0], self.pos[1] - 1)]  # Down
+            
             for neighbor in neighbors:
+                if neighbor[0] < 0 or neighbor[0] > self.model.grid.width - 1 or neighbor[1] < 0 or neighbor[1] > self.model.grid.height - 1:
+                    continue
                 cell = self.model.grid.get_cell_list_contents([neighbor])
                 for c in cell:
                     if isinstance(c, Parking) and c.parkingId == self.targetParking:
@@ -479,4 +497,6 @@ class SmartCar(mesa.Agent):
             # print(self.waze.graphDirections)
             # print(self.waze.parkingGraph)
         else:
+            if self.pos != self.target:
+                self.pos = self.target
             print("Agent has reached destination")
