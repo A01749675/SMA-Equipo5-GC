@@ -289,7 +289,9 @@ class SmartCar(mesa.Agent):
                     if isinstance(c, SmartCar):
                         continue
                     if isinstance(c, Persona):
-                        return
+                        if c.inBus:
+                            continue
+ 
                     if self.is_agent_bus(c):
                         continue
                     
@@ -326,10 +328,13 @@ class SmartCar(mesa.Agent):
                     continue
                 if isinstance(c, SmartCar):
                     return
+                if isinstance(c,BusStop):
+                    return
                 if self.is_agent_bus(c):
                     return
                 if isinstance(c, Persona):
-                    return
+                    if not c.inBus:
+                        return
                 if isinstance(c, Stoplight):
                     if c.state == "Red":
                         return

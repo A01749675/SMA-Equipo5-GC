@@ -500,7 +500,7 @@ class CityModel(mesa.Model):
 
     def addbuses(self):
         """Añadir autobuses a la cuadrícula."""
-        for i in range(self.numAgents):
+        for i in range(5):
             bus = AgentBus(self.next_id(), self, i+1,i+1)
             self.schedule.add(bus)
             self.grid.place_agent(bus, self.busStopFirst[i+1])
