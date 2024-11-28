@@ -73,9 +73,9 @@ public class Connection : MonoBehaviour
         //Debug.Log("Requesting all data");
         //addingPos = true;
         //move.waitingForNextPos = true;
-        WWWForm form = new WWWForm();
+        //WWWForm form = new WWWForm();
         string url = "http://localhost:8000/allData";
-        using (UnityWebRequest www = UnityWebRequest.Post(url,form))
+        using (UnityWebRequest www = UnityWebRequest.Get(url))
         {
             www.downloadHandler = new DownloadHandlerBuffer();
             www.SetRequestHeader("Content-Type","application/json");
